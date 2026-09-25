@@ -2,7 +2,7 @@
 
 Contract version **0.1.0**. Updated by ATLAS on 2026-09-25.
 
-The authoritative docs exist, the repository layout exists, and the shared schemas exist. The first-milestone phone call is not implemented. ECHO has landed media parsing, token checks, deterministic mock TTS, and hot-path timing (SB-004, SB-006, SB-020). Call list and detail read stored rows (SB-018). Status callbacks update session state and publish telephony events (SB-003). Campaign reads still advertise the contracts and stop there.
+The authoritative docs exist, the repository layout exists, and the shared schemas exist. The first-milestone phone call is not implemented. ECHO has landed media parsing, token checks, mock STT finals, deterministic mock TTS, and hot-path timing (SB-004, SB-005, SB-006, SB-020). Call list and detail read stored rows (SB-018). Status callbacks update session state and publish telephony events (SB-003). Campaign reads still advertise the contracts and stop there.
 
 ## What runs today
 
@@ -10,15 +10,15 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | --- | --- |
 | Test call reaches a webhook | `POST /v1/telephony/voice/mock` accepts a signed or dev-bypass body |
 | Call session created | Enrolled `POST /v1/telephony/voice/mock` inserts `obs.call_session` (UUIDv5) in `ringing`. `POST /v1/telephony/status/mock` moves that row forward |
-| Audio streamed | WebSocket checks the token with the API, parses `start` / `media` / `stop`, and counts binary frames as audio. It does not run STT |
-| Speech recognized | `MockStt` returns no text |
+| Audio streamed | WebSocket checks the token with the API, parses `start` / `media` / `stop`, and counts binary frames as audio. Each accepted frame is passed to mock STT. The socket does not select a reply or synthesize |
+| Speech recognized | `MockStt` maps one fixture frame to one final `SttEvent`. The gateway publishes `speech.segment.final`. Other frames publish nothing |
 | Response selected | `FixedResponseSelector` exists. The socket does not call it |
 | TTS and audio to caller | `MockTts` returns 160 deterministic PCMU bytes. The socket does not call it |
 | Transcript stored | No projector |
 | Intelligence extracted | `POST /v1/internal/extract` proposes `callback_number` when a segment contains an E.164 |
 | Call on the dashboard | `GET /v1/calls` and `GET /v1/calls/{id}` return stored rows. The Vue app still uses mock fixtures until SB-013 |
 
-`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. Campaign routes still return an empty list and `404`. The media gateway can publish and does not open Postgres. The dashboard does not open either client.
+`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. Campaign routes still return an empty list and `404`. The media gateway publishes `speech.segment.final` for the mock STT fixture and does not open Postgres. The dashboard does not open either client.
 
 ## Ownership map
 
@@ -635,3 +635,46 @@ This handoff sits on the ATLAS skeleton. It does not replace the handoff above. 
 - SB-018 can read the session this route now updates.
 - SB-005 / SB-008 publish from `switchboard_media.events.event_bus`. Do not add a second Redis writer.
 - A future projector for `api.projector` should no-op when the session is already in the event's state.
+
+## HANDOFF — ECHO — 2026-09-25T23:41:39Z
+
+### Completed
+
+- SB-005. `MockStt.push_audio` maps `MOCK_STT_FIXTURE_FRAME` (160 bytes of `0xFF`, one 20 ms PCMU frame) to one final `SttEvent`: text `fixture caller segment`, `is_final` true, `stt_confidence` `1.0`, offsets `0` and `20`. Every other payload returns `[]`. The mock does not decode samples and does not call a provider.
+- The media socket passes each accepted audio frame to `recognize_frame`. A non-empty final is published as `speech.segment.final` through `switchboard_media.events.event_bus` (`EventBus.publish` / `build_envelope` on `switchboard.events`). Producer is `media_gateway`. Speaker is `caller`. `sequence` starts at `0` per socket and advances only when the publish is not `failed`.
+- A Redis failure returns `PublishResult.failed`, logs `event_publish_failed`, and leaves the socket up. The transcript text and the audio bytes are not logged and are not fields on the stream entry.
+- The socket does not call `respond_to_audio`. Selector and TTS on the socket remain SB-008.
+
+### Files changed
+
+- `apps/media_gateway/switchboard_media/ports.py`, `recognition.py`, `main.py`, `hotpath.py`
+- `tests/test_echo_stt.py`
+- `docs/API_CONTRACTS.md`, `docs/STATUS.md`, `docs/echo/README.md`, `docs/SECURITY.md` (STT failure-mode cell only)
+
+### Interfaces added-changed
+
+- `MockStt` now returns one final for the fixture frame. `SttPort.push_audio` is unchanged.
+- `recognize_frame(call_session_id, payload, *, sequence, stt=None, bus=None) -> RecognitionResult`. `RecognitionResult.events` is every event from the port. `next_sequence` counts published finals.
+- Publish path: `build_envelope` then `EventBus.publish`. No private `XADD`. No conversation-package change.
+
+### Tests
+
+- `tests/test_echo_stt.py`: fixture frame is one final; other frames publish nothing; partials and empty text are not published; two finals take sequence `0` then `1`; a bad Redis URL does not raise or advance sequence; the socket publishes `speech.segment.final` that `api.projector` and `intelligence.extractor` can read.
+- `make test`: 130 passed, 2 skipped. The skips are the existing SB-014 and operator-auth tripwires. The socket case uses Redis db 15 and flushes that db.
+
+### Dependencies
+
+- SB-004 media parser and SB-016 `EventBus` on main `5d4bf44`.
+- No live STT account. The fixture text is the mock stand-in, not a decode of the PCMU bytes.
+
+### Blocking issues
+
+- None for SB-005.
+- SB-008 is still open. The socket already publishes the segment. The next change should take `RecognitionResult.events` and run the selector and TTS from that text. It should not call `push_audio` a second time on the same frame, or the caller will be recognized twice.
+- Transcript `sequence` is per socket, starting at `0`. A second socket on the same call can publish sequence `0` again. The milestone uses one stream per call.
+- `docs/SECURITY.md` still says `MockTts` returns empty bytes. That sentence is stale after SB-006. ECHO updated only the STT row in this change.
+
+### Recommended next work
+
+- ECHO SB-008: after `recognize_frame` returns a final, call LOKI's `ResponseSelector` and `MockTts`, write the audio to the socket, and publish `conversation.response.selected` and `conversation.turn.recorded` through the same `event_bus()`.
+- SHERLOCK SB-010 can consume `speech.segment.final` from `ConsumerGroup.INTELLIGENCE_EXTRACTOR`. The stored row's `provider` (`mock-stt` in `docs/DATA_MODEL.md`) is the projector's field. It is not on `SpeechSegmentPayload`.

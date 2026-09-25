@@ -62,9 +62,11 @@ def respond_to_audio(
 ) -> bytes:
     """Run STT, then LOKI's selector, then TTS. Return the synthesized bytes.
 
-    Mock STT returns no text, so the default call stops after STT and returns `b""`.
+    `MockStt` returns no text for any payload other than the fixture frame, so
+    that default call stops after STT and returns `b""`. The fixture frame is
+    one final, so the call continues through the selector and TTS.
     Durations are emitted after the audio bytes exist. If that emit raises, the
-    bytes are still returned.
+    bytes are still returned. This function does not publish events.
     """
 
     stt_port = _stt if stt is None else stt

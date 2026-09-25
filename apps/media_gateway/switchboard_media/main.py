@@ -1,7 +1,8 @@
 """Media WebSocket. Parses switchboard.media.v1 and checks stream tokens.
 
-Inbound audio is counted against the call budget, then dropped. STT and
-respond_to_audio are not called from this socket yet (SB-005, SB-008).
+Inbound audio is counted against the call budget, passed to mock STT, and
+dropped. A fixture final is published as speech.segment.final.
+respond_to_audio is not called from this socket yet (SB-008).
 """
 
 import time
@@ -20,6 +21,7 @@ from switchboard_media.protocol import (
     MediaSession,
     frame_from_websocket_message,
 )
+from switchboard_media.recognition import recognize_frame
 from switchboard_media.settings import get_settings
 from switchboard_media.tokens import ApiStreamTokenValidator, StreamTokenValidator
 
@@ -72,6 +74,7 @@ async def streams(
     log_info("media_socket_ready", call_session_id=str(result.call_session_id))
     session = MediaSession(result.call_session_id)
     budget = new_budget()
+    transcript_sequence = 0
     try:
         while True:
             message = await websocket.receive()
@@ -88,7 +91,14 @@ async def streams(
                 await websocket.close(code=CLOSE_POLICY_VIOLATION)
                 return
             outcome = frame_from_websocket_message(session, message)
-            # `outcome.audio` is not stored. SB-005 will pass it to STT.
+            if outcome.audio is not None:
+                # Audio bytes are not stored. A final is published; the samples are not.
+                recognized = recognize_frame(
+                    session.call_session_id,
+                    outcome.audio.payload,
+                    sequence=transcript_sequence,
+                )
+                transcript_sequence = recognized.next_sequence
             if outcome.close_code is not None:
                 await _reject(
                     websocket,

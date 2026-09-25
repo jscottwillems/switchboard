@@ -1,6 +1,7 @@
 """STT and TTS ports. Owner: ECHO.
 
-Mock STT returns no recognition (SB-005). Mock TTS returns one local PCMU frame.
+Mock STT maps one fixture frame to one final segment (SB-005).
+Mock TTS returns one local PCMU frame.
 """
 
 import hashlib
@@ -19,6 +20,14 @@ MOCK_TTS_ENCODING = TELEPHONY_DEFAULT_ENCODING
 MOCK_TTS_SAMPLE_RATE_HZ = TELEPHONY_DEFAULT_SAMPLE_RATE_HZ
 MOCK_TTS_FRAME_MS = 20
 MOCK_TTS_FRAME_BYTES = MOCK_TTS_SAMPLE_RATE_HZ * MOCK_TTS_FRAME_MS // 1000
+
+# One 20 ms PCMU frame of 0xFF. The mock does not decode it.
+# Any other payload, including a shorter run of 0xFF, returns no transcript.
+MOCK_STT_FIXTURE_FRAME = b"\xff" * MOCK_TTS_FRAME_BYTES
+MOCK_STT_FINAL_TEXT = "fixture caller segment"
+MOCK_STT_CONFIDENCE = 1.0
+MOCK_STT_START_OFFSET_MS = 0
+MOCK_STT_END_OFFSET_MS = MOCK_TTS_FRAME_MS
 
 
 class SttEvent(ContractModel):
@@ -40,9 +49,25 @@ class TtsPort(Protocol):
 
 
 class MockStt:
+    """Offline exact-match recognizer. No network and no account.
+
+    `MOCK_STT_FIXTURE_FRAME` returns one final segment. Every other payload
+    returns `[]`, so arbitrary audio does not become a transcript.
+    `stt_confidence` is the provider score for that exact match.
+    """
+
     def push_audio(self, payload: bytes) -> list[SttEvent]:
-        del payload
-        return []
+        if payload != MOCK_STT_FIXTURE_FRAME:
+            return []
+        return [
+            SttEvent(
+                text=MOCK_STT_FINAL_TEXT,
+                is_final=True,
+                stt_confidence=MOCK_STT_CONFIDENCE,
+                start_offset_ms=MOCK_STT_START_OFFSET_MS,
+                end_offset_ms=MOCK_STT_END_OFFSET_MS,
+            )
+        ]
 
 
 class MockTts:

@@ -149,7 +149,7 @@ Base URL locally: `http://localhost:8001`.
 
 Protocol id: `switchboard.media.v1`.
 
-The gateway calls `POST /v1/internal/stream-tokens/validate` and accepts the socket only when `valid` is true. A missing or rejected token closes with code `1008` before accept. The first server message is `StreamReady`. Frame rules, the PCMU default, the outbound buffer, and barge-in `clear` are specified under [ECHO media requirements](#echo-media-requirements). The socket does not run STT (`SB-005`).
+The gateway calls `POST /v1/internal/stream-tokens/validate` and accepts the socket only when `valid` is true. A missing or rejected token closes with code `1008` before accept. The first server message is `StreamReady`. Frame rules, the PCMU default, the outbound buffer, and barge-in `clear` are specified under [ECHO media requirements](#echo-media-requirements). The socket passes accepted audio to mock STT and publishes `speech.segment.final` for the fixture frame. It does not call `respond_to_audio` (`SB-008`).
 
 First server message:
 
@@ -207,7 +207,22 @@ Text frames are validated as `InboundMediaMessage`. Unknown fields, unknown `eve
 
 MVP telephony default is `audio/pcmu`, 8000 Hz, mono. `MockTts` emits that default. BELL's carrier parser translates carrier audio to this encoding before the bytes reach the socket.
 
-Audio bytes are counted for the life of the socket and then dropped. They are not written to logs, Redis, or Postgres. STT is not called yet (`SB-005`).
+Audio bytes are counted for the life of the socket, passed to `SttPort.push_audio`, and then dropped. They are not written to logs, Redis, or Postgres.
+
+### Mock STT
+
+`MockStt.push_audio` is local and offline. It does not decode the samples and it does not call a provider.
+
+| Input | Output |
+| --- | --- |
+| `MOCK_STT_FIXTURE_FRAME`, 160 bytes of `0xFF` (one 20 ms `audio/pcmu` frame) | One final `SttEvent` |
+| any other payload, including empty | `[]` |
+
+That final event has text `fixture caller segment`, `is_final` true, `stt_confidence` `1.0`, `start_offset_ms` `0`, and `end_offset_ms` `20`. `stt_confidence` is the mock provider's exact-match score. It is not a Switchboard interpretation confidence.
+
+The socket calls `recognize_frame` for each accepted audio frame. Each final with non-empty text is published as `speech.segment.final` through `switchboard_media.events.event_bus`. `build_envelope` fills `producer: media_gateway`. The payload is `SpeechSegmentPayload` with `speaker: caller` and `is_final: true`. `sequence` starts at `0` on the socket and advances only after a publish that is not `failed`. A Redis failure is `PublishResult.failed`. It does not raise and it does not close the socket. The audio bytes are not fields on the envelope.
+
+The socket does not call `respond_to_audio` (`SB-008`).
 
 ### Outbound buffer and barge-in `clear`
 
@@ -236,11 +251,11 @@ Event `hotpath_timing`. Fields: `stt_ms`, plus `select_ms` and `tts_ms` when tho
 
 If that emit raises, the gateway logs `hotpath_timing_failed` when the logger still accepts a call, and `respond_to_audio` still returns the audio bytes from TTS.
 
-`MockStt` still returns no text, so the default call returns `b""` after the STT stage. Tests can pass another `SttPort` in-process. The selector remains LOKI's `ResponseSelector`. The WebSocket does not call `respond_to_audio` yet (`SB-008`).
+`MockStt` returns one final for the fixture frame and `[]` for every other payload, so a non-fixture call to `respond_to_audio` returns `b""` after the STT stage. The fixture frame continues through the selector and TTS inside `respond_to_audio`. Tests can pass another `SttPort` in-process. The selector remains LOKI's `ResponseSelector`. The WebSocket does not call `respond_to_audio` (`SB-008`). `recognize_frame` is what publishes `speech.segment.final`.
 
 ### Waiting
 
-`SB-005` needs this parser and `SB-016`. `SB-008` needs `SB-004`, `SB-005`, `SB-006`, and `SB-007`.
+`SB-008` needs `SB-004`, `SB-005`, `SB-006`, and `SB-007`. `SB-005` is the fixture final and the `speech.segment.final` publish. `SB-008` is still the socket calling the selector and TTS.
 
 ## apps/intelligence
 
@@ -265,7 +280,7 @@ These are not HTTP APIs.
 | `SignatureVerifier.verify(raw_body, headers)` | `packages/telephony` | BELL | `MockSignatureVerifier` checks the mock header |
 | `InstructionRenderer.render(action, stream_url, stream_token)` | `packages/telephony` | BELL | `VoiceInstructionRenderer` builds `connect_stream`, `hangup`, and `reject`. Stream fields follow `VoiceInstruction`. The token is not placed in `stream_url`. `append_stream_token` adds the carrier query |
 | `ResponseSelector.select(ResponseRequest) -> ResponseDecision` | `packages/conversation` | LOKI | `FixedResponseSelector` returns "Could you repeat that?" with `strategy_id` `fixed.v1` and confidence `1.0` (certain it followed the rule) |
-| `SttPort.push_audio(payload) -> list[SttEvent]` | `apps/media_gateway` | ECHO | `MockStt` returns `[]` |
+| `SttPort.push_audio(payload) -> list[SttEvent]` | `apps/media_gateway` | ECHO | `MockStt` returns one final for the fixture frame and `[]` otherwise |
 | `TtsPort.synthesize(text) -> bytes` | `apps/media_gateway` | ECHO | `MockTts` returns one deterministic `audio/pcmu` frame for non-empty text |
 | `FindingExtractor.extract(segments)` | `packages/classification` | SHERLOCK | `E164FindingExtractor` proposes `callback_number`. `NullFindingExtractor` returns `[]` |
 | `CampaignCorrelator.propose(CorrelationInput)` | `packages/classification` | WATSON | `NullCampaignCorrelator` returns `[]` |
