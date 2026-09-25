@@ -1,0 +1,27 @@
+{
+  "id": "sample_call",
+  "description": "One caller turn for the offline ECHO slice. The WAV is committed telephony-style PCM. Mock STT replays utterance.transcript as streaming partials while the audio is voiced, then as the final transcript at endpoint. It is not acoustic speech recognition.",
+  "audio": {
+    "path": "sample_call.wav",
+    "container": "wav",
+    "codec": "pcm_s16le",
+    "sampleRateHz": 16000,
+    "channels": 1,
+    "bitsPerSample": 16,
+    "endianness": "little",
+    "frameDurationMs": 20
+  },
+  "utterance": {
+    "speaker": "caller",
+    "transcript": "Hi, I need to reschedule my appointment for Thursday."
+  },
+  "fixedReply": "I can help you reschedule that. What time works on Thursday?",
+  "provenance": {
+    "speech": "espeak-ng 1.51 -v en-us -s 148",
+    "text": "Hi, I need to reschedule my appointment for Thursday.",
+    "leadSilenceMs": 400,
+    "tailSilenceMs": 900,
+    "resampledWith": "ffmpeg to pcm_s16le, 16000 Hz, mono",
+    "note": "Running the slice does not require espeak-ng, ffmpeg, or an API key. The WAV in this directory is the fixture."
+  }
+}

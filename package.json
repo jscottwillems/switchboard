@@ -1,0 +1,18 @@
+{
+  "name": "switchboard",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "sample": "tsx src/echo/cli.ts",
+    "test": "tsx --test tests/echo/*.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}
