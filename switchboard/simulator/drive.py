@@ -113,6 +113,8 @@ async def _stream(media_url: str, call_id: str, packet: bytes) -> str:
         reply = json.loads(await socket.recv())
         if reply.get("type") != "media":
             raise RuntimeError(f"media stream did not return audio: {reply}")
+        if reply.get("encoding") != "audio/x-mulaw" or reply.get("sample_rate") != 8000 or reply.get("channels") != 1:
+            raise RuntimeError(f"media reply is not mulaw 8 kHz mono: {reply}")
         await socket.send(json.dumps({"type": "hangup", "reason": "caller_hangup"}))
         seen: list[str] = []
         while True:

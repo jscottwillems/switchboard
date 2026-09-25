@@ -4,6 +4,7 @@
   "timestamp_ms": 0,
   "encoding": "audio/x-mulaw",
   "sample_rate": 8000,
+  "channels": 1,
   "track": "inbound",
   "payload_b64": "AQIDBA=="
 }

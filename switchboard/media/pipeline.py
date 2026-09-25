@@ -12,11 +12,13 @@ from switchboard.models.media import InboundMediaPacket, OutboundAudioFrame
 
 class MediaPipeline(Protocol):
     async def handle_inbound(self, call_id: str, packet: InboundMediaPacket) -> OutboundAudioFrame | None:
-        """Return the next 8 kHz μ-law frame, or None to send no audio.
+        """Return the next provider-wire frame, or None to send no audio.
 
-        ``packet`` is a normalized observation. Implementations must not assume
-        a vendor websocket frame. Returning None means the gateway stays quiet
-        for this packet.
+        ``packet.payload`` is μ-law, 8 kHz, mono. The return value must be the
+        same wire format. PCM16 at 16 kHz is an ECHO-internal normalize target
+        and must be converted before it is returned here. Implementations must
+        not assume a vendor websocket frame. Returning None means the gateway
+        stays quiet for this packet.
         """
 
 

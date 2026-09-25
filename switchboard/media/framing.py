@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from typing import Never
 
 from switchboard.errors import FrameDecodeError
+from switchboard.media.wire import parse_wire_format
 from switchboard.models.media import (
     AudioCommand,
     AudioOutbound,
@@ -45,18 +46,30 @@ class SwitchboardMediaFramer(MediaFramer):
         data = _object(text)
         kind = data.get("type")
         if kind == "start":
+            encoding, sample_rate, channels = parse_wire_format(
+                encoding=data.get("encoding"),
+                sample_rate=data.get("sample_rate"),
+                channels=data.get("channels"),
+            )
             return StartCommand(
                 call_id=_optional_str(data.get("call_id")),
                 stream_id=_optional_str(data.get("stream_id")),
-                encoding=_str_or(data.get("encoding"), "audio/x-mulaw"),
-                sample_rate=_as_int(data.get("sample_rate"), 8000),
+                encoding=encoding,
+                sample_rate=sample_rate,
+                channels=channels,
             )
         if kind == "media":
+            encoding, sample_rate, channels = parse_wire_format(
+                encoding=data.get("encoding"),
+                sample_rate=data.get("sample_rate"),
+                channels=data.get("channels"),
+            )
             return AudioCommand(
                 sequence=_as_int(data.get("sequence"), 0),
                 timestamp_ms=_as_int(data.get("timestamp_ms"), 0),
-                encoding=_str_or(data.get("encoding"), "audio/x-mulaw"),
-                sample_rate=_as_int(data.get("sample_rate"), 8000),
+                encoding=encoding,
+                sample_rate=sample_rate,
+                channels=channels,
                 payload=_payload(data.get("payload_b64")),
                 track=_str_or(data.get("track"), "inbound"),
             )
@@ -81,6 +94,7 @@ class SwitchboardMediaFramer(MediaFramer):
                         "sequence": audio.sequence,
                         "encoding": audio.encoding,
                         "sample_rate": audio.sample_rate,
+                        "channels": audio.channels,
                         "payload_b64": base64.b64encode(audio.payload).decode("ascii"),
                         "source": audio.source,
                     }
@@ -141,11 +155,17 @@ def _twilio_start(data: dict[str, object]) -> StartCommand:
     if not isinstance(call_sid, str) or not call_sid:
         raise FrameDecodeError("twilio start is missing callSid")
     stream_id = stream_sid if isinstance(stream_sid, str) and stream_sid else None
+    encoding, sample_rate, channels = parse_wire_format(
+        encoding=format_map.get("encoding"),
+        sample_rate=format_map.get("sampleRate"),
+        channels=format_map.get("channels"),
+    )
     return StartCommand(
         provider_call_id=call_sid,
         stream_id=stream_id,
-        encoding=_str_or(format_map.get("encoding"), "audio/x-mulaw"),
-        sample_rate=_as_int(format_map.get("sampleRate"), 8000),
+        encoding=encoding,
+        sample_rate=sample_rate,
+        channels=channels,
     )
 
 
@@ -161,6 +181,7 @@ def _twilio_media(data: dict[str, object]) -> AudioCommand:
         timestamp_ms=_as_int(media.get("timestamp"), 0),
         encoding="audio/x-mulaw",
         sample_rate=8000,
+        channels=1,
         payload=_payload(media.get("payload")),
         track=_str_or(media.get("track"), "inbound"),
     )

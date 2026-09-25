@@ -16,7 +16,9 @@ An observation is not rewritten when a later interpretation changes. A transcrip
 
 Internal id `sb_<hex>`. Provider id is stored separately as `provider_call_id` (mock id or Twilio `CallSid`).
 
-Fields: `provider`, `from_number`, `to_number`, `direction` (`inbound` or `outbound`), `state`, timestamps, optional `stream_id`, `media_protocol`, `media_encoding`, `media_sample_rate`, packet counters, `forward_destination`, `failure_reason`, `completion_reason`, `provider_metadata`, `observation_ids`.
+Fields: `provider`, `from_number`, `to_number`, `direction` (`inbound` or `outbound`), `state`, timestamps, optional `stream_id`, `media_protocol`, `media_encoding`, `media_sample_rate`, `media_channels`, packet counters, `forward_destination`, `failure_reason`, `completion_reason`, `provider_metadata`, `observation_ids`.
+
+On an open stream the media fields are the provider wire format: `audio/x-mulaw`, `8000`, `1`.
 
 `provider_metadata` is a string map of selected carrier fields (for Twilio: account, status, direction, caller name, and city/state/zip/country when present). It is not a copy of the raw webhook. The raw webhook remains on the observation as base64.
 
@@ -26,7 +28,7 @@ States: `received`, `connected`, `media_started`, `media_ended`, `forwarded`, `c
 
 Fields: `observation_id` (`ob_<hex>`), `call_id`, `provider`, `observed_at`, `source` (`webhook`, `status`, or `media`), `content_type`, `raw_b64`, `byte_length`, `sha256`, optional `media`.
 
-`media` is envelope metadata copied from the frame: `sequence`, `timestamp_ms`, `encoding`, `sample_rate`, `track`. It is not a description of what was said.
+`media` is envelope metadata copied from the frame: `sequence`, `timestamp_ms`, `encoding`, `sample_rate`, `channels`, `track`. For MVP those format fields are μ-law, 8 kHz, mono. It is not a description of what was said.
 
 ## CallEvent
 

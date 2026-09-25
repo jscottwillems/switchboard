@@ -37,3 +37,11 @@ Webhook and audio bytes are stored as `RawObservation` (`record_type: observatio
 Status: accepted for slice 1.
 
 The repo is one Python package. There is no frontend app, worker fleet, or message bus beyond the in-process `EventBus`. New services wait until a slice needs them.
+
+## ADR-006 — Provider media wire is μ-law 8 kHz mono
+
+Status: team lock from ECHO. Do not change without ATLAS.
+
+The MVP media WebSocket, for both the mock provider and Twilio Media Streams, carries `audio/x-mulaw` at 8000 Hz, 1 channel. Payloads are raw μ-law bytes, base64-encoded, with no WAV header. PCM16 at 16 kHz is ECHO’s internal normalize target and is not a BELL↔provider wire format.
+
+The fixed tone is converted to μ-law before it is sent. `docs/fixtures/audio/fixed_response_mulaw.json` is that wire buffer. Declared PCM or 16 kHz frames are rejected.

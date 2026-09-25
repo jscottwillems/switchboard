@@ -1,8 +1,10 @@
 """Locked signature vectors and the fixed reply frame."""
 
+import base64
 import hashlib
 import hmac
-import base64
+import json
+from pathlib import Path
 
 from switchboard.media.audio import FRAME_SAMPLES, fixed_response_frame
 from switchboard.media.mulaw import linear_to_mulaw
@@ -37,3 +39,12 @@ def test_mulaw_silence_and_tone_frame() -> None:
     assert len(frame) == FRAME_SAMPLES
     assert frame == fixed_response_frame()
     assert frame != bytes([0xFF]) * FRAME_SAMPLES
+
+
+def test_fixed_reply_fixture_is_mulaw_8k_mono() -> None:
+    document = json.loads(Path("docs/fixtures/audio/fixed_response_mulaw.json").read_text())
+    assert document["encoding"] == "audio/x-mulaw"
+    assert document["sample_rate"] == 8000
+    assert document["channels"] == 1
+    assert document["byte_length"] == FRAME_SAMPLES
+    assert base64.b64decode(document["payload_b64"]) == fixed_response_frame()

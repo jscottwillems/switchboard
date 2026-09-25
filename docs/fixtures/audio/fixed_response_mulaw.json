@@ -1,0 +1,10 @@
+{
+  "encoding": "audio/x-mulaw",
+  "sample_rate": 8000,
+  "channels": 1,
+  "duration_ms": 20,
+  "tone_hz": 440,
+  "byte_length": 160,
+  "payload_b64": "/7mrpKCgpKq36DssJSAgIyo2XL2tpaGgo6m01D8tJiEgIigyTsKupqGgoqiwykYvJyIgIicvRsqwqKKgoaauwk4yKCIgISYtP9S0qaOgoaWtvVw2KiMgICUsO+i3qqSgoKSruf85KyQgICQqN2i7rKWgoKOqttw9LSUhICMpNFS/raahoKKoss5CLiYhICIoMErGr6eioKKnr8ZKMCgiIA==",
+  "note": "Provider wire bytes. PCM16 16 kHz is not in this fixture."
+}

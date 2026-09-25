@@ -17,8 +17,9 @@ class MediaObservationMeta(BaseModel):
 
     sequence: int
     timestamp_ms: int
-    encoding: str
-    sample_rate: int
+    encoding: Literal["audio/x-mulaw"] = "audio/x-mulaw"
+    sample_rate: Literal[8000] = 8000
+    channels: Literal[1] = 1
     track: str
 
 
@@ -41,14 +42,18 @@ class RawObservation(BaseModel):
 
 
 class InboundMediaPacket(BaseModel):
-    """Normalized inbound audio after framing, before any speech pipeline."""
+    """Normalized inbound audio after framing, before any speech pipeline.
+
+    encoding, sample_rate, and channels are the provider wire format.
+    """
 
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
 
     sequence: int
     timestamp_ms: int = 0
-    encoding: str = "audio/x-mulaw"
-    sample_rate: int = 8000
+    encoding: Literal["audio/x-mulaw"] = "audio/x-mulaw"
+    sample_rate: Literal[8000] = 8000
+    channels: Literal[1] = 1
     payload: bytes
     track: str = "inbound"
 
@@ -60,6 +65,7 @@ class OutboundAudioFrame(BaseModel):
 
     encoding: Literal["audio/x-mulaw"] = "audio/x-mulaw"
     sample_rate: Literal[8000] = 8000
+    channels: Literal[1] = 1
     payload: bytes
     source: str
 
@@ -71,8 +77,9 @@ class StartCommand(BaseModel):
     call_id: str | None = None
     provider_call_id: str | None = None
     stream_id: str | None = None
-    encoding: str = "audio/x-mulaw"
-    sample_rate: int = 8000
+    encoding: Literal["audio/x-mulaw"] = "audio/x-mulaw"
+    sample_rate: Literal[8000] = 8000
+    channels: Literal[1] = 1
 
 
 class AudioCommand(BaseModel):
@@ -81,8 +88,9 @@ class AudioCommand(BaseModel):
     command: Literal["audio"] = "audio"
     sequence: int
     timestamp_ms: int = 0
-    encoding: str = "audio/x-mulaw"
-    sample_rate: int = 8000
+    encoding: Literal["audio/x-mulaw"] = "audio/x-mulaw"
+    sample_rate: Literal[8000] = 8000
+    channels: Literal[1] = 1
     payload: bytes
     track: str = "inbound"
 
@@ -133,8 +141,9 @@ class AudioOutbound(BaseModel):
     call_id: str
     stream_id: str | None
     sequence: int
-    encoding: str
-    sample_rate: int
+    encoding: Literal["audio/x-mulaw"] = "audio/x-mulaw"
+    sample_rate: Literal[8000] = 8000
+    channels: Literal[1] = 1
     payload: bytes
     source: str
 

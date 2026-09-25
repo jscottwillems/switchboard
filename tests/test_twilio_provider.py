@@ -107,6 +107,40 @@ def test_signed_voice_webhook_returns_stream_twiml() -> None:
     assert transport.calls[-1]["data"] == {"Status": "completed"}
 
 
+def test_twilio_start_rejects_pcm16() -> None:
+    settings = Settings(
+        public_base_url="http://test",
+        media_ws_base_url="ws://test",
+        twilio_auth_token=TOKEN,
+        log_level="WARNING",
+    )
+    client = TestClient(create_app(settings))
+    body = urlencode(PARAMS).encode()
+    signature = twilio_signature(auth_token=TOKEN, url=URL, params=PARAMS)
+    created = client.post(
+        "/webhooks/twilio/voice",
+        content=body,
+        headers={"content-type": "application/x-www-form-urlencoded", "X-Twilio-Signature": signature},
+    )
+    assert created.status_code == 200
+    call_id = _only_call_id(client)
+    with client.websocket_connect("/media/stream/twilio") as socket:
+        socket.send_json(
+            {
+                "event": "start",
+                "streamSid": "MZ999",
+                "start": {
+                    "streamSid": "MZ999",
+                    "callSid": "CA123",
+                    "mediaFormat": {"encoding": "audio/pcm", "sampleRate": 16000, "channels": 1},
+                },
+            }
+        )
+    detail = client.get(f"/calls/{call_id}").json()
+    assert detail["session"]["state"] == "connected"
+    assert "call.media.started" not in [event["name"] for event in detail["events"]]
+
+
 def test_bad_twilio_signature_is_rejected() -> None:
     settings = Settings(
         public_base_url="http://test",

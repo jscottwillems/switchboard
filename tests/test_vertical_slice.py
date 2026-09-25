@@ -78,6 +78,9 @@ def test_vertical_slice_observes_audio_and_hangs_up(client: TestClient) -> None:
         reply = socket.receive_json()
         assert reply["type"] == "media"
         assert reply["source"] == "fixed_response"
+        assert reply["encoding"] == "audio/x-mulaw"
+        assert reply["sample_rate"] == 8000
+        assert reply["channels"] == 1
         assert base64.b64decode(reply["payload_b64"]) == fixed_response_frame()
         socket.send_json({"type": "hangup", "reason": "caller_hangup"})
         assert socket.receive_json()["type"] == "media_ended"
@@ -193,6 +196,32 @@ def test_duplicate_provider_call_and_bad_destination(client: TestClient) -> None
     assert rejected.status_code == 400
     missing = client.post("/calls/sb_missing/terminate", json={"reason": "operator"})
     assert missing.status_code == 404
+
+
+def test_mock_rejects_pcm16_on_the_wire(client: TestClient) -> None:
+    created = _post(client, "/webhooks/mock/voice", b'{"from":"+15550008888","to":"+15552220000"}')
+    call_id = created.json()["call_id"]
+    with client.websocket_connect("/media/stream/mock") as socket:
+        socket.send_json({"type": "start", "call_id": call_id, "encoding": "audio/pcm", "sample_rate": 16000, "channels": 1})
+        assert "mulaw" in socket.receive_json()["detail"]
+        socket.send_json({"type": "start", "call_id": call_id})
+        assert socket.receive_json()["type"] == "ready"
+        socket.send_json(
+            {
+                "type": "media",
+                "sequence": 1,
+                "encoding": "audio/pcm",
+                "sample_rate": 16000,
+                "channels": 1,
+                "payload_b64": base64.b64encode(b"\x00\x01" * 8).decode("ascii"),
+            }
+        )
+        assert "mulaw" in socket.receive_json()["detail"]
+    detail = client.get(f"/calls/{call_id}").json()
+    assert detail["session"]["packets_observed"] == 0
+    assert detail["session"]["media_encoding"] == "audio/x-mulaw"
+    assert detail["session"]["media_sample_rate"] == 8000
+    assert detail["session"]["media_channels"] == 1
 
 
 def test_malformed_media_frame(client: TestClient) -> None:

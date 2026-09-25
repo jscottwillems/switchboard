@@ -48,8 +48,9 @@ class CallSession(BaseModel):
     updated_at: datetime
     stream_id: str | None = None
     media_protocol: str | None = None
-    media_encoding: str | None = None
-    media_sample_rate: int | None = None
+    media_encoding: Literal["audio/x-mulaw"] | None = None
+    media_sample_rate: Literal[8000] | None = None
+    media_channels: Literal[1] | None = None
     packets_observed: int = 0
     packets_sent: int = 0
     forward_destination: str | None = None
@@ -104,5 +105,6 @@ class MediaStreamHandle(BaseModel):
     stream_id: str
     call_id: str
     protocol: str
-    encoding: str
-    sample_rate: int
+    encoding: Literal["audio/x-mulaw"] = "audio/x-mulaw"
+    sample_rate: Literal[8000] = 8000
+    channels: Literal[1] = 1

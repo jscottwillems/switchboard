@@ -164,6 +164,7 @@ class CallLifecycle:
                 timestamp_ms=packet.timestamp_ms,
                 encoding=packet.encoding,
                 sample_rate=packet.sample_rate,
+                channels=packet.channels,
                 track=packet.track,
             )
             session = await self._attach_observation(
@@ -282,6 +283,7 @@ class CallLifecycle:
                 "media_protocol": handle.protocol,
                 "media_encoding": handle.encoding,
                 "media_sample_rate": handle.sample_rate,
+                "media_channels": 1,
                 "updated_at": utc_now(),
             }
         )

@@ -8,6 +8,7 @@ from switchboard.ids import new_id
 from switchboard.lifecycle.service import CallLifecycle
 from switchboard.media.framing import MediaFramer
 from switchboard.media.pipeline import MediaPipeline
+from switchboard.media.wire import WIRE_CHANNELS, WIRE_ENCODING, WIRE_SAMPLE_RATE
 from switchboard.models.media import (
     AudioCommand,
     AudioOutbound,
@@ -152,6 +153,13 @@ class MediaGateway:
             return
         if frame is None:
             return
+        if frame.encoding != WIRE_ENCODING or frame.sample_rate != WIRE_SAMPLE_RATE or frame.channels != WIRE_CHANNELS:
+            await self._send(
+                websocket,
+                framer,
+                ErrorOutbound(detail="MVP provider media must be audio/x-mulaw, 8000 Hz, mono"),
+            )
+            return
         sequence = await self._lifecycle.note_outbound(call_id)
         session = await self._lifecycle.get_session(call_id)
         await self._send(
@@ -163,6 +171,7 @@ class MediaGateway:
                 sequence=sequence,
                 encoding=frame.encoding,
                 sample_rate=frame.sample_rate,
+                channels=frame.channels,
                 payload=frame.payload,
                 source=frame.source,
             ),
@@ -207,6 +216,7 @@ def audio_to_packet(audio: AudioCommand) -> InboundMediaPacket:
         timestamp_ms=audio.timestamp_ms,
         encoding=audio.encoding,
         sample_rate=audio.sample_rate,
+        channels=audio.channels,
         payload=audio.payload,
         track=audio.track,
     )
