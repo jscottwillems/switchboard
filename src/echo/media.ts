@@ -1,6 +1,7 @@
 /**
  * Media contract ECHO implements today and expects from BELL.
- * Narrative requirements live in docs/API_CONTRACTS.md. Keep the two in sync.
+ * Narrative draft lives in docs/echo/MEDIA_REQUIREMENTS.md. Keep the two in sync.
+ * Do not copy this into shared contract docs until ATLAS publishes them.
  */
 export const ECHO_MEDIA = {
   codec: "pcm_s16le",

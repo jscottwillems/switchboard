@@ -14,4 +14,4 @@ npm run sample
 
 `npm run sample` writes `artifacts/sample_call_response.wav` and `artifacts/sample_call_metrics.json`.
 
-Media requirements for BELL are in `docs/API_CONTRACTS.md`. Current handoff is in `docs/STATUS.md`.
+ECHO's draft media requirements are in `docs/echo/MEDIA_REQUIREMENTS.md`. Shared contract docs are owned by ATLAS and are not part of this slice.

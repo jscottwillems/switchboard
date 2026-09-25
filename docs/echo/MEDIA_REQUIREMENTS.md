@@ -1,16 +1,14 @@
-# API contracts
+# ECHO media requirements (draft)
 
-ATLAS owns this document overall. ECHO created it because the file was not on `main` yet. Other owners should add their own sections. ECHO only maintains the media section below.
+Private ECHO draft. This is not `docs/API_CONTRACTS.md`. ATLAS owns the shared contract docs. Publish this section there only after the ATLAS bootstrap is on main. Do not attach this pipeline to BELL from this draft.
 
-ECHO does not own call signaling, provider sockets, or dialogue. BELL terminates the carrier or provider and hands ECHO PCM. LOKI chooses what to say. The in-repo types under `src/echo` are the current TypeScript embodiment of this section.
-
-## ECHO — media requirements for BELL
+ECHO does not own call signaling, provider sockets, or dialogue. BELL would terminate the carrier or provider and hand ECHO PCM. LOKI would choose what to say. The types under `src/echo` are the current TypeScript embodiment of this draft. Threshold numbers live in `src/echo/media.ts` (`ECHO_MEDIA`).
 
 Pipeline this slice implements:
 
-incoming audio → normalization → jitter buffer → energy VAD → silence endpoint → streaming STT → utterance final → conversation decision (LOKI) → TTS → outbound frame queue.
+incoming audio → normalization → jitter buffer → energy VAD → silence endpoint → streaming STT → utterance final → conversation decision (LOKI stand-in) → TTS → outbound frame queue.
 
-### Inbound audio (BELL → ECHO)
+## Inbound audio (BELL → ECHO)
 
 | Property | Requirement |
 | --- | --- |
@@ -24,26 +22,25 @@ incoming audio → normalization → jitter buffer → energy VAD → silence en
 | Levels | Int16 full scale. Silence should sit under the VAD threshold (RMS below 400). Typical decoded speech peaks of a few thousand to about 12000 are fine. Do not send float32 samples. |
 | Stream end | BELL sends an explicit end-of-stream after the last frame. ECHO flushes the jitter buffer and, if the caller is still mid-utterance, forces an endpoint. |
 
-ECHO reframes a byte stream only when a local fixture is not already cut into 20 ms frames. The supported BELL contract is one 20 ms frame per message.
+ECHO reframes a byte stream only when a local fixture is not already cut into 20 ms frames. The supported handoff is one 20 ms frame per message.
 
-### Jitter
+## Jitter
 
 ECHO keeps a 3-frame (60 ms) jitter buffer. The oldest frame is released once three frames are queued, so VAD sees a frame 60 ms after its capture time (40 ms until the buffer first fills, plus the 20 ms newest frame). On sequence gaps, ECHO inserts 20 ms of silence for each missing sequence and continues. It does not wait forever for a late packet. BELL should not add another buffering stage on top of this.
 
-### Voice activity, silence, and timeouts
+## Voice activity, silence, and timeouts
 
 - Speech onset: RMS at or above **400**, confirmed across **2** consecutive 20 ms frames (40 ms).
 - Speech end: **500 ms** of trailing audio under that threshold. The speech-end timestamp is the last voiced frame, not the silence that tripped the endpoint.
 - Maximum utterance: **15000 ms** of voiced audio in one turn. ECHO then endpoints even if the caller has not gone silent.
-- These thresholds are in `src/echo/media.ts` (`ECHO_MEDIA`).
 
-### Outbound audio (ECHO → BELL)
+## Outbound audio (ECHO → BELL)
 
 Same PCM contract: `pcm_s16le`, 16000 Hz, mono, 20 ms frames (640 bytes). `sequence` restarts at 0 for each turn. `audioTimeMs` is the offset within that turn, not the inbound capture clock.
 
-ECHO writes frames into an outbound buffer as TTS produces them. BELL pulls or receives that buffer. Frames already handed to BELL are in flight. Frames still in ECHO's buffer are queued.
+ECHO writes frames into an outbound buffer as TTS produces them. A future BELL adapter would pull or receive that buffer. Frames already handed off are in flight. Frames still in ECHO's buffer are queued.
 
-### Barge-in cancel
+## Barge-in cancel
 
 When ECHO detects caller speech while a reply is still queued or playing, ECHO aborts TTS and emits:
 
@@ -57,7 +54,7 @@ When ECHO detects caller speech while a reply is still queued or playing, ECHO a
 }
 ```
 
-BELL behavior:
+Expected BELL behavior once attached:
 
 - Drop every outbound frame for that `turnId` that has not started playing.
 - The single in-flight 20 ms frame may finish.
@@ -65,9 +62,9 @@ BELL behavior:
 - Apply the cancel within 20 ms of receiving it.
 - `droppedFrames` is how many frames ECHO removed from its own buffer. BELL still drops its own queue when `dropQueuedFrames` is true, regardless of that count.
 
-ECHO also clears its outbound queue and stops pulling TTS frames for that turn. Audio already pulled by BELL is not clawed back.
+ECHO also clears its outbound queue and stops pulling TTS frames for that turn. Audio already pulled by the sink is not clawed back.
 
-### Streaming transcript and decision
+## Streaming transcript and decision
 
 ECHO emits partial transcripts while speech is voiced and one final transcript at endpoint. This slice's STT is a local mock (`StreamingStt` in `src/echo/stt/provider.ts`) that reveals a configured transcript in time with voiced frames. A live provider replaces that adapter. No API key is required for the sample path.
 
@@ -79,7 +76,7 @@ After the final transcript, ECHO calls the conversation adapter:
 
 The adapter returns `{ "text": "..." }`. This slice uses a fixed reply (`createFixedReply`). That stand-in is the LOKI boundary. ECHO does not choose dialogue.
 
-### Metrics
+## Metrics
 
 ECHO records these on a pipeline clock (inbound audio time, plus delay declared by a local mock). A live provider should leave its declared delay at 0 so the same fields measure real elapsed time. The hook is `MetricHook` on the pipeline; the sample writes `artifacts/sample_call_metrics.json`.
 
@@ -96,6 +93,16 @@ ECHO records these on a pipeline clock (inbound audio time, plus delay declared 
 
 Point events may repeat if the caller barges in and starts another turn. Latency metrics are once per completed reply.
 
-### Fixture
+## Fixture
 
-`tests/audio/sample_call.wav` is 16000 Hz mono `pcm_s16le` with leading and trailing silence. `tests/audio/sample_call.json` holds the expected transcript and the fixed reply. See `docs/STATUS.md` for the run command.
+`tests/audio/sample_call.wav` is 16000 Hz mono `pcm_s16le` with leading and trailing silence. `tests/audio/sample_call.json` holds the expected transcript and the fixed reply.
+
+From the repo root:
+
+```bash
+npm install
+npm test
+npm run sample
+```
+
+`npm run sample` writes `artifacts/sample_call_response.wav` and `artifacts/sample_call_metrics.json`.
