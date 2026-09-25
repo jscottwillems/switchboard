@@ -1,4 +1,4 @@
-"""Adapter boundary between WATSON and call-intelligence indicators."""
+"""Adapter boundary between WATSON and Sherlock's correlation contract."""
 
 from typing import Protocol
 
@@ -7,12 +7,16 @@ from watson.sherlock.models import CallIntelligence
 
 
 class CallIntelligenceProvider(Protocol):
-    """Supply typed indicators for a completed call.
+    """Supply observations and the correlation inference for a completed call.
 
-    Implementations may be a fixture, a future SHERLOCK client, or a test
-    double. WATSON does not discover entities itself beyond transcript
-    tokens, timing, duration, transfer, and IVR path on the call record.
+    Expected import once Sherlock publishes the correlation models on main:
+
+    `switchboard_intelligence.schemas.observation.Observation`
+    `switchboard_intelligence.schemas.inference` (correlation fields)
+
+    Call-layer metadata (CLI/ANI, timing, duration, simultaneous calls) stays
+    on `CompletedCall`. It is not an Observation.
     """
 
     def indicators_for(self, call: CompletedCall) -> CallIntelligence:
-        """Return observations for `call`. The call_id must match."""
+        """Return observations and inference. `call_id` values must match."""

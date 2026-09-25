@@ -11,7 +11,7 @@ def retrieve_candidates(
     store: CampaignStore,
     config: ScoringConfig | None = None,
 ) -> list[CampaignProfile]:
-    """Campaigns that share an identifier, script tokens, or a short time window."""
+    """Campaigns that share an anchor, a script signal, or a short time window."""
     active = config or ScoringConfig()
     return [
         campaign
@@ -47,10 +47,27 @@ def _is_candidate(
 
 
 def _shares_indicator(left: CallFeatures, right: CallFeatures) -> bool:
+    left_companies = left.claimed_company_normalized | left.calling_from
+    right_companies = right.claimed_company_normalized | right.calling_from
     return bool(
-        left.claimed_organizations & right.claimed_organizations
-        or left.callback_identifiers & right.callback_identifiers
-        or left.domains & right.domains
-        or left.email_patterns & right.email_patterns
-        or left.repeated_phrases & right.repeated_phrases
+        _phone_numbers(left) & _phone_numbers(right)
+        or left.case_id & right.case_id
+        or left.domain_registrable & right.domain_registrable
+        or _email_registrable(left) & _email_registrable(right)
+        or left_companies & right_companies
+        or left.script_phrase_normalized & right.script_phrase_normalized
+        or _same_optional(left.opening_script_fingerprint, right.opening_script_fingerprint)
+        or _same_optional(left.pretext_category_canonical, right.pretext_category_canonical)
     )
+
+
+def _phone_numbers(features: CallFeatures) -> set[str]:
+    return {number for number, _source in features.phone_e164}
+
+
+def _email_registrable(features: CallFeatures) -> set[str]:
+    return {registrable for _local, _domain, registrable in features.email_split if registrable}
+
+
+def _same_optional(left: str | None, right: str | None) -> bool:
+    return bool(left) and left == right

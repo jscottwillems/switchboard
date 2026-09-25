@@ -1,16 +1,21 @@
-"""Turn a completed call plus intelligence indicators into scoreable features."""
+"""Turn a completed call plus Sherlock indicators into scoreable features."""
 
 from watson.config import ScoringConfig
 from watson.models import CallFeatures, CompletedCall, assert_never
-from watson.sherlock.models import CallIntelligence, IntelligenceObservation, ObservationKind
+from watson.sherlock.models import (
+    CallIntelligence,
+    CorrelationInference,
+    Observation,
+    ObservationKind,
+)
 from watson.textutil import (
+    normalize_calling_from,
     normalize_domain,
-    normalize_email,
     normalize_organization,
     normalize_phrase,
-    normalize_phone,
     normalize_text,
     opening_span,
+    to_e164,
     tokenize,
 )
 
@@ -20,78 +25,203 @@ def extract_features(
     intelligence: CallIntelligence,
     config: ScoringConfig | None = None,
 ) -> CallFeatures:
-    """Build a feature vector. Observations under the confidence floor are dropped."""
+    """Build a feature vector. Low-confidence observations and inferences are dropped."""
     active = config or ScoringConfig()
     if intelligence.call_id != call.call_id:
         raise ValueError(
             f"intelligence call_id {intelligence.call_id!r} does not match {call.call_id!r}"
         )
 
-    organizations: set[str] = set()
-    callbacks: set[str] = set()
-    domains: set[str] = set()
-    emails: set[str] = set()
-    phrases: set[str] = set()
-    opening_override: str | None = None
-    opening_confidence = -1.0
-    ivr_override: tuple[str, ...] | None = None
+    admitted = admitted_observations(intelligence.observations, active)
+    inference = _admitted_inference(intelligence.inference, active)
+    buckets = _empty_buckets()
+    for observation in admitted:
+        _apply_observation(buckets, observation)
 
-    for observation in intelligence.observations:
-        if observation.confidence < active.min_observation_confidence:
-            continue
-        kind = observation.kind
-        match kind:
-            case ObservationKind.CLAIMED_ORGANIZATION:
-                organizations.add(normalize_organization(observation.value))
-            case ObservationKind.CALLBACK_IDENTIFIER:
-                phone = normalize_phone(observation.value)
-                if phone:
-                    callbacks.add(phone)
-            case ObservationKind.DOMAIN:
-                domain = normalize_domain(observation.value)
-                if domain:
-                    domains.add(domain)
-            case ObservationKind.EMAIL_PATTERN:
-                email = normalize_email(observation.value)
-                if email:
-                    emails.add(email)
-            case ObservationKind.REPEATED_PHRASE:
-                phrase = normalize_phrase(observation.value)
-                if phrase:
-                    phrases.add(phrase)
-            case ObservationKind.OPENING_SCRIPT:
-                if observation.confidence >= opening_confidence:
-                    opening_override = observation.value
-                    opening_confidence = observation.confidence
-            case ObservationKind.IVR_STRUCTURE:
-                ivr_override = _parse_ivr(observation.value)
-            case _:
-                assert_never(kind)
+    if inference is not None:
+        _apply_inference(buckets, inference)
 
-    opening_text = opening_override or opening_span(call.transcript, active.opening_word_count)
-    ivr_path = tuple(_normalize_ivr_step(step) for step in call.ivr_path if step.strip())
-    if not ivr_path and ivr_override:
-        ivr_path = ivr_override
+    opening_text = buckets["opening_script_text"] or _opening_from_turns(buckets["opening_turns"])
+    if not opening_text:
+        opening_text = opening_span(call.transcript, active.opening_word_count)
 
+    phones = tuple(sorted(buckets["phone_e164"]))
+    emails = tuple(sorted(buckets["email_split"]))
     return CallFeatures(
         call_id=call.call_id,
         started_at=call.started_at,
         ended_at=call.ended_at,
         duration_seconds=call.duration_seconds,
-        opening_text=normalize_text(opening_text),
+        phone_e164=phones,
+        case_id=frozenset(buckets["case_id"]),
+        domain_registrable=frozenset(buckets["domain_registrable"]),
+        email_split=emails,
+        claimed_company_normalized=frozenset(buckets["claimed_company_normalized"]),
+        calling_from=frozenset(buckets["calling_from"]),
+        opening_script_text=normalize_text(opening_text),
         opening_tokens=tokenize(opening_text),
+        opening_turns=tuple(buckets["opening_turns"]),
         transcript_tokens=tokenize(call.transcript),
-        repeated_phrases=frozenset(phrases),
-        claimed_organizations=frozenset(organizations),
-        callback_identifiers=frozenset(callbacks),
-        domains=frozenset(domains),
-        email_patterns=frozenset(emails),
-        transferred=call.transferred,
-        ivr_path=ivr_path,
+        opening_script_fingerprint=buckets["opening_script_fingerprint"],
+        script_phrase_normalized=frozenset(buckets["script_phrase_normalized"]),
+        pretext_category_canonical=buckets["pretext_category_canonical"],
+        transfer_destination_claimed=frozenset(buckets["transfer_destination_claimed"]),
+        script_language=buckets["script_language"],
+        ivr_prompts=tuple(buckets["ivr_prompts"]),
     )
 
 
-def _parse_ivr(value: str) -> tuple[str, ...]:
+def admitted_observations(
+    observations: list[Observation],
+    config: ScoringConfig,
+) -> list[Observation]:
+    """Observations that clear the confidence floor, in input order."""
+    return [
+        observation
+        for observation in observations
+        if observation.confidence >= config.min_observation_confidence
+    ]
+
+
+def _admitted_inference(
+    inference: CorrelationInference | None,
+    config: ScoringConfig,
+) -> CorrelationInference | None:
+    if inference is None or inference.confidence < config.min_observation_confidence:
+        return None
+    return inference
+
+
+def _empty_buckets() -> dict[str, object]:
+    return {
+        "phone_e164": set(),
+        "case_id": set(),
+        "domain_registrable": set(),
+        "email_split": set(),
+        "claimed_company_normalized": set(),
+        "calling_from": set(),
+        "opening_script_text": "",
+        "opening_script_confidence": -1.0,
+        "opening_turns": [],
+        "opening_script_fingerprint": None,
+        "script_phrase_normalized": set(),
+        "pretext_category_canonical": None,
+        "transfer_destination_claimed": set(),
+        "script_language": None,
+        "ivr_prompts": [],
+    }
+
+
+def _apply_observation(buckets: dict[str, object], observation: Observation) -> None:
+    kind = observation.kind
+    normalized = observation.normalized_value
+    match kind:
+        case ObservationKind.CLAIMED_COMPANY:
+            company = normalize_organization(normalized or observation.value)
+            if company:
+                buckets["claimed_company_normalized"].add(company)
+        case ObservationKind.CALLING_FROM:
+            company = normalize_calling_from(normalized or observation.value)
+            if company:
+                buckets["calling_from"].add(company)
+        case ObservationKind.CALLBACK_NUMBERS | ObservationKind.SPOKEN_NUMBERS:
+            phone = normalized if normalized.startswith("+") else to_e164(normalized or observation.value)
+            source = "callback" if kind is ObservationKind.CALLBACK_NUMBERS else "spoken"
+            if phone:
+                buckets["phone_e164"].add((phone, source))
+        case ObservationKind.DOMAINS | ObservationKind.URLS:
+            domain = normalize_domain(normalized or observation.value)
+            if domain:
+                buckets["domain_registrable"].add(domain)
+        case ObservationKind.EMAIL_ADDRESSES:
+            split = _email_tuple(normalized or observation.value)
+            if split is not None:
+                buckets["email_split"].add(split)
+        case ObservationKind.OTHER:
+            case_id = normalize_phrase(normalized or observation.value).replace(" ", "")
+            if case_id:
+                buckets["case_id"].add(case_id)
+        case ObservationKind.OPENING_SCRIPT_TEXT:
+            if observation.confidence >= buckets["opening_script_confidence"]:
+                buckets["opening_script_text"] = observation.value
+                buckets["opening_script_confidence"] = observation.confidence
+        case ObservationKind.OPENING_TURNS:
+            buckets["opening_turns"].append(observation.value)
+        case ObservationKind.SCRIPT_PHRASES:
+            phrase = normalize_phrase(normalized or observation.value)
+            if phrase:
+                buckets["script_phrase_normalized"].add(phrase)
+        case ObservationKind.IVR_PROMPTS:
+            buckets["ivr_prompts"].extend(_parse_ivr(normalized or observation.value))
+        case ObservationKind.TRANSFER_DESTINATION_CLAIMED:
+            destination = normalize_phrase(normalized or observation.value)
+            if destination:
+                buckets["transfer_destination_claimed"].add(destination)
+        case ObservationKind.SCRIPT_LANGUAGE:
+            language = (normalized or observation.value).strip().lower()
+            if language:
+                buckets["script_language"] = language
+        case (
+            ObservationKind.CLAIMED_AGENT
+            | ObservationKind.CLAIMED_DEPARTMENT
+            | ObservationKind.LOAN_AMOUNTS
+            | ObservationKind.RATES
+            | ObservationKind.FEES
+            | ObservationKind.REQUESTED_INFORMATION
+            | ObservationKind.PAYMENT_METHODS
+            | ObservationKind.URGENCY_LANGUAGE
+            | ObservationKind.TRANSFER_EVENTS
+        ):
+            return
+        case _:
+            assert_never(kind)
+
+
+def _apply_inference(buckets: dict[str, object], inference: CorrelationInference) -> None:
+    if inference.claimed_company_normalized:
+        buckets["claimed_company_normalized"].add(
+            normalize_organization(inference.claimed_company_normalized)
+        )
+    for phone in inference.phone_e164:
+        number = phone.phone_e164 if phone.phone_e164.startswith("+") else to_e164(phone.phone_e164)
+        if number:
+            buckets["phone_e164"].add((number, phone.source))
+    for domain in inference.domain_registrable:
+        normalized = normalize_domain(domain)
+        if normalized:
+            buckets["domain_registrable"].add(normalized)
+    for split in inference.email:
+        buckets["email_split"].add((split.local.lower(), split.domain.lower(), split.email_domain_registrable.lower()))
+    for domain in inference.email_domain_registrable:
+        normalized = normalize_domain(domain)
+        if normalized and not any(item[2] == normalized for item in buckets["email_split"]):
+            buckets["email_split"].add(("", "", normalized))
+    for phrase in inference.script_phrase_normalized:
+        normalized = normalize_phrase(phrase)
+        if normalized:
+            buckets["script_phrase_normalized"].add(normalized)
+    if inference.opening_script_fingerprint:
+        buckets["opening_script_fingerprint"] = inference.opening_script_fingerprint
+    if inference.pretext_category_canonical:
+        buckets["pretext_category_canonical"] = inference.pretext_category_canonical
+
+
+def _opening_from_turns(turns: list[str]) -> str:
+    return " ".join(turn.strip() for turn in turns if turn.strip())
+
+
+def _email_tuple(value: str) -> tuple[str, str, str] | None:
+    normalized = value.strip().lower()
+    if "@" not in normalized:
+        return None
+    local, domain = normalized.split("@", 1)
+    registrable = normalize_domain(domain)
+    if not local or not registrable:
+        return None
+    return (local, domain, registrable)
+
+
+def _parse_ivr(value: str) -> list[str]:
     raw_steps: list[str] = []
     current: list[str] = []
     separators = set(">,/|")
@@ -106,20 +236,4 @@ def _parse_ivr(value: str) -> tuple[str, ...]:
     tail = "".join(current).strip()
     if tail:
         raw_steps.append(tail)
-    return tuple(_normalize_ivr_step(step) for step in raw_steps)
-
-
-def _normalize_ivr_step(step: str) -> str:
-    return normalize_text(step).replace(" ", "_")
-
-
-def admitted_observations(
-    observations: list[IntelligenceObservation],
-    config: ScoringConfig,
-) -> list[IntelligenceObservation]:
-    """Observations that clear the confidence floor, in input order."""
-    return [
-        observation
-        for observation in observations
-        if observation.confidence >= config.min_observation_confidence
-    ]
+    return [normalize_text(step).replace(" ", "_") for step in raw_steps if step.strip()]

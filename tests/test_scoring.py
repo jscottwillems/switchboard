@@ -31,10 +31,13 @@ def test_feature_scores_match_the_weighted_formula(
         combine_association_score(breakdown.feature_scores, config),
         abs=0.001,
     )
-    assert breakdown.feature_scores["email_patterns"] == config.email_domain_score
-    assert breakdown.feature_scores["callback_identifiers"] == 0.0
-    assert breakdown.feature_scores["claimed_organization"] == 1.0
-    assert "shared organization internal revenue service" in " ".join(breakdown.feature_reasons)
+    assert breakdown.feature_scores["email_domain_registrable"] == config.email_domain_score
+    assert breakdown.feature_scores["phone_e164"] == 0.0
+    assert breakdown.feature_scores["claimed_company_normalized"] == 1.0
+    reasons = " ".join(breakdown.feature_reasons)
+    assert "claimed_company_normalized" in reasons
+    assert "calling_from" in reasons
+    assert "internal revenue service" in reasons
 
 
 def test_partial_overlap_stays_low_and_near_copies_do_not_use_loose_edits(
@@ -49,8 +52,12 @@ def test_partial_overlap_stays_low_and_near_copies_do_not_use_loose_edits(
     assert partial.association_score < config.associate_threshold
     assert partial.association_score < 0.45
     assert unrelated.association_score < partial.association_score
-    assert partial.feature_scores["claimed_organization"] == 0.0
-    ratio = levenshtein_ratio(features["irs-1"].opening_text, features["bank-1"].opening_text)
+    assert partial.feature_scores["claimed_company_normalized"] == 0.0
+    assert partial.feature_scores["opening_script_text"] > 0.0
+    ratio = levenshtein_ratio(
+        features["irs-1"].opening_script_text,
+        features["bank-1"].opening_script_text,
+    )
     assert ratio < config.edit_bucket_mid
     assert edit_distance_bucket(ratio, config) == 0.0
 

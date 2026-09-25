@@ -1,6 +1,6 @@
 """Threshold and evidence-guard decisions."""
 
-from watson.config import ScoringConfig
+from watson.config import ANCHOR_FEATURES, SCRIPT_FEATURES, ScoringConfig
 from watson.decision import decide
 from watson.models import LEAF_FEATURES, DecisionAction, ScoreBreakdown
 
@@ -10,17 +10,12 @@ def _breakdown(
     score: float,
     call_id: str = "other",
     leaves: dict[str, float] | None = None,
+    tier_c_score: float = 0.0,
 ) -> ScoreBreakdown:
     feature_scores = {name: 0.0 for name in LEAF_FEATURES}
-    feature_scores.update(
-        {
-            "opening_script": 1.0,
-            "transcript": 1.0,
-            "repeated_phrases": 1.0,
-        }
-    )
-    if leaves is not None:
-        feature_scores = {name: 0.0 for name in LEAF_FEATURES}
+    if leaves is None:
+        feature_scores.update({name: 1.0 for name in SCRIPT_FEATURES})
+    else:
         feature_scores.update(leaves)
     return ScoreBreakdown(
         association_score=score,
@@ -28,6 +23,7 @@ def _breakdown(
         feature_reasons=["weighted groups listed by the scorer"],
         matched_call_id=call_id,
         campaign_id=campaign_id,
+        tier_c_score=tier_c_score,
     )
 
 
@@ -60,21 +56,28 @@ def test_equal_scores_break_toward_the_lower_campaign_id() -> None:
     assert decision.matched_call_id == "a"
 
 
-def test_guard_rejects_identifiers_without_script_when_threshold_is_lenient() -> None:
-    config = ScoringConfig(associate_threshold=0.10)
-    leaves = {name: 0.0 for name in LEAF_FEATURES}
-    leaves.update(
-        {
-            "claimed_organization": 1.0,
-            "callback_identifiers": 1.0,
-            "domains": 1.0,
-            "email_patterns": 1.0,
-        }
+def test_equal_scores_prefer_the_higher_tier_c_score() -> None:
+    config = ScoringConfig()
+    decision = decide(
+        [
+            _breakdown("camp-0001", 0.80, call_id="a", tier_c_score=0.1),
+            _breakdown("camp-0002", 0.80, call_id="b", tier_c_score=0.9),
+        ],
+        config,
     )
-    decision = decide([_breakdown("camp-0001", 0.90, leaves=leaves)], config)
-    assert decision.action is DecisionAction.NEW_CAMPAIGN
-    assert decision.guard_passed is False
-    assert decision.association_score == 0.90
+    assert decision.campaign_id == "camp-0002"
+    assert decision.matched_call_id == "b"
+
+
+def test_anchors_without_script_associate() -> None:
+    config = ScoringConfig()
+    leaves = {name: 0.0 for name in LEAF_FEATURES}
+    leaves.update({name: 1.0 for name in ANCHOR_FEATURES})
+    decision = decide([_breakdown("camp-0001", 0.60, leaves=leaves)], config)
+    assert decision.action is DecisionAction.ASSOCIATE
+    assert decision.guard_passed is True
+    assert decision.anchor_group == 1.0
+    assert decision.script_group == 0.0
 
 
 def test_empty_candidate_list_opens_a_campaign_with_zero_scores() -> None:

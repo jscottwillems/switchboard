@@ -20,13 +20,13 @@ class Decision(BaseModel):
     feature_reasons: list[str]
     matched_call_id: str | None = None
     guard_passed: bool
+    anchor_group: float = Field(ge=0, le=1)
     script_group: float = Field(ge=0, le=1)
-    identifier_group: float = Field(ge=0, le=1)
     structure_group: float = Field(ge=0, le=1)
 
 
 def decide(candidates: list[ScoreBreakdown], config: ScoringConfig | None = None) -> Decision:
-    """Pick the highest score, breaking ties by campaign id then matched call id."""
+    """Pick the highest score, then the higher tier-C score, then the lower ids."""
     active = config or ScoringConfig()
     if not candidates:
         return _empty_decision()
@@ -35,12 +35,13 @@ def decide(candidates: list[ScoreBreakdown], config: ScoringConfig | None = None
         candidates,
         key=lambda candidate: (
             -candidate.association_score,
+            -candidate.tier_c_score,
             candidate.campaign_id or "",
             candidate.matched_call_id or "",
         ),
     )
-    script, identifier, structure = group_totals(best.feature_scores, active)
-    guard_passed = _evidence_guard(script, identifier, active)
+    anchor, script, structure = group_totals(best.feature_scores, active)
+    guard_passed = _evidence_guard(anchor, script, active)
     above_threshold = best.association_score >= active.associate_threshold
     if above_threshold and guard_passed:
         if best.campaign_id is None:
@@ -54,8 +55,8 @@ def decide(candidates: list[ScoreBreakdown], config: ScoringConfig | None = None
             feature_reasons=list(best.feature_reasons),
             matched_call_id=best.matched_call_id,
             guard_passed=True,
+            anchor_group=unit_score(anchor),
             script_group=unit_score(script),
-            identifier_group=unit_score(identifier),
             structure_group=unit_score(structure),
         )
     return Decision(
@@ -67,8 +68,8 @@ def decide(candidates: list[ScoreBreakdown], config: ScoringConfig | None = None
         feature_reasons=list(best.feature_reasons),
         matched_call_id=best.matched_call_id,
         guard_passed=guard_passed,
+        anchor_group=unit_score(anchor),
         script_group=unit_score(script),
-        identifier_group=unit_score(identifier),
         structure_group=unit_score(structure),
     )
 
@@ -77,17 +78,14 @@ def evidence_guard_passes(
     feature_scores: dict[str, float],
     config: ScoringConfig,
 ) -> bool:
-    script, identifier, _structure = group_totals(feature_scores, config)
-    return _evidence_guard(script, identifier, config)
+    anchor, script, _structure = group_totals(feature_scores, config)
+    return _evidence_guard(anchor, script, config)
 
 
-def _evidence_guard(script: float, identifier: float, config: ScoringConfig) -> bool:
-    if script >= config.min_script_group:
+def _evidence_guard(anchor: float, script: float, config: ScoringConfig) -> bool:
+    if anchor >= config.min_anchor_group:
         return True
-    return (
-        identifier >= config.min_identifier_group
-        and script >= config.min_script_with_identifiers
-    )
+    return script >= config.min_script_group
 
 
 def _empty_decision() -> Decision:
@@ -97,8 +95,7 @@ def _empty_decision() -> Decision:
         feature_scores={name: 0.0 for name in LEAF_FEATURES},
         feature_reasons=[],
         guard_passed=False,
+        anchor_group=0.0,
         script_group=0.0,
-        identifier_group=0.0,
         structure_group=0.0,
     )
-

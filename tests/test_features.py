@@ -6,50 +6,57 @@ from watson.config import ScoringConfig
 from watson.features import admitted_observations, extract_features
 from watson.models import CallFeatures
 from watson.sherlock.mock import FixtureIntelligenceProvider
-from watson.sherlock.models import IntelligenceObservation, ObservationKind
-from tests.helpers import make_call
+from watson.sherlock.models import ObservationKind
+from tests.helpers import make_call, make_intelligence, make_observation
 
 
 def test_caller_id_is_not_a_scoring_feature() -> None:
     assert "caller_id" not in CallFeatures.model_fields
+    assert "transferred" not in CallFeatures.model_fields
 
 
 def test_low_confidence_observations_are_dropped(config: ScoringConfig) -> None:
     call = make_call("bank-x", "Your account is on hold at First National Bank.")
     observations = [
-        IntelligenceObservation(
-            kind=ObservationKind.CLAIMED_ORGANIZATION,
-            value="First National Bank",
+        make_observation(
+            "bank-x",
+            ObservationKind.CLAIMED_COMPANY,
+            "First National Bank",
             confidence=0.95,
         ),
-        IntelligenceObservation(
-            kind=ObservationKind.CLAIMED_ORGANIZATION,
-            value="Internal Revenue Service",
+        make_observation(
+            "bank-x",
+            ObservationKind.CLAIMED_COMPANY,
+            "Internal Revenue Service",
             confidence=0.15,
-            evidence="guess",
         ),
     ]
     kept = admitted_observations(observations, config)
     assert [item.value for item in kept] == ["First National Bank"]
     features = extract_features(
         call,
-        FixtureIntelligenceProvider({"bank-x": observations}).indicators_for(call),
+        FixtureIntelligenceProvider(
+            {"bank-x": make_intelligence("bank-x", observations)}
+        ).indicators_for(call),
         config,
     )
-    assert features.claimed_organizations == frozenset({"first national bank"})
+    assert features.claimed_company_normalized == frozenset({"first national bank"})
 
 
 def test_opening_observation_overrides_the_transcript_span(config: ScoringConfig) -> None:
     call = make_call("c1", "alpha bravo charlie delta echo foxtrot golf hotel")
     provider = FixtureIntelligenceProvider(
         {
-            "c1": [
-                IntelligenceObservation(
-                    kind=ObservationKind.OPENING_SCRIPT,
-                    value="unique opening phrase about a federal refund",
-                    confidence=0.9,
-                )
-            ]
+            "c1": make_intelligence(
+                "c1",
+                [
+                    make_observation(
+                        "c1",
+                        ObservationKind.OPENING_SCRIPT_TEXT,
+                        "unique opening phrase about a federal refund",
+                    )
+                ],
+            )
         }
     )
     features = extract_features(call, provider.indicators_for(call), config)
@@ -57,38 +64,45 @@ def test_opening_observation_overrides_the_transcript_span(config: ScoringConfig
     assert "alpha" not in features.opening_tokens
 
 
-def test_ivr_observation_is_used_when_the_call_path_is_empty(config: ScoringConfig) -> None:
+def test_ivr_observation_is_parsed_into_steps(config: ScoringConfig) -> None:
     call = make_call("c1", "hello there from support")
     provider = FixtureIntelligenceProvider(
         {
-            "c1": [
-                IntelligenceObservation(
-                    kind=ObservationKind.IVR_STRUCTURE,
-                    value="greeting > ssn_prompt > refund_agent",
-                    confidence=0.9,
-                )
-            ]
+            "c1": make_intelligence(
+                "c1",
+                [
+                    make_observation(
+                        "c1",
+                        ObservationKind.IVR_PROMPTS,
+                        "greeting > ssn_prompt > refund_agent",
+                    )
+                ],
+            )
         }
     )
     features = extract_features(call, provider.indicators_for(call), config)
-    assert features.ivr_path == ("greeting", "ssn_prompt", "refund_agent")
+    assert features.ivr_prompts == ("greeting", "ssn_prompt", "refund_agent")
 
 
-def test_call_ivr_path_wins_over_observation(config: ScoringConfig) -> None:
-    call = make_call("c1", "hello there", ivr_path=["only_step"])
+def test_calling_from_stays_distinct_from_claimed_company(config: ScoringConfig) -> None:
+    call = make_call("c1", "Hello, this is Officer Jordan calling from the Internal Revenue Service.")
     provider = FixtureIntelligenceProvider(
         {
-            "c1": [
-                IntelligenceObservation(
-                    kind=ObservationKind.IVR_STRUCTURE,
-                    value="greeting > other",
-                    confidence=0.99,
-                )
-            ]
+            "c1": make_intelligence(
+                "c1",
+                [
+                    make_observation(
+                        "c1",
+                        ObservationKind.CALLING_FROM,
+                        "calling from the Internal Revenue Service",
+                    )
+                ],
+            )
         }
     )
     features = extract_features(call, provider.indicators_for(call), config)
-    assert features.ivr_path == ("only_step",)
+    assert features.calling_from == frozenset({"internal revenue service"})
+    assert features.claimed_company_normalized == frozenset()
 
 
 def test_mismatched_intelligence_call_id_is_rejected(config: ScoringConfig) -> None:

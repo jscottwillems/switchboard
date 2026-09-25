@@ -23,9 +23,18 @@ def test_dataset_covers_the_required_scenarios() -> None:
         observation.value
         for record in (records["irs-1"], records["irs-4"])
         for observation in record.observations
-        if observation.kind.value == "callback_identifier" and observation.confidence >= 0.5
+        if observation.kind.value == "callback_numbers" and observation.confidence >= 0.5
     }
     assert len(irs_callbacks) == 2
+    irs_1 = records["irs-1"]
+    assert irs_1.inference.claimed_company_normalized == "internal revenue service"
+    assert {phone.source for phone in irs_1.inference.phone_e164} == {"callback", "spoken"}
+    assert irs_1.inference.email[0].local == "refunds"
+    assert irs_1.inference.email_domain_registrable == ["irs-refund-help.com"]
+    assert "case_id" in irs_1.inference.identifier_kind
+    assert irs_1.inference.opening_script_fingerprint == "fp-irs-refund-v1"
+    assert any(observation.kind.value == "calling_from" for observation in irs_1.observations)
+    assert any(observation.kind.value == "script_language" for observation in irs_1.observations)
 
 
 def test_committed_dataset_matches_the_builder() -> None:

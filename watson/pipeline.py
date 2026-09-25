@@ -129,8 +129,8 @@ def _new_campaign_reason(
         f"campaign {decision.closest_campaign_id} (call {decision.matched_call_id}) "
         f"scored {decision.association_score:.2f}, which cleared threshold "
         f"{config.associate_threshold:.2f}, but the evidence guard rejected it "
-        f"(script group {decision.script_group:.2f}, identifier group "
-        f"{decision.identifier_group:.2f})."
+        f"(anchor group {decision.anchor_group:.2f}, script group "
+        f"{decision.script_group:.2f})."
     )
 
 
@@ -139,7 +139,10 @@ def _score_campaign(
     campaign: CampaignProfile,
     config: ScoringConfig,
 ) -> ScoreBreakdown:
-    """Best member of a campaign. Ties break toward the smaller call id."""
+    """Best member of a campaign.
+
+    Ties break toward the higher tier-C score, then the smaller call id.
+    """
     breakdowns = [
         score_features(features, member, config).model_copy(
             update={"campaign_id": campaign.campaign_id}
@@ -148,5 +151,9 @@ def _score_campaign(
     ]
     return min(
         breakdowns,
-        key=lambda item: (-item.association_score, item.matched_call_id or ""),
+        key=lambda item: (
+            -item.association_score,
+            -item.tier_c_score,
+            item.matched_call_id or "",
+        ),
     )

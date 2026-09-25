@@ -113,6 +113,27 @@ def normalize_phone(value: str) -> str:
     return digits
 
 
+def to_e164(value: str) -> str:
+    """US-shaped numbers become +1XXXXXXXXXX. Other digit strings keep a leading +."""
+    digits = re.sub(r"\D", "", value)
+    if len(digits) == 11 and digits.startswith("1"):
+        return f"+{digits}"
+    if len(digits) == 10:
+        return f"+1{digits}"
+    if digits:
+        return f"+{digits}"
+    return ""
+
+
+def normalize_calling_from(value: str) -> str:
+    """Organization named in a spoken "calling from" span."""
+    text = normalize_organization(value)
+    for prefix in ("calling from the ", "calling from "):
+        if text.startswith(prefix):
+            return text[len(prefix) :].strip()
+    return text
+
+
 def normalize_domain(value: str) -> str:
     """Host only: no scheme, path, query, or leading www."""
     text = value.strip().lower()

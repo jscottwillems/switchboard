@@ -59,7 +59,7 @@ def test_partial_overlap_is_retrieved_and_rejected(dataset: SyntheticDataset) ->
     assert bank.matched_call_id is not None
     assert bank.matched_call_id.startswith("irs-")
     assert bank.association_score < bank.threshold
-    assert bank.feature_scores["claimed_organization"] == 0.0
+    assert bank.feature_scores["claimed_company_normalized"] == 0.0
     assert "below threshold" in bank.reasons[0]
     assert insurance.decision is DecisionAction.NEW_CAMPAIGN
     assert insurance.association_score < insurance.threshold
@@ -75,16 +75,20 @@ def test_changing_identifiers_still_join_and_repeat_caller_does_not(
     tech_3 = by_id["tech-3"]
     assert irs_4.decision is DecisionAction.ASSOCIATE
     assert irs_4.campaign_id == by_id["irs-1"].campaign_id
-    assert irs_4.feature_scores["callback_identifiers"] == 0.0
-    assert f"opening_script score {irs_4.feature_scores['opening_script']:.2f}" in " ".join(
-        irs_4.reasons
+    assert irs_4.feature_scores["phone_e164"] == 0.0
+    assert irs_4.feature_scores["email_domain_registrable"] == ScoringConfig().email_domain_score
+    assert (
+        f"opening_script_text score {irs_4.feature_scores['opening_script_text']:.2f}"
+        in " ".join(irs_4.reasons)
     )
+    assert "phone_e164" in " ".join(by_id["irs-2"].reasons)
+    assert "claimed_company_normalized" in " ".join(irs_4.reasons)
     assert tech_3.campaign_id != irs_4.campaign_id
     records = {record.call_id: record for record in dataset.calls}
     assert records["irs-4"].caller_id == records["tech-3"].caller_id
 
 
-def test_script_only_near_copy_associates() -> None:
+def test_script_only_near_copy_stays_below_threshold() -> None:
     pipeline = AssociationPipeline(intelligence=FixtureIntelligenceProvider({}))
     first = pipeline.ingest(make_call("n1", _IDENTICAL_PITCH))
     second = pipeline.ingest(
@@ -96,36 +100,29 @@ def test_script_only_near_copy_associates() -> None:
         )
     )
     assert first.decision is DecisionAction.NEW_CAMPAIGN
-    assert second.decision is DecisionAction.ASSOCIATE
-    assert second.campaign_id == first.campaign_id
-    assert second.association_score >= second.threshold
+    assert second.decision is DecisionAction.NEW_CAMPAIGN
+    assert second.campaign_id != first.campaign_id
+    assert second.association_score < second.threshold
+    assert second.feature_scores["opening_script_text"] == 1.0
+    assert second.feature_scores["phone_e164"] == 0.0
 
 
 def test_structure_features_alone_do_not_associate() -> None:
     pipeline = AssociationPipeline(intelligence=FixtureIntelligenceProvider({}))
-    first = pipeline.ingest(
-        make_call(
-            "s1",
-            "alpha bravo charlie delta",
-            transferred=True,
-            ivr_path=["greeting", "agent"],
-        )
-    )
+    first = pipeline.ingest(make_call("s1", "alpha bravo charlie delta"))
     second = pipeline.ingest(
         make_call(
             "s2",
             "hotel india juliet kilo",
             start="2026-04-02T14:01:00",
             end="2026-04-02T14:04:00",
-            transferred=True,
-            ivr_path=["greeting", "agent"],
         )
     )
     assert second.decision is DecisionAction.NEW_CAMPAIGN
     assert second.campaign_id != first.campaign_id
-    assert second.association_score == 0.05
+    assert second.association_score == 0.0
     assert second.feature_scores["timing"] == 1.0
-    assert second.feature_scores["ivr_structure"] == 1.0
+    assert second.feature_scores["ivr_prompts"] == 0.0
 
 
 def test_high_threshold_opens_a_campaign_per_call(dataset: SyntheticDataset) -> None:
