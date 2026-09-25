@@ -245,3 +245,45 @@ ATLAS's own next implementation tickets are SB-016 and SB-017. Other agents shou
 - SB-003 after SB-016: status callbacks set session state and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed`.
 - SB-014, SB-015, and SB-017 can proceed in parallel. SB-017 can take over `obs_store.py` without a second schema.
 - Do not merge PR #2 (`cursor/bell-telephony-slice-8abd`). This branch is the telephony slice on Atlas 0.1.0.
+
+## HANDOFF — LOKI — 2026-09-25T20:53:06Z
+
+### Completed
+
+- SB-007. `FixedResponseSelector.select` still returns the fixed line `Could you repeat that?` with `strategy_id` `fixed.v1`.
+- Empty or whitespace-only `latest_caller_text` sets `confidence` to `0.0` (`EMPTY_CALLER_TEXT_CONFIDENCE`), which is below `1`.
+- Non-empty caller text, including text with surrounding whitespace, keeps that fixed reply at confidence `1.0`.
+- The selector does not open sockets or import a network client. Spoken text stays the existing one-line prompt.
+
+### Files changed
+
+- `packages/conversation/switchboard_conversation/ports.py`
+- `packages/conversation/switchboard_conversation/__init__.py`
+- `tests/test_response_selector.py`
+- `docs/STATUS.md` (this entry only)
+
+### Interfaces added-changed
+
+- Unchanged port: `ResponseSelector.select(ResponseRequest) -> ResponseDecision`.
+- Unchanged decision fields: `text`, `strategy_id`, `confidence`. No schema or event payload was added. `ConversationResponseSelected` already carries those three decision fields plus `turn_id`, which the gateway still owns.
+- New constant: `EMPTY_CALLER_TEXT_CONFIDENCE` (`0.0`), exported from `switchboard_conversation` so ECHO can read the empty-input score without guessing.
+
+### Tests
+
+- `tests/test_response_selector.py` covers empty and blank caller text, non-empty text, alignment with `ConversationResponseSelected`, no network imports, and `select` under a blocked socket.
+- Existing `tests/test_ports.py` still expects the non-empty fixed reply at confidence `1.0`.
+- `make test`: 35 passed.
+
+### Dependencies
+
+- `packages/schemas` hot-path models only. No Postgres, Redis, or model API.
+- ECHO still calls `FixedResponseSelector` from `respond_to_audio`. This change does not edit `apps/media_gateway`. SB-008 remains the ticket that runs the selector from the socket.
+
+### Blocking issues
+
+- None for SB-007. The full conversation state machine is not in this slice. The earlier LOKI branch (`cursor/loki-conversation-eval-c5a2`) used a different turn JSON and is not merged here.
+
+### Recommended next work
+
+- ECHO SB-008: after a final recognition, call `select` and publish `conversation.response.selected` and `conversation.turn.recorded`.
+- A later LOKI ticket can replace `fixed.v1` with a state machine. Keep using `ResponseDecision` until ATLAS changes the contract.
