@@ -1,0 +1,1071 @@
+{
+  "version": 1,
+  "description": "Labeled synthetic honeypot calls for WATSON. Ground-truth campaign ids are independent of the camp-NNNN ids the pipeline assigns. The set includes near-duplicate campaigns, unrelated pretexts, partial script overlap that must not auto-merge, and one caller id reused across two campaigns while callback numbers rotate inside the IRS campaign.",
+  "calls": [
+    {
+      "call_id": "irs-1",
+      "started_at": "2026-04-02T14:00:00Z",
+      "ended_at": "2026-04-02T14:03:30Z",
+      "caller_id": "+15551110001",
+      "transcript": "Hello, this is Officer Jordan with the Internal Revenue Service. Your federal refund is on hold due to a filing discrepancy. Please stay on the line and do not hang up. We will connect you to the refund verification department. The discrepancy involves tax year twenty twenty four and case number IRF four four two one. To release the refund we must verify the social security number on the return and confirm the deposit routing number that will receive the payment. Press one if you are the taxpayer named on the return. Have a pen ready to write the callback number eight hundred five five five zero one zero one. The refund verification department will stay with you until the hold is cleared.",
+      "transferred": true,
+      "ivr_path": [
+        "greeting",
+        "ssn_prompt",
+        "refund_agent"
+      ],
+      "ground_truth_campaign_id": "gt-irs",
+      "scenario_tags": [
+        "clearly_related"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "Internal Revenue Service",
+          "confidence": 0.93,
+          "evidence": "Internal Revenue Service"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(800) 555-0101",
+          "confidence": 0.93,
+          "evidence": "(800) 555-0101"
+        },
+        {
+          "kind": "domain",
+          "value": "https://www.irs-refund-help.com/claim",
+          "confidence": 0.93,
+          "evidence": "https://www.irs-refund-help.com/claim"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "refunds@irs-refund-help.com",
+          "confidence": 0.93,
+          "evidence": "refunds@irs-refund-help.com"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "federal refund is on hold",
+          "confidence": 0.93,
+          "evidence": "federal refund is on hold"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "filing discrepancy",
+          "confidence": 0.93,
+          "evidence": "filing discrepancy"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "refund verification department",
+          "confidence": 0.93,
+          "evidence": "refund verification department"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is Officer Jordan with the Internal Revenue Service. Your federal refund is on hold due to a filing discrepancy. Please stay on the line and do not hang up. We will connect you to the refund verification department. The discrepancy involves tax year twenty twenty four and case number IRF four four two one. To release the refund we must verify the social security number on the return",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > ssn_prompt > refund_agent",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    },
+    {
+      "call_id": "irs-2",
+      "started_at": "2026-04-02T14:01:10Z",
+      "ended_at": "2026-04-02T14:04:40Z",
+      "caller_id": "+15551110002",
+      "transcript": "Hello, this is Officer Ramirez with the Internal Revenue Service. Your federal refund is on hold due to a filing discrepancy. Please stay on the line and do not hang up. We will connect you to the refund verification department. The discrepancy involves tax year twenty twenty four and case number IRF four four two one. To release the refund we must verify the social security number on the return and confirm the deposit routing number that will receive the payment. Press one if you are the taxpayer named on the return. Have a pen ready to write the callback number eight hundred five five five zero one zero one. The refund verification department will stay with you until the hold is cleared.",
+      "transferred": true,
+      "ivr_path": [
+        "greeting",
+        "ssn_prompt",
+        "refund_agent"
+      ],
+      "ground_truth_campaign_id": "gt-irs",
+      "scenario_tags": [
+        "clearly_related"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "Internal Revenue Service",
+          "confidence": 0.93,
+          "evidence": "Internal Revenue Service"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(800) 555-0101",
+          "confidence": 0.93,
+          "evidence": "(800) 555-0101"
+        },
+        {
+          "kind": "domain",
+          "value": "https://www.irs-refund-help.com/claim",
+          "confidence": 0.93,
+          "evidence": "https://www.irs-refund-help.com/claim"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "refunds@irs-refund-help.com",
+          "confidence": 0.93,
+          "evidence": "refunds@irs-refund-help.com"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "federal refund is on hold",
+          "confidence": 0.93,
+          "evidence": "federal refund is on hold"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "filing discrepancy",
+          "confidence": 0.93,
+          "evidence": "filing discrepancy"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "refund verification department",
+          "confidence": 0.93,
+          "evidence": "refund verification department"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is Officer Ramirez with the Internal Revenue Service. Your federal refund is on hold due to a filing discrepancy. Please stay on the line and do not hang up. We will connect you to the refund verification department. The discrepancy involves tax year twenty twenty four and case number IRF four four two one. To release the refund we must verify the social security number on the return",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > ssn_prompt > refund_agent",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    },
+    {
+      "call_id": "irs-3",
+      "started_at": "2026-04-02T14:06:00Z",
+      "ended_at": "2026-04-02T14:09:10Z",
+      "caller_id": "+15551110003",
+      "transcript": "Hello, this is Officer Blake with the Internal Revenue Service. Your federal refund is on hold due to a filing discrepancy. Please stay on the line and do not hang up. We will connect you to the refund verification department. The discrepancy involves tax year twenty twenty four and case number IRF four four two one. To release the refund we must verify the social security number on the return and confirm the deposit routing number that will receive the payment. Press one if you are the taxpayer named on the return. Have a pen ready to write the callback number eight hundred five five five zero one zero one. The refund verification department will stay with you until the hold is cleared.",
+      "transferred": false,
+      "ivr_path": [
+        "greeting",
+        "ssn_prompt",
+        "refund_agent"
+      ],
+      "ground_truth_campaign_id": "gt-irs",
+      "scenario_tags": [
+        "clearly_related"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "Internal Revenue Service",
+          "confidence": 0.93,
+          "evidence": "Internal Revenue Service"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(800) 555-0101",
+          "confidence": 0.93,
+          "evidence": "(800) 555-0101"
+        },
+        {
+          "kind": "domain",
+          "value": "https://www.irs-refund-help.com/claim",
+          "confidence": 0.93,
+          "evidence": "https://www.irs-refund-help.com/claim"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "refunds@irs-refund-help.com",
+          "confidence": 0.93,
+          "evidence": "refunds@irs-refund-help.com"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "federal refund is on hold",
+          "confidence": 0.93,
+          "evidence": "federal refund is on hold"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "filing discrepancy",
+          "confidence": 0.93,
+          "evidence": "filing discrepancy"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "refund verification department",
+          "confidence": 0.93,
+          "evidence": "refund verification department"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is Officer Blake with the Internal Revenue Service. Your federal refund is on hold due to a filing discrepancy. Please stay on the line and do not hang up. We will connect you to the refund verification department. The discrepancy involves tax year twenty twenty four and case number IRF four four two one. To release the refund we must verify the social security number on the return",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > ssn_prompt > refund_agent",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    },
+    {
+      "call_id": "irs-4",
+      "started_at": "2026-04-02T14:20:00Z",
+      "ended_at": "2026-04-02T14:23:20Z",
+      "caller_id": "+15551119999",
+      "transcript": "Hello, this is Officer Jordan with the Internal Revenue Service. Your federal refund is on hold due to a filing discrepancy. Please stay on the line and do not hang up. We will connect you to the refund verification department. The discrepancy involves tax year twenty twenty four and case number IRF four four two one. To release the refund we must verify the social security number on the return and confirm the deposit routing number that will receive the payment. Press one if you are the taxpayer named on the return. Have a pen ready to write the callback number eight hundred five five five zero one four four. The refund verification department will stay with you until the hold is cleared.",
+      "transferred": true,
+      "ivr_path": [
+        "greeting",
+        "ssn_prompt",
+        "refund_agent"
+      ],
+      "ground_truth_campaign_id": "gt-irs",
+      "scenario_tags": [
+        "clearly_related",
+        "repeat_caller",
+        "changing_identifiers"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "Internal Revenue Service",
+          "confidence": 0.93,
+          "evidence": "Internal Revenue Service"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(800) 555-0144",
+          "confidence": 0.93,
+          "evidence": "(800) 555-0144"
+        },
+        {
+          "kind": "domain",
+          "value": "https://www.irs-refund-help.com/claim",
+          "confidence": 0.93,
+          "evidence": "https://www.irs-refund-help.com/claim"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "desk@irs-refund-help.com",
+          "confidence": 0.93,
+          "evidence": "desk@irs-refund-help.com"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "federal refund is on hold",
+          "confidence": 0.93,
+          "evidence": "federal refund is on hold"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "filing discrepancy",
+          "confidence": 0.93,
+          "evidence": "filing discrepancy"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "refund verification department",
+          "confidence": 0.93,
+          "evidence": "refund verification department"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is Officer Jordan with the Internal Revenue Service. Your federal refund is on hold due to a filing discrepancy. Please stay on the line and do not hang up. We will connect you to the refund verification department. The discrepancy involves tax year twenty twenty four and case number IRF four four two one. To release the refund we must verify the social security number on the return",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > ssn_prompt > refund_agent",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    },
+    {
+      "call_id": "tech-1",
+      "started_at": "2026-04-02T16:00:00Z",
+      "ended_at": "2026-04-02T16:08:00Z",
+      "caller_id": "+15552220001",
+      "transcript": "Hello, this is Jason from Microsoft Support. We detected illegal copies of Microsoft Windows on your computer. Your microsoft windows license has been used from another country and the machine will be blocked. Please remain connected while we open a support session. We need remote access to remove the virus and restore the license. Download the support tool from the website we provide and read the support session code to the technician. Do not attempt to shut the computer down. The technician will ask you to install a remote access client and confirm the product key. This call is recorded by the license compliance desk.",
+      "transferred": true,
+      "ivr_path": [
+        "greeting",
+        "license_prompt",
+        "remote_agent"
+      ],
+      "ground_truth_campaign_id": "gt-tech",
+      "scenario_tags": [
+        "clearly_related"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "Microsoft Support",
+          "confidence": 0.93,
+          "evidence": "Microsoft Support"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(888) 555-0199",
+          "confidence": 0.93,
+          "evidence": "(888) 555-0199"
+        },
+        {
+          "kind": "domain",
+          "value": "https://windows-helpdesk.net/tool",
+          "confidence": 0.93,
+          "evidence": "https://windows-helpdesk.net/tool"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "license@windows-helpdesk.net",
+          "confidence": 0.93,
+          "evidence": "license@windows-helpdesk.net"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "microsoft windows license",
+          "confidence": 0.93,
+          "evidence": "microsoft windows license"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "remote access",
+          "confidence": 0.93,
+          "evidence": "remote access"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "support session code",
+          "confidence": 0.93,
+          "evidence": "support session code"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is Jason from Microsoft Support. We detected illegal copies of Microsoft Windows on your computer. Your microsoft windows license has been used from another country and the machine will be blocked. Please remain connected while we open a support session. We need remote access to remove the virus and restore the license. Download the support tool from the website we provide and read the support session code to",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > license_prompt > remote_agent",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    },
+    {
+      "call_id": "tech-2",
+      "started_at": "2026-04-02T16:02:00Z",
+      "ended_at": "2026-04-02T16:09:30Z",
+      "caller_id": "+15552220002",
+      "transcript": "Hello, this is Priya from Microsoft Support. We detected illegal copies of Microsoft Windows on your computer. Your microsoft windows license has been used from another country and the machine will be blocked. Please remain connected while we open a support session. We need remote access to remove the virus and restore the license. Download the support tool from the website we provide and read the support session code to the technician. Do not attempt to shut the computer down. The technician will ask you to install a remote access client and confirm the product key. This call is recorded by the license compliance desk.",
+      "transferred": true,
+      "ivr_path": [
+        "greeting",
+        "license_prompt",
+        "remote_agent"
+      ],
+      "ground_truth_campaign_id": "gt-tech",
+      "scenario_tags": [
+        "clearly_related"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "Microsoft Support",
+          "confidence": 0.93,
+          "evidence": "Microsoft Support"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(888) 555-0199",
+          "confidence": 0.93,
+          "evidence": "(888) 555-0199"
+        },
+        {
+          "kind": "domain",
+          "value": "https://windows-helpdesk.net/tool",
+          "confidence": 0.93,
+          "evidence": "https://windows-helpdesk.net/tool"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "license@windows-helpdesk.net",
+          "confidence": 0.93,
+          "evidence": "license@windows-helpdesk.net"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "microsoft windows license",
+          "confidence": 0.93,
+          "evidence": "microsoft windows license"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "remote access",
+          "confidence": 0.93,
+          "evidence": "remote access"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "support session code",
+          "confidence": 0.93,
+          "evidence": "support session code"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is Priya from Microsoft Support. We detected illegal copies of Microsoft Windows on your computer. Your microsoft windows license has been used from another country and the machine will be blocked. Please remain connected while we open a support session. We need remote access to remove the virus and restore the license. Download the support tool from the website we provide and read the support session code to",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > license_prompt > remote_agent",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    },
+    {
+      "call_id": "tech-3",
+      "started_at": "2026-04-02T18:30:00Z",
+      "ended_at": "2026-04-02T18:37:00Z",
+      "caller_id": "+15551119999",
+      "transcript": "Hello, this is Jason from Microsoft Support. We detected illegal copies of Microsoft Windows on your computer. Your microsoft windows license has been used from another country and the machine will be blocked. Please remain connected while we open a support session. We need remote access to remove the virus and restore the license. Download the support tool from the website we provide and read the support session code to the technician. Do not attempt to shut the computer down. The technician will ask you to install a remote access client and confirm the product key. This call is recorded by the license compliance desk.",
+      "transferred": false,
+      "ivr_path": [
+        "greeting",
+        "license_prompt",
+        "remote_agent"
+      ],
+      "ground_truth_campaign_id": "gt-tech",
+      "scenario_tags": [
+        "clearly_related",
+        "repeat_caller"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "Microsoft Support",
+          "confidence": 0.93,
+          "evidence": "Microsoft Support"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(888) 555-0199",
+          "confidence": 0.93,
+          "evidence": "(888) 555-0199"
+        },
+        {
+          "kind": "domain",
+          "value": "https://windows-helpdesk.net/tool",
+          "confidence": 0.93,
+          "evidence": "https://windows-helpdesk.net/tool"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "license@windows-helpdesk.net",
+          "confidence": 0.93,
+          "evidence": "license@windows-helpdesk.net"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "microsoft windows license",
+          "confidence": 0.93,
+          "evidence": "microsoft windows license"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "remote access",
+          "confidence": 0.93,
+          "evidence": "remote access"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "support session code",
+          "confidence": 0.93,
+          "evidence": "support session code"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is Jason from Microsoft Support. We detected illegal copies of Microsoft Windows on your computer. Your microsoft windows license has been used from another country and the machine will be blocked. Please remain connected while we open a support session. We need remote access to remove the virus and restore the license. Download the support tool from the website we provide and read the support session code to",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > license_prompt > remote_agent",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    },
+    {
+      "call_id": "bank-1",
+      "started_at": "2026-04-03T15:00:00Z",
+      "ended_at": "2026-04-03T15:03:30Z",
+      "caller_id": "+15553330001",
+      "transcript": "Hello, this is Agent Smith with First National Bank. Your account is on hold due to a suspicious wire transfer. Please stay on the line and do not hang up. We will connect you to the fraud department. The wire was four thousand dollars to an unrecognized merchant in another state late last night. To restore access we must verify the full account number and the last four of the debit card. A case number has been assigned, FNB nine zero one seven. Press one to speak with the fraud department. Do not discuss this alert with other people at your branch.",
+      "transferred": false,
+      "ivr_path": [
+        "greeting",
+        "account_prompt",
+        "fraud_agent"
+      ],
+      "ground_truth_campaign_id": "gt-bank",
+      "scenario_tags": [
+        "clearly_related",
+        "partial_overlap"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "First National Bank",
+          "confidence": 0.93,
+          "evidence": "First National Bank"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(877) 555-0133",
+          "confidence": 0.93,
+          "evidence": "(877) 555-0133"
+        },
+        {
+          "kind": "domain",
+          "value": "https://www.firstnational-alerts.com/fraud",
+          "confidence": 0.93,
+          "evidence": "https://www.firstnational-alerts.com/fraud"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "fraud@firstnational-alerts.com",
+          "confidence": 0.93,
+          "evidence": "fraud@firstnational-alerts.com"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "suspicious wire transfer",
+          "confidence": 0.93,
+          "evidence": "suspicious wire transfer"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "fraud department",
+          "confidence": 0.93,
+          "evidence": "fraud department"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is Agent Smith with First National Bank. Your account is on hold due to a suspicious wire transfer. Please stay on the line and do not hang up. We will connect you to the fraud department. The wire was four thousand dollars to an unrecognized merchant in another state late last night. To restore access we must verify the full account number and the last four of the",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > account_prompt > fraud_agent",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        },
+        {
+          "kind": "claimed_organization",
+          "value": "Internal Revenue Service",
+          "confidence": 0.15,
+          "evidence": "low-confidence guess; WATSON must ignore this"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "federal refund is on hold",
+          "confidence": 0.1,
+          "evidence": "low-confidence guess; WATSON must ignore this"
+        }
+      ]
+    },
+    {
+      "call_id": "bank-2",
+      "started_at": "2026-04-03T15:01:20Z",
+      "ended_at": "2026-04-03T15:04:40Z",
+      "caller_id": "+15553330002",
+      "transcript": "Hello, this is Agent Lee with First National Bank. Your account is on hold due to a suspicious wire transfer. Please stay on the line and do not hang up. We will connect you to the fraud department. The wire was four thousand dollars to an unrecognized merchant in another state late last night. To restore access we must verify the full account number and the last four of the debit card. A case number has been assigned, FNB nine zero one seven. Press one to speak with the fraud department. Do not discuss this alert with other people at your branch.",
+      "transferred": false,
+      "ivr_path": [
+        "greeting",
+        "account_prompt",
+        "fraud_agent"
+      ],
+      "ground_truth_campaign_id": "gt-bank",
+      "scenario_tags": [
+        "clearly_related",
+        "partial_overlap"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "First National Bank",
+          "confidence": 0.93,
+          "evidence": "First National Bank"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(877) 555-0133",
+          "confidence": 0.93,
+          "evidence": "(877) 555-0133"
+        },
+        {
+          "kind": "domain",
+          "value": "https://www.firstnational-alerts.com/fraud",
+          "confidence": 0.93,
+          "evidence": "https://www.firstnational-alerts.com/fraud"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "fraud@firstnational-alerts.com",
+          "confidence": 0.93,
+          "evidence": "fraud@firstnational-alerts.com"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "suspicious wire transfer",
+          "confidence": 0.93,
+          "evidence": "suspicious wire transfer"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "fraud department",
+          "confidence": 0.93,
+          "evidence": "fraud department"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is Agent Lee with First National Bank. Your account is on hold due to a suspicious wire transfer. Please stay on the line and do not hang up. We will connect you to the fraud department. The wire was four thousand dollars to an unrecognized merchant in another state late last night. To restore access we must verify the full account number and the last four of the",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > account_prompt > fraud_agent",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    },
+    {
+      "call_id": "solar-1",
+      "started_at": "2026-04-04T11:00:00Z",
+      "ended_at": "2026-04-04T11:02:30Z",
+      "caller_id": "+15554440001",
+      "transcript": "Hello, this is a customer service representative calling about your recent inquiry. You asked about residential solar panels and the residential solar tax credit for your home. Our surveyor can schedule a roof assessment this week and explain the utility interconnection timeline. The consultation is free and does not require a deposit. We will review your electric bill usage and the roof age before quoting an installation. If you still want the appointment, have your utility account login available for the roof assessment team.",
+      "transferred": false,
+      "ivr_path": [
+        "greeting",
+        "address_prompt",
+        "scheduler"
+      ],
+      "ground_truth_campaign_id": "gt-solar",
+      "scenario_tags": [
+        "partial_overlap"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "Sunpath Solar",
+          "confidence": 0.93,
+          "evidence": "Sunpath Solar"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(866) 555-0121",
+          "confidence": 0.93,
+          "evidence": "(866) 555-0121"
+        },
+        {
+          "kind": "domain",
+          "value": "sunpath-solar.co",
+          "confidence": 0.93,
+          "evidence": "sunpath-solar.co"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "appointments@sunpath-solar.co",
+          "confidence": 0.93,
+          "evidence": "appointments@sunpath-solar.co"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "residential solar tax credit",
+          "confidence": 0.93,
+          "evidence": "residential solar tax credit"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "roof assessment",
+          "confidence": 0.93,
+          "evidence": "roof assessment"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is a customer service representative calling about your recent inquiry. You asked about residential solar panels and the residential solar tax credit for your home. Our surveyor can schedule a roof assessment this week and explain the utility interconnection timeline. The consultation is free and does not require a deposit. We will review your electric bill usage and the roof age before quoting an installation. If you still",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > address_prompt > scheduler",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    },
+    {
+      "call_id": "insurance-1",
+      "started_at": "2026-04-04T11:03:10Z",
+      "ended_at": "2026-04-04T11:05:40Z",
+      "caller_id": "+15554440002",
+      "transcript": "Hello, this is a customer service representative calling about your recent inquiry. You asked about a homeowners premium reduction after your policy review. Our licensed agent can walk through deductibles, bundling, and the policy review department checklist. Please have your current policy number and the mortgage company name ready. We can compare coverage forms and explain whether the premium reduction applies at renewal. The review is limited to the policy forms already on file.",
+      "transferred": false,
+      "ivr_path": [
+        "greeting",
+        "policy_prompt",
+        "agent"
+      ],
+      "ground_truth_campaign_id": "gt-insurance",
+      "scenario_tags": [
+        "partial_overlap"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "Harbor Insurance",
+          "confidence": 0.93,
+          "evidence": "Harbor Insurance"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(855) 555-0166",
+          "confidence": 0.93,
+          "evidence": "(855) 555-0166"
+        },
+        {
+          "kind": "domain",
+          "value": "harbor-insurance-desk.com",
+          "confidence": 0.93,
+          "evidence": "harbor-insurance-desk.com"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "policy@harbor-insurance-desk.com",
+          "confidence": 0.93,
+          "evidence": "policy@harbor-insurance-desk.com"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "homeowners premium reduction",
+          "confidence": 0.93,
+          "evidence": "homeowners premium reduction"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "policy review department",
+          "confidence": 0.93,
+          "evidence": "policy review department"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is a customer service representative calling about your recent inquiry. You asked about a homeowners premium reduction after your policy review. Our licensed agent can walk through deductibles, bundling, and the policy review department checklist. Please have your current policy number and the mortgage company name ready. We can compare coverage forms and explain whether the premium reduction applies at renewal. The review is limited to the policy",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > policy_prompt > agent",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    },
+    {
+      "call_id": "warranty-1",
+      "started_at": "2026-04-05T13:00:00Z",
+      "ended_at": "2026-04-05T13:04:00Z",
+      "caller_id": "+15555550001",
+      "transcript": "Hello, this is Dana from National Auto Warranty. Your vehicle factory warranty is expiring and this is the final courtesy reminder. We can extend engine and transmission coverage if the vehicle qualifies under mileage limits. The plan is administered through the dealer network and begins after the factory warranty is expiring. Please have the vehicle identification number and current odometer ready. A specialist will confirm whether engine and transmission coverage is available in your state.",
+      "transferred": true,
+      "ivr_path": [
+        "greeting",
+        "vin_prompt",
+        "coverage_agent"
+      ],
+      "ground_truth_campaign_id": "gt-warranty",
+      "scenario_tags": [
+        "clearly_related"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "National Auto Warranty",
+          "confidence": 0.93,
+          "evidence": "National Auto Warranty"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(844) 555-0170",
+          "confidence": 0.93,
+          "evidence": "(844) 555-0170"
+        },
+        {
+          "kind": "domain",
+          "value": "https://national-auto-warranty.com/plans",
+          "confidence": 0.93,
+          "evidence": "https://national-auto-warranty.com/plans"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "plans@national-auto-warranty.com",
+          "confidence": 0.93,
+          "evidence": "plans@national-auto-warranty.com"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "factory warranty is expiring",
+          "confidence": 0.93,
+          "evidence": "factory warranty is expiring"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "engine and transmission coverage",
+          "confidence": 0.93,
+          "evidence": "engine and transmission coverage"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is Dana from National Auto Warranty. Your vehicle factory warranty is expiring and this is the final courtesy reminder. We can extend engine and transmission coverage if the vehicle qualifies under mileage limits. The plan is administered through the dealer network and begins after the factory warranty is expiring. Please have the vehicle identification number and current odometer ready. A specialist will confirm whether engine and transmission coverage",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > vin_prompt > coverage_agent",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    },
+    {
+      "call_id": "warranty-2",
+      "started_at": "2026-04-05T13:01:00Z",
+      "ended_at": "2026-04-05T13:05:00Z",
+      "caller_id": "+15555550002",
+      "transcript": "Hello, this is Chris from National Auto Warranty. Your vehicle factory warranty is expiring and this is the final courtesy reminder. We can extend engine and transmission coverage if the vehicle qualifies under mileage limits. The plan is administered through the dealer network and begins after the factory warranty is expiring. Please have the vehicle identification number and current odometer ready. A specialist will confirm whether engine and transmission coverage is available in your state.",
+      "transferred": true,
+      "ivr_path": [
+        "greeting",
+        "vin_prompt",
+        "coverage_agent"
+      ],
+      "ground_truth_campaign_id": "gt-warranty",
+      "scenario_tags": [
+        "clearly_related",
+        "changing_identifiers"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "National Auto Warranty",
+          "confidence": 0.93,
+          "evidence": "National Auto Warranty"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(844) 555-0170",
+          "confidence": 0.93,
+          "evidence": "(844) 555-0170"
+        },
+        {
+          "kind": "domain",
+          "value": "https://national-auto-warranty.com/plans",
+          "confidence": 0.93,
+          "evidence": "https://national-auto-warranty.com/plans"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "coverage@national-auto-warranty.com",
+          "confidence": 0.93,
+          "evidence": "coverage@national-auto-warranty.com"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "factory warranty is expiring",
+          "confidence": 0.93,
+          "evidence": "factory warranty is expiring"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "engine and transmission coverage",
+          "confidence": 0.93,
+          "evidence": "engine and transmission coverage"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is Chris from National Auto Warranty. Your vehicle factory warranty is expiring and this is the final courtesy reminder. We can extend engine and transmission coverage if the vehicle qualifies under mileage limits. The plan is administered through the dealer network and begins after the factory warranty is expiring. Please have the vehicle identification number and current odometer ready. A specialist will confirm whether engine and transmission coverage",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > vin_prompt > coverage_agent",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    },
+    {
+      "call_id": "gift-1",
+      "started_at": "2026-04-06T09:00:00Z",
+      "ended_at": "2026-04-06T09:02:00Z",
+      "caller_id": "+15556660001",
+      "transcript": "Hello, this is Morgan from Award Claim Center. You have been selected to receive a settlement award that must be collected with a prepaid gift card. The settlement award desk only accepts prepaid gift cards. To process the prepaid gift card payment, purchase two cards and read the numbers slowly. A courier will not visit your house. Remain available for the next twenty minutes while the settlement award desk confirms the card balances.",
+      "transferred": false,
+      "ivr_path": [
+        "greeting",
+        "card_prompt",
+        "collector"
+      ],
+      "ground_truth_campaign_id": "gt-gift",
+      "scenario_tags": [
+        "unrelated"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "Award Claim Center",
+          "confidence": 0.93,
+          "evidence": "Award Claim Center"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(833) 555-0188",
+          "confidence": 0.93,
+          "evidence": "(833) 555-0188"
+        },
+        {
+          "kind": "domain",
+          "value": "award-claim-center.com",
+          "confidence": 0.93,
+          "evidence": "award-claim-center.com"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "claims@award-claim-center.com",
+          "confidence": 0.93,
+          "evidence": "claims@award-claim-center.com"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "prepaid gift card",
+          "confidence": 0.93,
+          "evidence": "prepaid gift card"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "settlement award",
+          "confidence": 0.93,
+          "evidence": "settlement award"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is Morgan from Award Claim Center. You have been selected to receive a settlement award that must be collected with a prepaid gift card. The settlement award desk only accepts prepaid gift cards. To process the prepaid gift card payment, purchase two cards and read the numbers slowly. A courier will not visit your house. Remain available for the next twenty minutes while the settlement award desk confirms",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > card_prompt > collector",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    },
+    {
+      "call_id": "survey-1",
+      "started_at": "2026-04-07T10:00:00Z",
+      "ended_at": "2026-04-07T10:01:30Z",
+      "caller_id": "+15557770001",
+      "transcript": "Hello, this is Alex from City Parks. This is a reminder about the Saturday volunteer tree planting. Bring gloves and water. There is no payment and no account to verify. The meeting point is the east gate of the park. You can decline and we will remove this reminder from the volunteer list.",
+      "transferred": false,
+      "ivr_path": [
+        "greeting",
+        "park_prompt",
+        "volunteer_desk"
+      ],
+      "ground_truth_campaign_id": "gt-survey",
+      "scenario_tags": [
+        "unrelated"
+      ],
+      "observations": [
+        {
+          "kind": "claimed_organization",
+          "value": "City Parks",
+          "confidence": 0.93,
+          "evidence": "City Parks"
+        },
+        {
+          "kind": "callback_identifier",
+          "value": "(555) 010-0000",
+          "confidence": 0.93,
+          "evidence": "(555) 010-0000"
+        },
+        {
+          "kind": "domain",
+          "value": "cityparks.example",
+          "confidence": 0.93,
+          "evidence": "cityparks.example"
+        },
+        {
+          "kind": "email_pattern",
+          "value": "volunteer@cityparks.example",
+          "confidence": 0.93,
+          "evidence": "volunteer@cityparks.example"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "volunteer tree planting",
+          "confidence": 0.93,
+          "evidence": "volunteer tree planting"
+        },
+        {
+          "kind": "repeated_phrase",
+          "value": "east gate",
+          "confidence": 0.93,
+          "evidence": "east gate"
+        },
+        {
+          "kind": "opening_script",
+          "value": "Hello, this is Alex from City Parks. This is a reminder about the Saturday volunteer tree planting. Bring gloves and water. There is no payment and no account to verify. The meeting point is the east gate of the park. You can decline and we will remove this reminder from the volunteer list.",
+          "confidence": 0.9,
+          "evidence": "pitch span supplied by the fixture, standing in for SHERLOCK"
+        },
+        {
+          "kind": "ivr_structure",
+          "value": "greeting > park_prompt > volunteer_desk",
+          "confidence": 0.88,
+          "evidence": "structured IVR path"
+        }
+      ]
+    }
+  ]
+}
