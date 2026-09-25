@@ -9,7 +9,7 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | Target step | Skeleton |
 | --- | --- |
 | Test call reaches a webhook | `POST /v1/telephony/voice/mock` accepts a signed or dev-bypass body |
-| Call session created | Id is returned (UUIDv5). No Postgres write |
+| Call session created | Enrolled `POST /v1/telephony/voice/mock` inserts `obs.call_session` (UUIDv5) and `obs.webhook_receipt` |
 | Audio streamed | WebSocket accepts a non-empty token, sends `ready`, discards frames |
 | Speech recognized | `MockStt` returns no text |
 | Response selected | `FixedResponseSelector` exists. The socket does not call it |
@@ -18,7 +18,7 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | Intelligence extracted | `POST /v1/internal/extract` returns an empty list |
 | Call on the dashboard | Vue page calls `GET /v1/calls`, which returns an empty list |
 
-`docker-compose.yml` describes the local topology. Apps do not open Postgres or Redis clients yet. URLs are loaded so the next tickets can use them.
+`docker-compose.yml` describes the local topology. The API voice webhook opens Postgres and best-effort Redis. The media gateway, intelligence, and dashboard do not. Read routes still return an empty list until `SB-018`.
 
 ## Ownership map
 
@@ -194,3 +194,54 @@ Start in parallel: SB-001, SB-002, SB-004, SB-006, SB-007, SB-009, SB-011, SB-01
 Hold: SB-003, SB-005, SB-008, SB-010, SB-012, SB-018 until their dependencies land.
 
 ATLAS's own next implementation tickets are SB-016 and SB-017. Other agents should not wait on those unless their ticket lists them.
+
+## HANDOFF — BELL — 2026-09-25T21:01:48Z
+
+### Completed
+
+- SB-001. `POST /v1/telephony/voice/mock` inserts `obs.webhook_receipt` for an accepted call, an unknown or retired `to_e164`, and a rejected signature that reaches the handler. An active enrolled number also inserts `obs.call_session` in `ringing`. Unknown and retired numbers return `403 number_not_enrolled` after that receipt commits and do not issue a token. The same `provider_call_id` returns the stored session id. A repeat webhook does not change the caller number and does not publish a second `telephony.call.received`.
+- SB-002. The API calls `VoiceInstructionRenderer` for `connect_stream`, `hangup`, and `reject`. Stream-field rules stay on `VoiceInstruction`. The token is not embedded in `stream_url`. `append_stream_token` is what adds the carrier `?token=` query.
+
+### Files changed
+
+- `packages/telephony/switchboard_telephony/instructions.py`, `__init__.py`, `pyproject.toml`
+- `apps/api/switchboard_api/routes/telephony.py`
+- `apps/api/switchboard_api/obs_store.py`
+- `apps/api/switchboard_api/telephony_events.py`
+- `apps/api/switchboard_api/memory_tokens.py`, `settings.py`, `apps/api/pyproject.toml`
+- `tests/test_instruction_renderer.py`, `tests/test_voice_webhook.py`, `tests/postgres_support.py`, `tests/conftest.py`, `tests/__init__.py`
+- `docs/STATUS.md`, `docs/API_CONTRACTS.md`, `docs/ARCHITECTURE.md`, `README.md`, `Makefile`
+
+### Interfaces added-changed
+
+- `InstructionRenderer.render` and `append_stream_token` in `packages/telephony`. That package now imports `switchboard_schemas` for `VoiceInstruction`.
+- `TelephonyObsStore` reads active `ops.operator_number` rows and writes `obs.call_session` and `obs.webhook_receipt` using `apps/api/migrations/001_init.sql`. No new tables. SB-017 should absorb these functions.
+- The voice webhook publishes `telephony.call.received` with payload `TelephonyCallReceived` after `validate_event`, then `XADD switchboard.events` with a single `envelope` JSON field and approximate maxlen 100000. Only the first insert of a `(carrier, external_call_id)` publishes. A later projector must treat that event as idempotent on the unique key, because the webhook already inserted the row.
+- `signature_valid` is null when the dev bypass skips the verifier. Receipt `event_type` for this route is `voice`.
+- Stream tokens are still the process-local store (`SB-014`).
+
+### Tests
+
+- `make test`: 33 passed (the skeleton had 24). New cases live in `tests/test_voice_webhook.py` and `tests/test_instruction_renderer.py`.
+- The suite applies `apps/api/migrations` to `DATABASE_URL` and expects Redis at `REDIS_URL` for the publish assertion.
+- Postgres 16 and Redis 7 were running on localhost for that run. Docker Compose was not used.
+
+### Dependencies
+
+- `psycopg[binary]` and `redis` on `apps/api`.
+- Postgres must already contain the Atlas migrations (compose init, or the pytest fixture). The API process does not migrate on startup.
+
+### Blocking issues
+
+- SB-003 still waits on SB-016. Status callbacks do not write and do not publish. The voice path's direct `XADD` is not the shared consumer-group helper.
+- SB-015 still owns signature verification before JSON parsing. A schema-invalid body returns `422` and does not insert a receipt.
+- SB-014 still owns Redis stream tokens. Issued tokens are process-local, reusable until expiry, and not single-use.
+- SB-018 read routes still return an empty list, so a stored session is not on `GET /v1/calls`.
+- If Redis is down, the session and receipt remain and the event is logged as `event_publish_failed` (ADR-011). There is no outbox.
+- `apps/media_gateway` was not changed.
+
+### Recommended next work
+
+- SB-003 after SB-016: status callbacks set session state and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed`.
+- SB-014, SB-015, and SB-017 can proceed in parallel. SB-017 can take over `obs_store.py` without a second schema.
+- Do not merge PR #2 (`cursor/bell-telephony-slice-8abd`). This branch is the telephony slice on Atlas 0.1.0.

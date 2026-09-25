@@ -10,5 +10,6 @@ install-dev:
 	$(PYTHON) -m pip install -e apps/api -e apps/media_gateway -e apps/intelligence
 	$(PYTHON) -m pip install pytest httpx
 
+# Requires Postgres at DATABASE_URL and Redis at REDIS_URL. The suite applies apps/api/migrations.
 test:
 	$(PYTHON) -m pytest -q

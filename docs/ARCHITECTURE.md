@@ -144,11 +144,11 @@ flowchart TB
 
 The browser talks to `http://localhost:8000`. Containers talk to each other by service name. Compose sets `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` only on the API container so a local curl works. That flag is ignored unless `SWITCHBOARD_ENV=dev`. See `docs/SECURITY.md`.
 
-`DATABASE_URL` and `REDIS_URL` are present in the process environment. The skeleton does not open those clients yet. `SB-016` and `SB-017` do.
+`DATABASE_URL` and `REDIS_URL` are present in the process environment. The voice webhook writes `obs.webhook_receipt` and `obs.call_session` and best-effort publishes `telephony.call.received`. Shared repository coverage (`SB-017`) and the consumer-group helper (`SB-016`) are still open. The media gateway, intelligence, and dashboard do not open those clients.
 
 ## Package import direction
 
-Apps depend on packages. Packages do not depend on apps. `packages/telephony` and `packages/observability` are leaves. `packages/conversation` and `packages/classification` depend only on `packages/schemas`.
+Apps depend on packages. Packages do not depend on apps. `packages/observability` is a leaf. `packages/telephony` depends only on `packages/schemas` so it can render `VoiceInstruction`. `packages/conversation` and `packages/classification` depend only on `packages/schemas`.
 
 ```mermaid
 flowchart TD
@@ -162,6 +162,7 @@ flowchart TD
   intel[apps_intelligence]
   ui[apps_dashboard]
 
+  tel --> schemas
   conv --> schemas
   cls --> schemas
   api --> schemas

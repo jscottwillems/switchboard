@@ -14,7 +14,7 @@ Error body (`ErrorBody`):
 | --- | --- | --- |
 | 401 | `webhook_unauthorized` | Carrier signature rejected |
 | 401 | `unauthorized` | Missing or wrong internal token |
-| 403 | `number_not_enrolled` | `to_e164` is not an active operator number (target; not enforced by the stub) |
+| 403 | `number_not_enrolled` | `to_e164` is not an active operator number |
 | 404 | `call_not_found` | Unknown call session on a read route |
 | 404 | `campaign_not_found` | Unknown campaign |
 | 422 | `invalid_request` | Body or path failed validation. Values from the body are not echoed |
@@ -80,7 +80,7 @@ Response:
 
 Mock session ids are UUIDv5(`SWITCHBOARD_ID_NAMESPACE`, `mock:{provider_call_id}`).
 
-The running stub performs steps 1 and 5 only, using a process-local token store. It does not write Postgres and it does not publish events.
+The voice route performs these five steps. Stream tokens remain the process-local store until `SB-014`. `telephony.call.received` is validated and written with a direct Redis `XADD` (`envelope` JSON, stream `switchboard.events`, approximate maxlen 100000). The shared consumer-group helper remains `SB-016`. A publish failure does not roll back the session. The status route still checks the signature and returns `accepted: true` without a write (`SB-003`). Schema-invalid bodies still fail before the handler (`SB-015`), so they do not insert a receipt.
 
 ### `POST /v1/telephony/status/{provider}`
 
@@ -177,6 +177,7 @@ These are not HTTP APIs.
 | Port | Package or module | Owner | Skeleton |
 | --- | --- | --- | --- |
 | `SignatureVerifier.verify(raw_body, headers)` | `packages/telephony` | BELL | `MockSignatureVerifier` checks the mock header |
+| `InstructionRenderer.render(action, stream_url, stream_token)` | `packages/telephony` | BELL | `VoiceInstructionRenderer` builds `connect_stream`, `hangup`, and `reject`. Stream fields follow `VoiceInstruction`. The token is not placed in `stream_url`. `append_stream_token` adds the carrier query |
 | `ResponseSelector.select(ResponseRequest) -> ResponseDecision` | `packages/conversation` | LOKI | `FixedResponseSelector` returns "Could you repeat that?" with `strategy_id` `fixed.v1` and confidence `1.0` (certain it followed the rule) |
 | `SttPort.push_audio(payload) -> list[SttEvent]` | `apps/media_gateway` | ECHO | `MockStt` returns `[]` |
 | `TtsPort.synthesize(text) -> bytes` | `apps/media_gateway` | ECHO | `MockTts` returns `b""` |
