@@ -1,0 +1,652 @@
+[
+  {
+    "campaign": {
+      "record_layer": "attribution",
+      "id": "0ff32df0-c18c-48ae-a520-48be20fb70fd",
+      "label": "IRS Warrant Wave",
+      "status": "corroborated",
+      "summary": "Callers pose as IRS Criminal Investigation Division officers, cite a 44-IRS case number, and push retail payment-card codes under a warrant threat. Officer names repeat and are not on a checked roster.",
+      "created_at": "2026-09-19T14:12:00.000Z",
+      "updated_at": "2026-09-25T20:05:00.000Z"
+    },
+    "gaps": {
+      "classification": {
+        "label": "irs_impersonation",
+        "record_layer": "interpretation",
+        "confidence": 0.9
+      },
+      "call_count": 26,
+      "activity": [
+        {
+          "day": "2026-09-19",
+          "hour": 14,
+          "count": 2
+        },
+        {
+          "day": "2026-09-19",
+          "hour": 15,
+          "count": 3
+        },
+        {
+          "day": "2026-09-21",
+          "hour": 15,
+          "count": 4
+        },
+        {
+          "day": "2026-09-21",
+          "hour": 16,
+          "count": 2
+        },
+        {
+          "day": "2026-09-22",
+          "hour": 13,
+          "count": 1
+        },
+        {
+          "day": "2026-09-22",
+          "hour": 14,
+          "count": 3
+        },
+        {
+          "day": "2026-09-23",
+          "hour": 14,
+          "count": 2
+        },
+        {
+          "day": "2026-09-23",
+          "hour": 15,
+          "count": 2
+        },
+        {
+          "day": "2026-09-24",
+          "hour": 13,
+          "count": 2
+        },
+        {
+          "day": "2026-09-24",
+          "hour": 15,
+          "count": 1
+        },
+        {
+          "day": "2026-09-25",
+          "hour": 11,
+          "count": 1
+        },
+        {
+          "day": "2026-09-25",
+          "hour": 14,
+          "count": 2
+        },
+        {
+          "day": "2026-09-25",
+          "hour": 20,
+          "count": 1
+        }
+      ],
+      "timeline": [
+        {
+          "id": "ebc13284-aeee-4553-a8b3-b62e58e885de",
+          "at": "2026-09-19T14:12:00.000Z",
+          "title": "Wave opened",
+          "detail": "First calls with the Criminal Investigation Division line and a 44-IRS case pattern.",
+          "event_type": "campaign.opened"
+        },
+        {
+          "id": "e6ed5e8e-e884-4f2e-a510-7a621aef0d8b",
+          "at": "2026-09-21T15:44:00.000Z",
+          "title": "Second officer name",
+          "detail": "Dana Shah spelled on call_h08. Case suffix 1880. Payment path unchanged.",
+          "event_type": "campaign.attribution.proposed"
+        },
+        {
+          "id": "6f63449f-3726-4805-a096-d3bafd32cad4",
+          "at": "2026-09-25T11:40:00.000Z",
+          "title": "Badge challenge drop",
+          "detail": "call_h02 abandoned when the honeypot asked for a badge number.",
+          "event_type": "campaign.attribution.proposed"
+        },
+        {
+          "id": "65b6314a-efbc-42d2-a14e-be3f260c1866",
+          "at": "2026-09-25T14:20:00.000Z",
+          "title": "Full script captured",
+          "detail": "call_h01 reached an $8,400 card read-back and a warning not to call a local IRS office.",
+          "event_type": "campaign.attribution.proposed"
+        }
+      ],
+      "related_call_ids": [
+        "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+        "0c5647a1-bf34-41ce-aca8-6ad13c941c53",
+        "a68a4d00-debc-4c8d-a624-fb9674f2bf8f",
+        "7c037268-7a41-49dc-ad83-d679db95843b"
+      ],
+      "script_phrases": [
+        {
+          "id": "6f2b415d-57da-42d8-a958-0700c4f5d2b1",
+          "kind": "pretext",
+          "value": "IRS Criminal Investigation Division",
+          "raw_quote": "Division line",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        },
+        {
+          "id": "0e919eed-6e5b-4584-ab5d-d4a24f56c9a7",
+          "kind": "pretext",
+          "value": "Case 44-IRS-####",
+          "raw_quote": "Case pattern",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        },
+        {
+          "id": "cbdf1588-6081-48d0-a378-8c0d4516b014",
+          "kind": "pretext",
+          "value": "Hanging up executes the warrant or brings dispatch",
+          "raw_quote": "Hang-up penalty",
+          "record_layer": "interpretation",
+          "confidence": 0.87,
+          "status": "proposed"
+        },
+        {
+          "id": "24f25d04-d4c9-49f3-a259-3f7338f16cc3",
+          "kind": "pretext",
+          "value": "Government payment cards, codes read back on the call",
+          "raw_quote": "Card wording",
+          "record_layer": "interpretation",
+          "confidence": null,
+          "status": "proposed"
+        }
+      ],
+      "shared_indicators": [
+        {
+          "id": "2736ad92-7ed1-4186-ae58-39206a02675a",
+          "kind": "other",
+          "value": "+1 (202) 555-01xx on linked calls",
+          "raw_quote": "Spoofed DC calling number",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        },
+        {
+          "id": "2425d1af-4a9d-40f0-aa22-aeaa161815cb",
+          "kind": "pretext",
+          "value": "A federal warrant is named before any document is offered",
+          "raw_quote": "Warrant pressure",
+          "record_layer": "interpretation",
+          "confidence": 0.89,
+          "status": "proposed"
+        },
+        {
+          "id": "69b39767-d410-4a86-a5e1-4d3c53dc153f",
+          "kind": "person_name",
+          "value": "Michael Brennan appears on more than one call and is not roster-checked",
+          "raw_quote": "Repeated officer name",
+          "record_layer": "interpretation",
+          "confidence": null,
+          "status": "proposed"
+        },
+        {
+          "id": "210d917f-f5a5-4564-a9c8-0e217ed7290b",
+          "kind": "payment_method",
+          "value": "Spoken demands include $8,400 and $6,200",
+          "raw_quote": "Card amounts",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        }
+      ],
+      "similarity": [
+        {
+          "call_id": "0c5647a1-bf34-41ce-aca8-6ad13c941c53",
+          "external_call_id": "call_h01",
+          "score": 0.92,
+          "explanation": "Full script: division line, 44-IRS-2291, dispatch threat, and an $8,400 card read-back.",
+          "record_layer": "interpretation"
+        },
+        {
+          "call_id": "7c037268-7a41-49dc-ad83-d679db95843b",
+          "external_call_id": "call_h08",
+          "score": 0.9,
+          "explanation": "Same case pattern with suffix 1880 and a $6,200 card demand. Officer name differs.",
+          "record_layer": "interpretation"
+        },
+        {
+          "call_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "external_call_id": "call_live_irs",
+          "score": 0.86,
+          "explanation": "Live call repeats the Brennan name and division line. The card ask is only an unverified STT fragment.",
+          "record_layer": "interpretation"
+        },
+        {
+          "call_id": "a68a4d00-debc-4c8d-a624-fb9674f2bf8f",
+          "external_call_id": "call_h02",
+          "score": 0.74,
+          "explanation": "Warrant opener only. Caller dropped when asked for a badge number, before a case id or amount.",
+          "record_layer": "interpretation"
+        }
+      ]
+    }
+  },
+  {
+    "campaign": {
+      "record_layer": "attribution",
+      "id": "10a2c3be-a66a-4c06-a4d9-4676d27891c3",
+      "label": "Microsoft Defender Refund",
+      "status": "corroborated",
+      "summary": "Callers claim Microsoft Support, warn that shutting down cancels a $399 Defender refund, and move toward a remote session. AnyDesk was named on one completed call.",
+      "created_at": "2026-09-19T10:22:00.000Z",
+      "updated_at": "2026-09-25T19:40:00.000Z"
+    },
+    "gaps": {
+      "classification": {
+        "label": "tech_support",
+        "record_layer": "interpretation",
+        "confidence": 0.86
+      },
+      "call_count": 18,
+      "activity": [
+        {
+          "day": "2026-09-19",
+          "hour": 10,
+          "count": 3
+        },
+        {
+          "day": "2026-09-20",
+          "hour": 9,
+          "count": 2
+        },
+        {
+          "day": "2026-09-20",
+          "hour": 10,
+          "count": 2
+        },
+        {
+          "day": "2026-09-21",
+          "hour": 9,
+          "count": 1
+        },
+        {
+          "day": "2026-09-22",
+          "hour": 11,
+          "count": 2
+        },
+        {
+          "day": "2026-09-23",
+          "hour": 16,
+          "count": 1
+        },
+        {
+          "day": "2026-09-24",
+          "hour": 9,
+          "count": 2
+        },
+        {
+          "day": "2026-09-24",
+          "hour": 16,
+          "count": 3
+        },
+        {
+          "day": "2026-09-25",
+          "hour": 15,
+          "count": 1
+        },
+        {
+          "day": "2026-09-25",
+          "hour": 20,
+          "count": 1
+        }
+      ],
+      "timeline": [
+        {
+          "id": "82a36515-4be3-4735-a4bb-eb13791b0b71",
+          "at": "2026-09-19T10:22:00.000Z",
+          "title": "First refund opener",
+          "detail": "call_h10 matched the opener and then died on a TTS underrun.",
+          "event_type": "campaign.opened"
+        },
+        {
+          "id": "bae1d64f-ec28-485d-aaec-8b8b33c2e6d3",
+          "at": "2026-09-24T09:12:00.000Z",
+          "title": "Stall drop",
+          "detail": "call_h04 abandoned while the honeypot stayed away from the computer.",
+          "event_type": "campaign.attribution.proposed"
+        },
+        {
+          "id": "d967850e-d119-4867-a2d7-0dd2665363fc",
+          "at": "2026-09-24T16:18:00.000Z",
+          "title": "AnyDesk named",
+          "detail": "call_h03 asked for an AnyDesk session. The honeypot did not connect. Digits were not committed.",
+          "event_type": "campaign.attribution.proposed"
+        },
+        {
+          "id": "e5c63721-1353-404a-a80d-d41555736fce",
+          "at": "2026-09-25T19:50:00.000Z",
+          "title": "Live opener",
+          "detail": "A new call is in pretext with the $399 refund and no tool name yet.",
+          "event_type": "campaign.attribution.proposed"
+        }
+      ],
+      "related_call_ids": [
+        "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+        "781b8030-0048-497c-a2ee-0bd4ccbfdaba",
+        "ee13bdb2-dc0b-4dd5-aa7d-65878dbb313b",
+        "01b3068f-1600-45c4-afeb-94862e29c756"
+      ],
+      "script_phrases": [
+        {
+          "id": "40b7d3a5-5a2a-4a5b-ac22-61b2b09669fb",
+          "kind": "pretext",
+          "value": "This is Microsoft Support",
+          "raw_quote": "Support opener",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        },
+        {
+          "id": "1fafef35-b45a-42e4-a375-d4483d73bc0f",
+          "kind": "pretext",
+          "value": "A $399 refund is pending or waiting",
+          "raw_quote": "Refund lure",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        },
+        {
+          "id": "78c2bbc7-48e1-4930-a9e5-66c03abba81e",
+          "kind": "pretext",
+          "value": "Do not shut the computer down",
+          "raw_quote": "Shutdown warning",
+          "record_layer": "interpretation",
+          "confidence": 0.85,
+          "status": "proposed"
+        },
+        {
+          "id": "4b4ae355-beda-4173-a5bd-77b12fc45c3d",
+          "kind": "pretext",
+          "value": "Connect with a remote tool to confirm the refund",
+          "raw_quote": "Remote session",
+          "record_layer": "interpretation",
+          "confidence": null,
+          "status": "proposed"
+        }
+      ],
+      "shared_indicators": [
+        {
+          "id": "ade56339-05c5-41ea-ae2d-c431dea68f4d",
+          "kind": "other",
+          "value": "+1 (888) 555-01xx on linked calls",
+          "raw_quote": "Toll-free caller id",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        },
+        {
+          "id": "c37ce80e-7f79-4736-a83e-6427cf92961d",
+          "kind": "organization_name",
+          "value": "Microsoft Defender pop-up or subscription",
+          "raw_quote": "Product lure",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        },
+        {
+          "id": "d09dc411-fd8b-49be-ad85-1037bc35425a",
+          "kind": "pretext",
+          "value": "The refund is the reason given for not ending the call",
+          "raw_quote": "Refund keeps the line up",
+          "record_layer": "interpretation",
+          "confidence": 0.84,
+          "status": "proposed"
+        },
+        {
+          "id": "cb11d78f-1824-4ff1-acfb-b3e141bc18f2",
+          "kind": "organization_name",
+          "value": "Nine digits were requested once and not confirmed",
+          "raw_quote": "AnyDesk address",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        }
+      ],
+      "similarity": [
+        {
+          "call_id": "781b8030-0048-497c-a2ee-0bd4ccbfdaba",
+          "external_call_id": "call_h03",
+          "score": 0.94,
+          "explanation": "Full path through Defender and an AnyDesk request. Address digits remain unverified.",
+          "record_layer": "interpretation"
+        },
+        {
+          "call_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "external_call_id": "call_live_ms",
+          "score": 0.8,
+          "explanation": "Live opener with the $399 refund and Defender. No tool name yet.",
+          "record_layer": "interpretation"
+        },
+        {
+          "call_id": "01b3068f-1600-45c4-afeb-94862e29c756",
+          "external_call_id": "call_h10",
+          "score": 0.73,
+          "explanation": "Same opener, ended by TTS_UNDERRUN before a tool or amount.",
+          "record_layer": "interpretation"
+        },
+        {
+          "call_id": "ee13bdb2-dc0b-4dd5-aa7d-65878dbb313b",
+          "external_call_id": "call_h04",
+          "score": 0.71,
+          "explanation": "Defender refund and a one-hour deadline. Caller left during the walk-to-the-PC stall.",
+          "record_layer": "interpretation"
+        }
+      ]
+    }
+  },
+  {
+    "campaign": {
+      "record_layer": "attribution",
+      "id": "2f6ab485-c5ef-4863-a23a-1b7a6880f53d",
+      "label": "Chase Fraud Desk",
+      "status": "corroborated",
+      "summary": "Callers impersonate a Chase fraud desk, cite a $2,400 Zelle transfer, and ask for a one-time code plus the debit last four so funds can move to a safe account.",
+      "created_at": "2026-09-20T19:05:00.000Z",
+      "updated_at": "2026-09-25T20:10:00.000Z"
+    },
+    "gaps": {
+      "classification": {
+        "label": "bank_fraud",
+        "record_layer": "interpretation",
+        "confidence": 0.93
+      },
+      "call_count": 15,
+      "activity": [
+        {
+          "day": "2026-09-20",
+          "hour": 19,
+          "count": 2
+        },
+        {
+          "day": "2026-09-21",
+          "hour": 20,
+          "count": 1
+        },
+        {
+          "day": "2026-09-22",
+          "hour": 18,
+          "count": 2
+        },
+        {
+          "day": "2026-09-22",
+          "hour": 19,
+          "count": 1
+        },
+        {
+          "day": "2026-09-23",
+          "hour": 13,
+          "count": 1
+        },
+        {
+          "day": "2026-09-23",
+          "hour": 19,
+          "count": 3
+        },
+        {
+          "day": "2026-09-24",
+          "hour": 18,
+          "count": 2
+        },
+        {
+          "day": "2026-09-24",
+          "hour": 21,
+          "count": 1
+        },
+        {
+          "day": "2026-09-25",
+          "hour": 20,
+          "count": 2
+        }
+      ],
+      "timeline": [
+        {
+          "id": "2cfdc9f6-3ad6-4c96-aca0-dc621c9ef3c1",
+          "at": "2026-09-20T19:05:00.000Z",
+          "title": "Evening cluster started",
+          "detail": "First Zelle-reversal calls, concentrated after 18:00 UTC.",
+          "event_type": "campaign.opened"
+        },
+        {
+          "id": "44c8ae3d-0547-44c6-a050-38f3a1b5f5cc",
+          "at": "2026-09-23T13:02:00.000Z",
+          "title": "Card-number challenge",
+          "detail": "call_h06 died when the honeypot moved to dial the number on the card.",
+          "event_type": "campaign.attribution.proposed"
+        },
+        {
+          "id": "17bd0c33-5892-480f-a78c-570ad2166272",
+          "at": "2026-09-23T19:48:00.000Z",
+          "title": "Safe account captured",
+          "detail": "call_h05 recorded the OTP ask and the safe-account handoff. The honeypot refused the code.",
+          "event_type": "campaign.attribution.proposed"
+        },
+        {
+          "id": "6f67843b-5f6b-4d17-a03f-a8aee270c01f",
+          "at": "2026-09-25T20:00:00.000Z",
+          "title": "Live replay",
+          "detail": "An active call repeats the $2,400 Zelle script and badge 441, which is not checked.",
+          "event_type": "campaign.attribution.proposed"
+        }
+      ],
+      "related_call_ids": [
+        "373f46f2-0374-4544-a94e-75f59e93d0cd",
+        "d1551f23-8e2d-4445-a09a-50042ea432e8",
+        "89aea7d0-db9e-49e5-a323-66348644307e"
+      ],
+      "script_phrases": [
+        {
+          "id": "1b82ecdc-7a0c-4dc0-aaa3-5b23b64e3eeb",
+          "kind": "pretext",
+          "value": "This is the Chase fraud department",
+          "raw_quote": "Desk opener",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        },
+        {
+          "id": "66e9385e-a47c-415a-a84d-66dd9c7562a9",
+          "kind": "pretext",
+          "value": "We detected a Zelle transfer",
+          "raw_quote": "Zelle debit",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        },
+        {
+          "id": "9ff31639-362c-4542-a0ff-913853f557d7",
+          "kind": "pretext",
+          "value": "Move the remaining balance into a safe account in your name",
+          "raw_quote": "Safe account",
+          "record_layer": "interpretation",
+          "confidence": 0.92,
+          "status": "proposed"
+        },
+        {
+          "id": "a964220f-bfdf-4b21-a2a9-ee60032e9798",
+          "kind": "pretext",
+          "value": "Fraud desk badge number spoken on some calls",
+          "raw_quote": "Badge claim",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        }
+      ],
+      "shared_indicators": [
+        {
+          "id": "29282432-3957-49cf-a77f-137c8f72ca35",
+          "kind": "payment_method",
+          "value": "$2,400 on calls that reach the amount",
+          "raw_quote": "Zelle figure",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        },
+        {
+          "id": "25523b11-0e91-40a2-ae95-93499f980963",
+          "kind": "other",
+          "value": "Target is told to read a texted one-time code",
+          "raw_quote": "OTP ask",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        },
+        {
+          "id": "1c209074-7aae-4572-a9f8-f84223572016",
+          "kind": "pretext",
+          "value": "Safe account is treated as the reversal path",
+          "raw_quote": "Mule handoff",
+          "record_layer": "interpretation",
+          "confidence": 0.9,
+          "status": "proposed"
+        },
+        {
+          "id": "deaa3a60-6135-4c78-a280-0df9ef04fc06",
+          "kind": "organization_name",
+          "value": "Spoken on the live call, not checked",
+          "raw_quote": "Badge 441",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        },
+        {
+          "id": "8c249836-2d04-4e51-afe0-59efe3bd5e16",
+          "kind": "pretext",
+          "value": "Caller says not to use the number on the card or the branch",
+          "raw_quote": "Avoid the real bank",
+          "record_layer": "observation",
+          "confidence": null,
+          "status": "proposed"
+        }
+      ],
+      "similarity": [
+        {
+          "call_id": "d1551f23-8e2d-4445-a09a-50042ea432e8",
+          "external_call_id": "call_h05",
+          "score": 0.96,
+          "explanation": "Completed path: Zelle amount, OTP refusal, and the safe-account sentence.",
+          "record_layer": "interpretation"
+        },
+        {
+          "call_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "external_call_id": "call_live_chase",
+          "score": 0.95,
+          "explanation": "Live call repeats the $2,400 script. Badge 441 is unverified raw speech.",
+          "record_layer": "interpretation"
+        },
+        {
+          "call_id": "89aea7d0-db9e-49e5-a323-66348644307e",
+          "external_call_id": "call_h06",
+          "score": 0.62,
+          "explanation": "Opener only. No amount. Caller left when the honeypot turned to the number on the card.",
+          "record_layer": "interpretation"
+        }
+      ]
+    }
+  }
+]

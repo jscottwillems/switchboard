@@ -1,0 +1,101 @@
+{
+  "sampled_at": "2026-09-25T20:15:00.000Z",
+  "services": [
+    {
+      "service": "api",
+      "status": "ok",
+      "version": "0.1.0"
+    },
+    {
+      "service": "media_gateway",
+      "status": "ok",
+      "version": "0.1.0"
+    },
+    {
+      "service": "intelligence",
+      "status": "ok",
+      "version": "0.1.0"
+    },
+    {
+      "service": "dashboard",
+      "status": "ok",
+      "version": "0.1.0"
+    }
+  ],
+  "providers": [
+    {
+      "id": "prov_voice",
+      "name": "Northline Voice",
+      "role": "telephony",
+      "status": "ok",
+      "latency_ms": 42,
+      "detail": "Inbound legs answering. No queue on the honeypot trunk."
+    },
+    {
+      "id": "prov_stt",
+      "name": "Harbor STT",
+      "role": "stt",
+      "status": "degraded",
+      "latency_ms": 820,
+      "detail": "Partials are late. Two turns in the last hour stayed under the commit threshold."
+    },
+    {
+      "id": "prov_tts",
+      "name": "Keel TTS",
+      "role": "tts",
+      "status": "ok",
+      "latency_ms": 260,
+      "detail": "Current playback is healthy. TTS_UNDERRUN on 19 Sep is closed."
+    },
+    {
+      "id": "prov_llm",
+      "name": "Ledger LLM",
+      "role": "selector",
+      "status": "ok",
+      "latency_ms": 610,
+      "detail": "Stall persona replies are inside the display budget."
+    }
+  ],
+  "latency": {
+    "stt_ms": 820,
+    "select_ms": 610,
+    "tts_ms": 260,
+    "e2e_ms": 1730
+  },
+  "concurrency": {
+    "active_calls": 3,
+    "capacity": 25,
+    "queue_depth": 0
+  },
+  "cost": {
+    "window_label": "Last 24 hours",
+    "currency": "USD",
+    "stt": 18.4,
+    "tts": 6.15,
+    "selector": 22.8,
+    "telephony": 11.05
+  },
+  "errors": [
+    {
+      "id": "err_tts_h10",
+      "at": "2026-09-19T10:27:10.000Z",
+      "source": "Keel TTS",
+      "severity": "error",
+      "message": "TTS_UNDERRUN closed the playback socket on call_h10."
+    },
+    {
+      "id": "err_stt_live",
+      "at": "2026-09-25T20:11:40.000Z",
+      "source": "Harbor STT",
+      "severity": "warn",
+      "message": "Unverified partial on call_live_irs at the payment-card turn."
+    },
+    {
+      "id": "err_stt_h09",
+      "at": "2026-09-20T21:06:50.000Z",
+      "source": "Harbor STT",
+      "severity": "warn",
+      "message": "Western Union fragment on call_h09 was kept unverified."
+    }
+  ]
+}

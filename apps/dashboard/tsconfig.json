@@ -1,19 +1,26 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "jsx": "preserve",
-    "noEmit": true,
-    "isolatedModules": true,
-    "skipLibCheck": true,
     "useDefineForClassFields": true,
-    "lib": ["ES2022", "DOM"],
-    "types": ["vite/client"],
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "preserve",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
     "paths": {
+      "@/*": ["src/*"],
       "@switchboard/schemas": ["../../packages/schemas/ts/index.ts"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.vue", "../../packages/schemas/ts/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.vue", "env.d.ts", "../../packages/schemas/ts/**/*.ts"]
 }
