@@ -1,0 +1,3 @@
+reason_id,campaign_id,code,statement,call_ids,confidence_level,confidence_score,confidence_basis,fact_class,epistemic
+syn-reason-001,syn-campaign-001,shared_spoken_callback,Both calls include spoken callback number 1-800-555-0199.,syn-call-001|syn-call-002,high,0.92,Confidence supplied with synthetic record syn-reason-001.,derived_association,campaign_attribution
+syn-reason-002,syn-campaign-001,shared_displayed_cnam,Both calls display caller name CARD SERVICES.,syn-call-001|syn-call-002,medium,0.60,Confidence supplied with synthetic record syn-reason-002.,derived_association,campaign_attribution

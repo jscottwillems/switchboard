@@ -1,0 +1,76 @@
+{
+  "$defs": {
+    "ReportFormat": {
+      "enum": [
+        "json",
+        "markdown",
+        "pdf_ready",
+        "csv",
+        "campaign_summary"
+      ],
+      "title": "ReportFormat",
+      "type": "string"
+    },
+    "ReportKind": {
+      "enum": [
+        "single_call",
+        "multi_call_campaign",
+        "technical_incident",
+        "machine_readable_json"
+      ],
+      "title": "ReportKind",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "One row of GET /clerk/reports.",
+  "properties": {
+    "available_formats": {
+      "items": {
+        "$ref": "#/$defs/ReportFormat"
+      },
+      "minItems": 1,
+      "title": "Available Formats",
+      "type": "array"
+    },
+    "kind": {
+      "$ref": "#/$defs/ReportKind"
+    },
+    "package_id": {
+      "description": "Evidence package id, or the export id for a machine-readable export.",
+      "title": "Package Id",
+      "type": "string"
+    },
+    "package_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Package Ids",
+      "type": "array"
+    },
+    "report_id": {
+      "title": "Report Id",
+      "type": "string"
+    },
+    "synthetic": {
+      "title": "Synthetic",
+      "type": "boolean"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    }
+  },
+  "required": [
+    "report_id",
+    "package_id",
+    "package_ids",
+    "kind",
+    "title",
+    "synthetic",
+    "available_formats"
+  ],
+  "title": "ReportIndexEntry",
+  "type": "object"
+}

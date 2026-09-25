@@ -1,0 +1,100 @@
+{
+  "$defs": {
+    "ClerkEventType": {
+      "enum": [
+        "clerk.evidence_package.created",
+        "clerk.report.ready"
+      ],
+      "title": "ClerkEventType",
+      "type": "string"
+    },
+    "ReportFormat": {
+      "enum": [
+        "json",
+        "markdown",
+        "pdf_ready",
+        "csv",
+        "campaign_summary"
+      ],
+      "title": "ReportFormat",
+      "type": "string"
+    },
+    "ReportKind": {
+      "enum": [
+        "single_call",
+        "multi_call_campaign",
+        "technical_incident",
+        "machine_readable_json"
+      ],
+      "title": "ReportKind",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Identifier-only event. Transcripts and caller metadata stay in the package.",
+  "properties": {
+    "available_formats": {
+      "items": {
+        "$ref": "#/$defs/ReportFormat"
+      },
+      "title": "Available Formats",
+      "type": "array"
+    },
+    "event_type": {
+      "$ref": "#/$defs/ClerkEventType"
+    },
+    "occurred_at": {
+      "format": "date-time",
+      "title": "Occurred At",
+      "type": "string"
+    },
+    "package_id": {
+      "title": "Package Id",
+      "type": "string"
+    },
+    "package_ids": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "title": "Package Ids",
+      "type": "array"
+    },
+    "report_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Report Id"
+    },
+    "report_kind": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ReportKind"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "synthetic": {
+      "title": "Synthetic",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "event_type",
+    "occurred_at",
+    "synthetic",
+    "package_id",
+    "package_ids"
+  ],
+  "title": "ClerkEvent",
+  "type": "object"
+}

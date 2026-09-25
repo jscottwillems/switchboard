@@ -1,0 +1,6 @@
+artifact_id,call_id,kind,label,uri,media_type,sha256,fact_class,epistemic,inline_text
+syn-art-001,syn-call-001,signaling_log,Synthetic SIP signaling excerpt,synthetic://artifacts/syn-call-001/signaling.log,text/plain,0278b0bb458f7e26be733563e29976d66c482825194f40cf289a7a3f4bbe031d,raw_observation,raw_observation,"# synthetic signaling excerpt syn-call-001
+SIP From: <sip:+14155550138@example.invalid>
+Displayed caller number: +1-202-555-0143
+P-Asserted-Identity: absent
+"

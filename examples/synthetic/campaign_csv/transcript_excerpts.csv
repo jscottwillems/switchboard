@@ -1,0 +1,5 @@
+excerpt_id,call_id,speaker,started_at,ended_at,text,fact_class,epistemic
+syn-ex-001,syn-call-001,caller,2026-09-20T15:04:12Z,,This is the Visa fraud department. I am agent Marcus.,raw_observation,raw_observation
+syn-ex-002,syn-call-001,caller,2026-09-20T15:05:40Z,,Call me back at 1-800-555-0199 if we are disconnected.,raw_observation,raw_observation
+syn-ex-003,syn-call-001,caller,2026-09-20T15:06:10Z,,I need you to install a remote access program so I can secure the account.,raw_observation,raw_observation
+syn-ex-004,syn-call-002,caller,2026-09-21T13:15:20Z,,This is the Visa fraud department. Call me back at 1-800-555-0199.,raw_observation,raw_observation

@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0.0",
+  "package_id": "syn-pkg-campaign-001",
+  "synthetic": true,
+  "associated": true,
+  "campaign_id": "syn-campaign-001",
+  "label": "Synthetic card-issuer impersonation",
+  "fact_class": "derived_association",
+  "epistemic": "campaign_attribution",
+  "confidence_level": "high",
+  "confidence_score": 0.8,
+  "confidence_basis": "Confidence supplied with synthetic record syn-campaign-001.",
+  "packaged_call_ids": [
+    "syn-call-001",
+    "syn-call-002"
+  ],
+  "member_call_ids": [
+    "syn-call-001",
+    "syn-call-002"
+  ],
+  "reason_codes": [
+    "shared_spoken_callback",
+    "shared_displayed_cnam"
+  ]
+}

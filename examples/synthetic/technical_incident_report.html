@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Technical incident evidence report syn-incident-001</title>
+<style>
+@page { size: A4; margin: 16mm; }
+body { font-family: Georgia, "Times New Roman", serif; font-size: 11pt; color: #111; }
+.banner { border: 1px solid #111; padding: 8px; margin-bottom: 16px; font-weight: 700; }
+h1 { font-size: 16pt; }
+h2 { font-size: 13pt; border-bottom: 1px solid #111; page-break-after: avoid; }
+h3 { font-size: 11pt; page-break-after: avoid; }
+.tag, .field-name { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 9pt; }
+pre { white-space: pre-wrap; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 9pt; }
+article { break-inside: avoid; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<h1>Technical incident evidence report syn-incident-001</h1>
+<p class="banner">SYNTHETIC FIXTURE. Values in this report are copied from labeled synthetic inputs.</p>
+<dl>
+<dt>Upstream input schema</dt><dd>clerk.provisional_upstream.v0</dd>
+<dt>Package ID</dt><dd>syn-pkg-incident-001</dd>
+<dt>Report ID</dt><dd>syn-pkg-incident-001__technical_incident</dd>
+<dt>Synthetic</dt><dd>true</dd>
+</dl>
+<section id="provenance_legend">
+<h2>Provenance legend</h2>
+<article data-fact-class="reported_caller_metadata" data-epistemic="raw_observation">
+<h3>reported_caller_metadata</h3>
+<p class="tag">fact_class: reported_caller_metadata | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">definition</dt>
+<dd>Displayed signaling or caller-ID values copied from the call record.</dd>
+</dl>
+</article>
+<article data-fact-class="spoken_identifier" data-epistemic="raw_observation">
+<h3>spoken_identifier</h3>
+<p class="tag">fact_class: spoken_identifier | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">definition</dt>
+<dd>Identifier values copied from supplied transcript excerpts.</dd>
+</dl>
+</article>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>raw_observation</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">definition</dt>
+<dd>Source material, or an observation supplied without confirmation.</dd>
+</dl>
+</article>
+<article data-fact-class="confirmed_observation" data-epistemic="raw_observation">
+<h3>confirmed_observation</h3>
+<p class="tag">fact_class: confirmed_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">definition</dt>
+<dd>Observation supplied with confirmation. This tag stays on the observation.</dd>
+</dl>
+</article>
+<article data-fact-class="derived_interpretation" data-epistemic="derived_interpretation">
+<h3>derived_interpretation</h3>
+<p class="tag">fact_class: derived_interpretation | epistemic: derived_interpretation</p>
+<dl>
+<dt class="field-name">definition</dt>
+<dd>Interpretation supplied as derived.</dd>
+</dl>
+</article>
+<article data-fact-class="derived_association" data-epistemic="campaign_attribution">
+<h3>derived_association</h3>
+<p class="tag">fact_class: derived_association | epistemic: campaign_attribution</p>
+<dl>
+<dt class="field-name">definition</dt>
+<dd>Campaign link or association reason supplied as attribution.</dd>
+</dl>
+</article>
+</section>
+<section id="incident_record">
+<h2>Incident record</h2>
+<article data-fact-class="derived_interpretation" data-epistemic="derived_interpretation">
+<h3>syn-incident-001</h3>
+<p class="tag">fact_class: derived_interpretation | epistemic: derived_interpretation | confirmed: false</p>
+<dl>
+<dt class="field-name">title</dt>
+<dd>Synthetic signaling mismatch on syn-call-001</dd>
+<dt class="field-name">summary</dt>
+<dd>Synthetic incident record: displayed caller number +1-202-555-0143 is not the SIP From user +1-415-555-0138.</dd>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">technical_note</dt>
+<dd>SIP From: &lt;sip:+14155550138@example.invalid&gt;</dd>
+<dt class="field-name">technical_note</dt>
+<dd>Displayed caller number: +1-202-555-0143</dd>
+<dt class="field-name">technical_note</dt>
+<dd>P-Asserted-Identity: absent</dd>
+</dl>
+</article>
+</section>
+<section id="call_identity">
+<h2>Call identity</h2>
+<article>
+<h3>syn-call-001</h3>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">session_id</dt>
+<dd>syn-session-001</dd>
+</dl>
+</article>
+</section>
+<section id="timestamp">
+<h2>Timestamp</h2>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-call-001</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">started_at</dt>
+<dd>2026-09-20T15:04:00Z</dd>
+<dt class="field-name">ended_at</dt>
+<dd>2026-09-20T15:07:07Z</dd>
+</dl>
+</article>
+</section>
+<section id="displayed_caller_metadata">
+<h2>Displayed caller metadata</h2>
+<article data-fact-class="reported_caller_metadata" data-epistemic="raw_observation">
+<h3>syn-call-001</h3>
+<p class="tag">fact_class: reported_caller_metadata | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">displayed_caller_number</dt>
+<dd>+1-202-555-0143</dd>
+<dt class="field-name">displayed_caller_name</dt>
+<dd>CARD SERVICES</dd>
+<dt class="field-name">displayed_callee_number</dt>
+<dd>+1-555-0100</dd>
+</dl>
+</article>
+</section>
+<section id="call_duration">
+<h2>Call duration</h2>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-call-001</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">duration_seconds</dt>
+<dd>187</dd>
+</dl>
+</article>
+</section>
+<section id="transcript_excerpts">
+<h2>Transcript excerpts</h2>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-ex-001</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">speaker</dt>
+<dd>caller</dd>
+<dt class="field-name">started_at</dt>
+<dd>2026-09-20T15:04:12Z</dd>
+<dt class="field-name">ended_at</dt>
+<dd>None in source package.</dd>
+<dt class="field-name">text</dt>
+<dd>This is the Visa fraud department. I am agent Marcus.</dd>
+</dl>
+</article>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-ex-002</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">speaker</dt>
+<dd>caller</dd>
+<dt class="field-name">started_at</dt>
+<dd>2026-09-20T15:05:40Z</dd>
+<dt class="field-name">ended_at</dt>
+<dd>None in source package.</dd>
+<dt class="field-name">text</dt>
+<dd>Call me back at 1-800-555-0199 if we are disconnected.</dd>
+</dl>
+</article>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-ex-003</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">speaker</dt>
+<dd>caller</dd>
+<dt class="field-name">started_at</dt>
+<dd>2026-09-20T15:06:10Z</dd>
+<dt class="field-name">ended_at</dt>
+<dd>None in source package.</dd>
+<dt class="field-name">text</dt>
+<dd>I need you to install a remote access program so I can secure the account.</dd>
+</dl>
+</article>
+</section>
+<section id="spoken_identifiers">
+<h2>Spoken identifiers</h2>
+<article data-fact-class="spoken_identifier" data-epistemic="raw_observation">
+<h3>syn-spk-001</h3>
+<p class="tag">fact_class: spoken_identifier | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">kind</dt>
+<dd>organization</dd>
+<dt class="field-name">value</dt>
+<dd>Visa</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>syn-ex-001</dd>
+<dt class="field-name">recorded_at</dt>
+<dd>2026-09-20T15:04:12Z</dd>
+<dt class="field-name">confidence_level</dt>
+<dd>high</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.86</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-spk-001.</dd>
+</dl>
+</article>
+<article data-fact-class="spoken_identifier" data-epistemic="raw_observation">
+<h3>syn-spk-002</h3>
+<p class="tag">fact_class: spoken_identifier | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">kind</dt>
+<dd>person_name</dd>
+<dt class="field-name">value</dt>
+<dd>Marcus</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>syn-ex-001</dd>
+<dt class="field-name">recorded_at</dt>
+<dd>2026-09-20T15:04:12Z</dd>
+<dt class="field-name">confidence_level</dt>
+<dd>high</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.80</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-spk-002.</dd>
+</dl>
+</article>
+<article data-fact-class="spoken_identifier" data-epistemic="raw_observation">
+<h3>syn-spk-003</h3>
+<p class="tag">fact_class: spoken_identifier | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">kind</dt>
+<dd>callback_number</dd>
+<dt class="field-name">value</dt>
+<dd>1-800-555-0199</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>syn-ex-002</dd>
+<dt class="field-name">recorded_at</dt>
+<dd>2026-09-20T15:05:40Z</dd>
+<dt class="field-name">confidence_level</dt>
+<dd>high</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.92</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-spk-003.</dd>
+</dl>
+</article>
+</section>
+<section id="structured_observations">
+<h2>Structured observations</h2>
+<article data-fact-class="confirmed_observation" data-epistemic="raw_observation">
+<h3>syn-obs-001</h3>
+<p class="tag">fact_class: confirmed_observation | epistemic: raw_observation | confirmed: true</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">category</dt>
+<dd>impersonation</dd>
+<dt class="field-name">statement</dt>
+<dd>This is the Visa fraud department.</dd>
+<dt class="field-name">recorded_at</dt>
+<dd>2026-09-20T15:04:12Z</dd>
+<dt class="field-name">confidence_level</dt>
+<dd>high</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.90</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-obs-001.</dd>
+<dt class="field-name">supporting_excerpt_ids</dt>
+<dd>syn-ex-001</dd>
+<dt class="field-name">supporting_artifact_ids</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-obs-002</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation | confirmed: false</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">category</dt>
+<dd>requested_action</dd>
+<dt class="field-name">statement</dt>
+<dd>I need you to install a remote access program so I can secure the account.</dd>
+<dt class="field-name">recorded_at</dt>
+<dd>2026-09-20T15:06:10Z</dd>
+<dt class="field-name">confidence_level</dt>
+<dd>medium</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.55</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-obs-002.</dd>
+<dt class="field-name">supporting_excerpt_ids</dt>
+<dd>syn-ex-003</dd>
+<dt class="field-name">supporting_artifact_ids</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="derived_interpretation" data-epistemic="derived_interpretation">
+<h3>syn-obs-003</h3>
+<p class="tag">fact_class: derived_interpretation | epistemic: derived_interpretation | confirmed: false</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">category</dt>
+<dd>script_similarity</dd>
+<dt class="field-name">statement</dt>
+<dd>Fixture marks opening wording as similar to synthetic script code SYN-SCRIPT-7.</dd>
+<dt class="field-name">recorded_at</dt>
+<dd>2026-09-20T15:04:12Z</dd>
+<dt class="field-name">confidence_level</dt>
+<dd>low</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.35</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-obs-003.</dd>
+<dt class="field-name">supporting_excerpt_ids</dt>
+<dd>syn-ex-001</dd>
+<dt class="field-name">supporting_artifact_ids</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="confirmed_observation" data-epistemic="raw_observation">
+<h3>syn-obs-004</h3>
+<p class="tag">fact_class: confirmed_observation | epistemic: raw_observation | confirmed: true</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">category</dt>
+<dd>signaling</dd>
+<dt class="field-name">statement</dt>
+<dd>SIP From: &lt;sip:+14155550138@example.invalid&gt;</dd>
+<dt class="field-name">recorded_at</dt>
+<dd>2026-09-20T15:04:00Z</dd>
+<dt class="field-name">confidence_level</dt>
+<dd>high</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.95</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-obs-004.</dd>
+<dt class="field-name">supporting_excerpt_ids</dt>
+<dd>None in source package.</dd>
+<dt class="field-name">supporting_artifact_ids</dt>
+<dd>syn-art-001</dd>
+</dl>
+</article>
+</section>
+<section id="campaign_association">
+<h2>Campaign association</h2>
+<p>None in source package.</p>
+</section>
+<section id="association_reasons">
+<h2>Association reasons</h2>
+<p>None in source package.</p>
+</section>
+<section id="supporting_timestamps">
+<h2>Supporting timestamps</h2>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-call-001:call.started_at:2026-09-20T15:04:00Z</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">source_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">label</dt>
+<dd>call.started_at</dd>
+<dt class="field-name">at</dt>
+<dd>2026-09-20T15:04:00Z</dd>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>None in source package.</dd>
+<dt class="field-name">artifact_id</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-call-001:call.ended_at:2026-09-20T15:07:07Z</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">source_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">label</dt>
+<dd>call.ended_at</dd>
+<dt class="field-name">at</dt>
+<dd>2026-09-20T15:07:07Z</dd>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>None in source package.</dd>
+<dt class="field-name">artifact_id</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-ex-001:excerpt.started_at:2026-09-20T15:04:12Z</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">source_id</dt>
+<dd>syn-ex-001</dd>
+<dt class="field-name">label</dt>
+<dd>excerpt.started_at</dd>
+<dt class="field-name">at</dt>
+<dd>2026-09-20T15:04:12Z</dd>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>syn-ex-001</dd>
+<dt class="field-name">artifact_id</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-ex-002:excerpt.started_at:2026-09-20T15:05:40Z</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">source_id</dt>
+<dd>syn-ex-002</dd>
+<dt class="field-name">label</dt>
+<dd>excerpt.started_at</dd>
+<dt class="field-name">at</dt>
+<dd>2026-09-20T15:05:40Z</dd>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>syn-ex-002</dd>
+<dt class="field-name">artifact_id</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-ex-003:excerpt.started_at:2026-09-20T15:06:10Z</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">source_id</dt>
+<dd>syn-ex-003</dd>
+<dt class="field-name">label</dt>
+<dd>excerpt.started_at</dd>
+<dt class="field-name">at</dt>
+<dd>2026-09-20T15:06:10Z</dd>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>syn-ex-003</dd>
+<dt class="field-name">artifact_id</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="spoken_identifier" data-epistemic="raw_observation">
+<h3>syn-spk-001:spoken_identifier.recorded_at:2026-09-20T15:04:12Z</h3>
+<p class="tag">fact_class: spoken_identifier | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">source_id</dt>
+<dd>syn-spk-001</dd>
+<dt class="field-name">label</dt>
+<dd>spoken_identifier.recorded_at</dd>
+<dt class="field-name">at</dt>
+<dd>2026-09-20T15:04:12Z</dd>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>syn-ex-001</dd>
+<dt class="field-name">artifact_id</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="spoken_identifier" data-epistemic="raw_observation">
+<h3>syn-spk-002:spoken_identifier.recorded_at:2026-09-20T15:04:12Z</h3>
+<p class="tag">fact_class: spoken_identifier | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">source_id</dt>
+<dd>syn-spk-002</dd>
+<dt class="field-name">label</dt>
+<dd>spoken_identifier.recorded_at</dd>
+<dt class="field-name">at</dt>
+<dd>2026-09-20T15:04:12Z</dd>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>syn-ex-001</dd>
+<dt class="field-name">artifact_id</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="spoken_identifier" data-epistemic="raw_observation">
+<h3>syn-spk-003:spoken_identifier.recorded_at:2026-09-20T15:05:40Z</h3>
+<p class="tag">fact_class: spoken_identifier | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">source_id</dt>
+<dd>syn-spk-003</dd>
+<dt class="field-name">label</dt>
+<dd>spoken_identifier.recorded_at</dd>
+<dt class="field-name">at</dt>
+<dd>2026-09-20T15:05:40Z</dd>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>syn-ex-002</dd>
+<dt class="field-name">artifact_id</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="confirmed_observation" data-epistemic="raw_observation">
+<h3>syn-obs-001:observation.recorded_at:2026-09-20T15:04:12Z</h3>
+<p class="tag">fact_class: confirmed_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">source_id</dt>
+<dd>syn-obs-001</dd>
+<dt class="field-name">label</dt>
+<dd>observation.recorded_at</dd>
+<dt class="field-name">at</dt>
+<dd>2026-09-20T15:04:12Z</dd>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>None in source package.</dd>
+<dt class="field-name">artifact_id</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-obs-002:observation.recorded_at:2026-09-20T15:06:10Z</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">source_id</dt>
+<dd>syn-obs-002</dd>
+<dt class="field-name">label</dt>
+<dd>observation.recorded_at</dd>
+<dt class="field-name">at</dt>
+<dd>2026-09-20T15:06:10Z</dd>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>None in source package.</dd>
+<dt class="field-name">artifact_id</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="derived_interpretation" data-epistemic="derived_interpretation">
+<h3>syn-obs-003:observation.recorded_at:2026-09-20T15:04:12Z</h3>
+<p class="tag">fact_class: derived_interpretation | epistemic: derived_interpretation</p>
+<dl>
+<dt class="field-name">source_id</dt>
+<dd>syn-obs-003</dd>
+<dt class="field-name">label</dt>
+<dd>observation.recorded_at</dd>
+<dt class="field-name">at</dt>
+<dd>2026-09-20T15:04:12Z</dd>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>None in source package.</dd>
+<dt class="field-name">artifact_id</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+<article data-fact-class="confirmed_observation" data-epistemic="raw_observation">
+<h3>syn-obs-004:observation.recorded_at:2026-09-20T15:04:00Z</h3>
+<p class="tag">fact_class: confirmed_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">source_id</dt>
+<dd>syn-obs-004</dd>
+<dt class="field-name">label</dt>
+<dd>observation.recorded_at</dd>
+<dt class="field-name">at</dt>
+<dd>2026-09-20T15:04:00Z</dd>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">excerpt_id</dt>
+<dd>None in source package.</dd>
+<dt class="field-name">artifact_id</dt>
+<dd>None in source package.</dd>
+</dl>
+</article>
+</section>
+<section id="relevant_artifacts">
+<h2>Relevant artifacts</h2>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-art-001</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">call_id</dt>
+<dd>syn-call-001</dd>
+<dt class="field-name">kind</dt>
+<dd>signaling_log</dd>
+<dt class="field-name">label</dt>
+<dd>Synthetic SIP signaling excerpt</dd>
+<dt class="field-name">uri</dt>
+<dd>synthetic://artifacts/syn-call-001/signaling.log</dd>
+<dt class="field-name">media_type</dt>
+<dd>text/plain</dd>
+<dt class="field-name">sha256</dt>
+<dd>0278b0bb458f7e26be733563e29976d66c482825194f40cf289a7a3f4bbe031d</dd>
+<dt class="field-name">inline_text</dt>
+<dd><pre># synthetic signaling excerpt syn-call-001
+SIP From: &lt;sip:+14155550138@example.invalid&gt;
+Displayed caller number: +1-202-555-0143
+P-Asserted-Identity: absent
+</pre></dd>
+</dl>
+</article>
+</section>
+<section id="confidence_levels">
+<h2>Confidence levels</h2>
+<article data-fact-class="spoken_identifier" data-epistemic="raw_observation">
+<h3>syn-spk-001</h3>
+<p class="tag">fact_class: spoken_identifier | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">confidence_level</dt>
+<dd>high</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.86</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-spk-001.</dd>
+</dl>
+</article>
+<article data-fact-class="spoken_identifier" data-epistemic="raw_observation">
+<h3>syn-spk-002</h3>
+<p class="tag">fact_class: spoken_identifier | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">confidence_level</dt>
+<dd>high</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.80</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-spk-002.</dd>
+</dl>
+</article>
+<article data-fact-class="spoken_identifier" data-epistemic="raw_observation">
+<h3>syn-spk-003</h3>
+<p class="tag">fact_class: spoken_identifier | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">confidence_level</dt>
+<dd>high</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.92</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-spk-003.</dd>
+</dl>
+</article>
+<article data-fact-class="confirmed_observation" data-epistemic="raw_observation">
+<h3>syn-obs-001</h3>
+<p class="tag">fact_class: confirmed_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">confidence_level</dt>
+<dd>high</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.90</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-obs-001.</dd>
+</dl>
+</article>
+<article data-fact-class="raw_observation" data-epistemic="raw_observation">
+<h3>syn-obs-002</h3>
+<p class="tag">fact_class: raw_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">confidence_level</dt>
+<dd>medium</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.55</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-obs-002.</dd>
+</dl>
+</article>
+<article data-fact-class="derived_interpretation" data-epistemic="derived_interpretation">
+<h3>syn-obs-003</h3>
+<p class="tag">fact_class: derived_interpretation | epistemic: derived_interpretation</p>
+<dl>
+<dt class="field-name">confidence_level</dt>
+<dd>low</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.35</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-obs-003.</dd>
+</dl>
+</article>
+<article data-fact-class="confirmed_observation" data-epistemic="raw_observation">
+<h3>syn-obs-004</h3>
+<p class="tag">fact_class: confirmed_observation | epistemic: raw_observation</p>
+<dl>
+<dt class="field-name">confidence_level</dt>
+<dd>high</dd>
+<dt class="field-name">confidence_score</dt>
+<dd>0.95</dd>
+<dt class="field-name">confidence_basis</dt>
+<dd>Confidence supplied with synthetic record syn-obs-004.</dd>
+</dl>
+</article>
+</section>
+</body>
+</html>

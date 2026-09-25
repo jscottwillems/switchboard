@@ -1,0 +1,6 @@
+identifier_id,call_id,kind,value,excerpt_id,recorded_at,confidence_level,confidence_score,confidence_basis,fact_class,epistemic
+syn-spk-001,syn-call-001,organization,Visa,syn-ex-001,2026-09-20T15:04:12Z,high,0.86,Confidence supplied with synthetic record syn-spk-001.,spoken_identifier,raw_observation
+syn-spk-002,syn-call-001,person_name,Marcus,syn-ex-001,2026-09-20T15:04:12Z,high,0.80,Confidence supplied with synthetic record syn-spk-002.,spoken_identifier,raw_observation
+syn-spk-003,syn-call-001,callback_number,1-800-555-0199,syn-ex-002,2026-09-20T15:05:40Z,high,0.92,Confidence supplied with synthetic record syn-spk-003.,spoken_identifier,raw_observation
+syn-spk-004,syn-call-002,organization,Visa,syn-ex-004,2026-09-21T13:15:20Z,high,0.84,Confidence supplied with synthetic record syn-spk-004.,spoken_identifier,raw_observation
+syn-spk-005,syn-call-002,callback_number,1-800-555-0199,syn-ex-004,2026-09-21T13:15:20Z,high,0.88,Confidence supplied with synthetic record syn-spk-005.,spoken_identifier,raw_observation

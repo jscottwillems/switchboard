@@ -1,0 +1,14 @@
+subject_id,fact_class,epistemic,confidence_level,confidence_score,confidence_basis
+syn-spk-001,spoken_identifier,raw_observation,high,0.86,Confidence supplied with synthetic record syn-spk-001.
+syn-spk-002,spoken_identifier,raw_observation,high,0.80,Confidence supplied with synthetic record syn-spk-002.
+syn-spk-003,spoken_identifier,raw_observation,high,0.92,Confidence supplied with synthetic record syn-spk-003.
+syn-obs-001,confirmed_observation,raw_observation,high,0.90,Confidence supplied with synthetic record syn-obs-001.
+syn-obs-002,raw_observation,raw_observation,medium,0.55,Confidence supplied with synthetic record syn-obs-002.
+syn-obs-003,derived_interpretation,derived_interpretation,low,0.35,Confidence supplied with synthetic record syn-obs-003.
+syn-obs-004,confirmed_observation,raw_observation,high,0.95,Confidence supplied with synthetic record syn-obs-004.
+syn-spk-004,spoken_identifier,raw_observation,high,0.84,Confidence supplied with synthetic record syn-spk-004.
+syn-spk-005,spoken_identifier,raw_observation,high,0.88,Confidence supplied with synthetic record syn-spk-005.
+syn-obs-005,confirmed_observation,raw_observation,high,0.90,Confidence supplied with synthetic record syn-obs-005.
+syn-campaign-001,derived_association,campaign_attribution,high,0.80,Confidence supplied with synthetic record syn-campaign-001.
+syn-reason-001,derived_association,campaign_attribution,high,0.92,Confidence supplied with synthetic record syn-reason-001.
+syn-reason-002,derived_association,campaign_attribution,medium,0.60,Confidence supplied with synthetic record syn-reason-002.

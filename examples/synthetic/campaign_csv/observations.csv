@@ -1,0 +1,6 @@
+observation_id,call_id,category,statement,confirmed,fact_class,epistemic,recorded_at,confidence_level,confidence_score,confidence_basis,supporting_excerpt_ids,supporting_artifact_ids
+syn-obs-001,syn-call-001,impersonation,This is the Visa fraud department.,true,confirmed_observation,raw_observation,2026-09-20T15:04:12Z,high,0.90,Confidence supplied with synthetic record syn-obs-001.,syn-ex-001,
+syn-obs-002,syn-call-001,requested_action,I need you to install a remote access program so I can secure the account.,false,raw_observation,raw_observation,2026-09-20T15:06:10Z,medium,0.55,Confidence supplied with synthetic record syn-obs-002.,syn-ex-003,
+syn-obs-003,syn-call-001,script_similarity,Fixture marks opening wording as similar to synthetic script code SYN-SCRIPT-7.,false,derived_interpretation,derived_interpretation,2026-09-20T15:04:12Z,low,0.35,Confidence supplied with synthetic record syn-obs-003.,syn-ex-001,
+syn-obs-004,syn-call-001,signaling,SIP From: <sip:+14155550138@example.invalid>,true,confirmed_observation,raw_observation,2026-09-20T15:04:00Z,high,0.95,Confidence supplied with synthetic record syn-obs-004.,,syn-art-001
+syn-obs-005,syn-call-002,impersonation,This is the Visa fraud department.,true,confirmed_observation,raw_observation,2026-09-21T13:15:20Z,high,0.90,Confidence supplied with synthetic record syn-obs-005.,syn-ex-004,
