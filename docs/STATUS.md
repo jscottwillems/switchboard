@@ -144,7 +144,7 @@ Done-when details:
 - **SB-019.** A manifest model references ids in three sections and includes a hash of its canonical JSON. It does not copy finding text into an observation slot.
 - **SB-020.** Durations for STT, select, and TTS can be emitted. If that emit raises, `respond_to_audio` still returns the audio bytes.
 
-## HANDOFF — ATLAS — 2026-09-25T20:35:04Z
+## HANDOFF — ATLAS — 2026-09-25T20:48:46Z
 
 ### Completed
 
