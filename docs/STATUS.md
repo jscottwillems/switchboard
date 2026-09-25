@@ -15,7 +15,7 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | Response selected | `FixedResponseSelector` exists. The socket does not call it |
 | TTS and audio to caller | `MockTts` returns 160 deterministic PCMU bytes. The socket does not call it |
 | Transcript stored | No projector |
-| Intelligence extracted | `POST /v1/internal/extract` returns an empty list |
+| Intelligence extracted | `POST /v1/internal/extract` proposes `callback_number` when a segment contains an E.164 |
 | Call on the dashboard | Vue page calls `GET /v1/calls`, which returns an empty list |
 
 `docker-compose.yml` describes the local topology. The API voice webhook opens Postgres and best-effort Redis. The media gateway, intelligence, and dashboard do not. Read routes still return an empty list until `SB-018`.
@@ -334,3 +334,46 @@ ATLAS's own next implementation tickets are SB-016 and SB-017. Other agents shou
 
 - ECHO waits on SB-005 until SB-016 lands, then SB-008 after SB-005 and SB-007.
 - SB-007 (LOKI) is still the selector rule change. This slice calls the existing `FixedResponseSelector` from `respond_to_audio` and from the timing tests. It does not add conversation policy.
+
+## HANDOFF — SHERLOCK — 2026-09-25T21:10:00Z
+
+SB-009. Findings are `interp.intelligence_finding` rows (`IntelligenceFinding`, `record_layer: interpretation`). This change does not add an observation table and does not emit campaign attributions.
+
+### Completed
+
+- `E164FindingExtractor` in `packages/classification/extractor.py`. A transcript segment whose text contains a literal E.164 token yields one `proposed` finding of kind `callback_number` citing that segment. A segment without one yields nothing. A repeated token in the same segment is one finding. Two distinct tokens are two findings, each citing that segment.
+- `POST /v1/internal/extract` calls that extractor. `NullFindingExtractor` remains the empty port.
+- `value` and `raw_quote` are the E.164 substring. `confidence` is `1.0` because the rule ran, not because the number is known to be a real callback. `extractor` is `e164`, `extractor_version` is `0.1.0`. Finding ids are UUIDv5 over the call, the segment, and the value.
+
+### Files changed
+
+- `packages/classification/switchboard_classification/extractor.py`
+- `packages/classification/switchboard_classification/__init__.py`
+- `apps/intelligence/switchboard_intelligence/main.py`
+- `tests/test_e164_extractor.py`, `tests/test_media_and_intelligence.py`
+- `docs/STATUS.md`, `docs/API_CONTRACTS.md` (the extract route no longer returns an empty list for every body)
+
+### Interfaces added-changed
+
+- `FindingExtractor.extract(segments) -> list[IntelligenceFinding]` now has an E.164 implementation. The finding shape is the existing `IntelligenceFinding` from `packages/schemas`. Kind used: `callback_number`. Status: `proposed`.
+- No new `FindingKind` members. Loki and Watson field requests (spoken CLI versus callback, opening script, IVR path, transfer destination, script locale, normalized company, registrable domain, phrase fingerprint, identifier kind) stay off this extractor until ATLAS adds kinds in `packages/schemas` and `docs/DATA_MODEL.md`.
+
+### Tests
+
+- A segment containing `+15551234567` yields one proposed `callback_number` citing that segment.
+- A segment with no E.164, including a formatted `(800)` number, yields nothing.
+- `make test`: 30 passed, including the unit cases and `POST /v1/internal/extract`.
+
+### Dependencies
+
+- Canonical models from `packages/schemas` on the Atlas skeleton (`FindingKind`, `IntelligenceFinding`, `TranscriptSegment`).
+- SB-010 is not started. It needs the event bus from SB-016 before `speech.segment.final` can become a stored finding and `intelligence.finding.proposed`.
+
+### Blocking issues
+
+- None for SB-009. Persistence of findings is still SB-017. Correlation is still WATSON (SB-011), not this extractor.
+
+### Recommended next work
+
+- ATLAS: extend `FindingKind` only when a new kind is agreed, then Sherlock can emit it.
+- SHERLOCK: SB-010 after SB-016. Do not start it in this change.

@@ -237,9 +237,9 @@ Base URL locally: `http://localhost:8002`.
 
 ### `POST /v1/internal/extract`
 
-Auth: internal token. Request `ExtractRequest`: `call_session_id` and `segments` (`TranscriptSegment` objects). Response `ExtractResponse`: `{"findings": []}`.
+Auth: internal token. Request `ExtractRequest`: `call_session_id` and `segments` (`TranscriptSegment` objects). Response `ExtractResponse`: `findings`, an `IntelligenceFinding` list.
 
-This route exists so agents can test an extractor without the bus. The production path is the Redis consumer, not this POST. The stub calls `NullFindingExtractor` and returns an empty list. A finding that comes back must cite at least one segment id (`IntelligenceFinding`).
+This route exists so agents can test an extractor without the bus. The production path is the Redis consumer, not this POST. The route calls `E164FindingExtractor`. A segment whose text contains an E.164 token yields one `proposed` finding of kind `callback_number` citing that segment. A segment without one yields nothing. `NullFindingExtractor` remains the empty port for tests. A finding must cite at least one segment id.
 
 ## In-process ports
 
@@ -252,7 +252,7 @@ These are not HTTP APIs.
 | `ResponseSelector.select(ResponseRequest) -> ResponseDecision` | `packages/conversation` | LOKI | `FixedResponseSelector` returns "Could you repeat that?" with `strategy_id` `fixed.v1` and confidence `1.0` (certain it followed the rule) |
 | `SttPort.push_audio(payload) -> list[SttEvent]` | `apps/media_gateway` | ECHO | `MockStt` returns `[]` |
 | `TtsPort.synthesize(text) -> bytes` | `apps/media_gateway` | ECHO | `MockTts` returns one deterministic `audio/pcmu` frame for non-empty text |
-| `FindingExtractor.extract(segments)` | `packages/classification` | SHERLOCK | `NullFindingExtractor` returns `[]` |
+| `FindingExtractor.extract(segments)` | `packages/classification` | SHERLOCK | `E164FindingExtractor` proposes `callback_number`. `NullFindingExtractor` returns `[]` |
 | `CampaignCorrelator.propose(CorrelationInput)` | `packages/classification` | WATSON | `NullCampaignCorrelator` returns `[]` |
 
 `respond_to_audio` in `apps/media_gateway/switchboard_media/hotpath.py` is the hot-path order: STT, then selector, then TTS. It emits stage durations through `log_info`. The WebSocket handler does not call it yet (`SB-008`).

@@ -3,7 +3,7 @@ import hmac
 from fastapi import Depends, FastAPI, Header, Request
 from fastapi.responses import JSONResponse
 
-from switchboard_classification import NullFindingExtractor
+from switchboard_classification import E164FindingExtractor
 from switchboard_observability import log_info
 from switchboard_schemas.api import ErrorBody, ExtractRequest, ExtractResponse, HealthResponse
 from switchboard_schemas.common import CONTRACT_VERSION
@@ -11,7 +11,7 @@ from switchboard_schemas.common import CONTRACT_VERSION
 from switchboard_intelligence.settings import get_settings
 
 app = FastAPI(title="Switchboard Intelligence", version=CONTRACT_VERSION)
-_extractor = NullFindingExtractor()
+_extractor = E164FindingExtractor()
 _settings = get_settings()
 log_info(
     "intelligence_starting",
