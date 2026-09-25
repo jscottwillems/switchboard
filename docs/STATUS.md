@@ -567,7 +567,7 @@ This handoff sits on the ATLAS skeleton. It does not replace the handoff above. 
 
 - `tests/test_call_reads.py` inserts sessions through `open_observation_writer`, findings through `open_finding_writer`, and attributions through `open_attribution_writer`, then asserts the HTTP bodies.
 - Covered: empty list, unknown id on detail and the three sub-routes, limit bounds, bad cursor, default limit 50, a signed voice webhook on the list, newest-first pages, `in_progress` and `completed` rows, and detail layers kept apart (`observation` transcript, `interpretation` finding, `attribution` link).
-- Targeted `tests/test_call_reads.py` and `tests/test_api.py`: 14 passed. Full `make test` is recorded on the follow-up to this handoff.
+- `make test`: 128 passed, 2 skipped. The skips are the existing SB-014 and operator-auth tripwires. The previous suite on main was 123 passed, 2 skipped.
 
 ### Dependencies
 
