@@ -660,7 +660,7 @@ This handoff sits on the ATLAS skeleton. It does not replace the handoff above. 
 ### Tests
 
 - `tests/test_echo_stt.py`: fixture frame is one final; other frames publish nothing; partials and empty text are not published; two finals take sequence `0` then `1`; a bad Redis URL does not raise or advance sequence; the socket publishes `speech.segment.final` that `api.projector` and `intelligence.extractor` can read.
-- Run: `make test` (Postgres at `DATABASE_URL`, Redis at `REDIS_URL`). The socket case uses Redis db 15 and flushes that db.
+- `make test`: 130 passed, 2 skipped. The skips are the existing SB-014 and operator-auth tripwires. The socket case uses Redis db 15 and flushes that db.
 
 ### Dependencies
 
@@ -671,6 +671,7 @@ This handoff sits on the ATLAS skeleton. It does not replace the handoff above. 
 
 - None for SB-005.
 - SB-008 is still open. The socket already publishes the segment. The next change should take `RecognitionResult.events` and run the selector and TTS from that text. It should not call `push_audio` a second time on the same frame, or the caller will be recognized twice.
+- Transcript `sequence` is per socket, starting at `0`. A second socket on the same call can publish sequence `0` again. The milestone uses one stream per call.
 - `docs/SECURITY.md` still says `MockTts` returns empty bytes. That sentence is stale after SB-006. ECHO updated only the STT row in this change.
 
 ### Recommended next work
