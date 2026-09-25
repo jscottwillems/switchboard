@@ -25,7 +25,11 @@ _E164_IN_TEXT = re.compile(r"(?:^|(?<=\s))\+[1-9]\d{1,14}(?!\d)")
 
 class FindingExtractor(Protocol):
     def extract(self, segments: Sequence[TranscriptSegment]) -> list[IntelligenceFinding]:
-        """Propose findings. Each finding must cite transcript segments."""
+        """Propose findings. Each finding must cite transcript segments.
+
+        `TranscriptSegment.stt_confidence` is the recognizer's score. It is not
+        `IntelligenceFinding.confidence`.
+        """
 
 
 class NullFindingExtractor:

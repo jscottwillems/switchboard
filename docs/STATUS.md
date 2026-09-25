@@ -2,7 +2,7 @@
 
 Contract version **0.1.0**. Updated by ATLAS on 2026-09-25.
 
-The authoritative docs exist, the repository layout exists, and the shared schemas exist. The first-milestone phone call is not implemented. ECHO has landed media parsing, token checks, mock STT finals, deterministic mock TTS, and hot-path timing (SB-004, SB-005, SB-006, SB-020). Call list and detail read stored rows (SB-018). Status callbacks update session state and publish telephony events (SB-003). Campaign reads still advertise the contracts and stop there.
+The authoritative docs exist, the repository layout exists, and the shared schemas exist. The first-milestone phone call is not implemented. ECHO has landed media parsing, token checks, mock STT finals, deterministic mock TTS, and hot-path timing (SB-004, SB-005, SB-006, SB-020). Call list and detail read stored rows (SB-018). Status callbacks update session state and publish telephony events (SB-003). The extractor consumes `speech.segment.final` into a finding and `intelligence.finding.proposed` (SB-010). Campaign reads still advertise the contracts and stop there.
 
 ## What runs today
 
@@ -15,10 +15,10 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | Response selected | `FixedResponseSelector` exists. The socket does not call it |
 | TTS and audio to caller | `MockTts` returns 160 deterministic PCMU bytes. The socket does not call it |
 | Transcript stored | No projector |
-| Intelligence extracted | `POST /v1/internal/extract` proposes `callback_number` when a segment contains an E.164 |
+| Intelligence extracted | `intelligence.extractor` writes `interp.intelligence_finding` and publishes `intelligence.finding.proposed` for an E.164 in `speech.segment.final`. `POST /v1/internal/extract` still proposes the same finding without the bus |
 | Call on the dashboard | `GET /v1/calls` and `GET /v1/calls/{id}` return stored rows. The Vue app still uses mock fixtures until SB-013 |
 
-`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. Campaign routes still return an empty list and `404`. The media gateway publishes `speech.segment.final` for the mock STT fixture and does not open Postgres. The dashboard does not open either client.
+`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. Campaign routes still return an empty list and `404`. The media gateway publishes `speech.segment.final` for the mock STT fixture and does not open Postgres. The intelligence extractor consumes that event, writes `interp.intelligence_finding`, and publishes `intelligence.finding.proposed`. The dashboard does not open either client.
 
 ## Ownership map
 
@@ -678,3 +678,56 @@ This handoff sits on the ATLAS skeleton. It does not replace the handoff above. 
 
 - ECHO SB-008: after `recognize_frame` returns a final, call LOKI's `ResponseSelector` and `MockTts`, write the audio to the socket, and publish `conversation.response.selected` and `conversation.turn.recorded` through the same `event_bus()`.
 - SHERLOCK SB-010 can consume `speech.segment.final` from `ConsumerGroup.INTELLIGENCE_EXTRACTOR`. The stored row's `provider` (`mock-stt` in `docs/DATA_MODEL.md`) is the projector's field. It is not on `SpeechSegmentPayload`.
+
+## HANDOFF — SHERLOCK — 2026-09-25T23:45:14Z
+
+SB-010. `speech.segment.final` is consumed by `intelligence.extractor`. A literal E.164 becomes one `interp.intelligence_finding` row and one `intelligence.finding.proposed` event. This change does not add a `FindingKind`, does not write `obs.*`, and does not emit campaign attributions.
+
+### Completed
+
+- `ExtractorConsumer` in `apps/intelligence/switchboard_intelligence/extractor_worker.py` reads `ConsumerGroup.INTELLIGENCE_EXTRACTOR` through `switchboard_intelligence.deps.event_bus`. `speech.segment.final` is adapted to one in-memory `TranscriptSegment` and passed to `E164FindingExtractor`. Each finding is inserted with `finding_writer` and published with `EventBus.publish`. The proposed event id is a UUIDv5 of the finding id. `confidence` on that event is the finding's confidence.
+- A final segment with no E.164, and every other event type including `speech.segment.partial`, is acknowledged and does not insert a row or publish a proposal.
+- Extractor exceptions are logged as `extractor_failed` with the event id, event type, call session id, and a fixed reason. The transcript and the exception message are not logged. The entry is acknowledged so the group continues. A later final segment still becomes a finding. The media socket stays open and still accepts `start`, a binary frame, and `stop` (`1000`).
+- A failed insert or a failed publish leaves the source entry pending. Redis errors in the loop are logged as `extractor_poll_failed` and the loop continues.
+- The same `event_id` handled twice inserts one row. `EventBus.ack` drops a later copy of that id before `extract` runs again. Finding ids stay the SB-009 UUIDv5.
+- The intelligence process starts this loop from its FastAPI lifespan when `DATABASE_URL` and `REDIS_URL` are set. `SWITCHBOARD_EXTRACTOR_WORKER=0` leaves it off. Pytest leaves it off unless that flag is `1`. `POST /v1/internal/extract` is unchanged.
+
+### Files changed
+
+- `apps/intelligence/switchboard_intelligence/extractor_worker.py`
+- `apps/intelligence/switchboard_intelligence/main.py`
+- `apps/intelligence/switchboard_intelligence/deps.py` (docstring only)
+- `packages/classification/switchboard_classification/extractor.py` (docstring: `stt_confidence` is not finding confidence)
+- `tests/test_extractor_consumer.py`
+- `docs/API_CONTRACTS.md`, `docs/STATUS.md`
+
+### Interfaces added-changed
+
+- `ExtractorConsumer.poll` / `handle`, `transcript_from_final`, `finding_proposed_envelope`, `serve_extractor`.
+- No new `FindingKind`. No change to `IntelligenceFinding` or `SpeechSegmentPayload`.
+- `stt_confidence` is placed on the in-memory segment only. It is not a field of `IntelligenceFindingProposed` and it is not written into `IntelligenceFinding.confidence`.
+
+### Tests
+
+- Final segment containing `+15551234567` with `stt_confidence` `0.25` stores one `callback_number` whose confidence is `1.0`, cites that segment, and publishes one `intelligence.finding.proposed`. No `obs.transcript_segment` row is written. A following non-speech event is acknowledged and does not block the final.
+- A final segment without an E.164, and a partial that contains one, store nothing and publish nothing.
+- An extractor exception is acknowledged, omitted from the finding table, and absent from the log as transcript text. The next final still lands. A media socket that is already `ready` still closes with `1000` after `start`, audio, and `stop`.
+- Two handles of one delivery, then a raw re-append of the same `event_id`, leave one finding and one proposed event. The re-append does not call `extract` again.
+- `make test`: 130 passed, 2 skipped. The skips are the existing SB-014 and operator-auth tripwires.
+
+### Dependencies
+
+- SB-009 `E164FindingExtractor` and UUIDv5 finding ids.
+- SB-016 `EventBus` and SB-017 `finding_writer`. The finding's `call_session_id` must already exist; this consumer does not insert the session.
+
+### Blocking issues
+
+- None for SB-010. `docs/SECURITY.md` still says extractor exceptions must not close sockets when SB-010 lands, and that extract returns an empty list. Both sentences are stale. SENTINEL or ATLAS should replace them. This change did not edit that file.
+- A missing `obs.call_session` makes the insert fail and leaves the entry pending, which holds the group's later entries behind it until the session row exists.
+- No transactional outbox. A crash after the finding commit and before a successful publish is recovered by redelivery because the proposed event id is stable. A crash that loses the Redis entry still loses the proposal (ADR-011). The finding row remains.
+
+### Recommended next work
+
+- WATSON: SB-012 can consume `intelligence.finding.proposed` on `intelligence.correlator` and write `attr.*`.
+- ECHO: SB-005 publishes `speech.segment.final` from the media gateway. This consumer is ready for that event.
+- SENTINEL: update the extractor row in the `docs/SECURITY.md` failure-mode matrix.
