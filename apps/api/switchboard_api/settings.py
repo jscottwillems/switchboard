@@ -1,4 +1,4 @@
-"""Process settings. The voice webhook reads database_url and redis_url."""
+"""Process settings. The voice webhook, repositories, and event bus read these URLs."""
 
 import os
 from dataclasses import dataclass

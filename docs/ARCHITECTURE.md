@@ -144,7 +144,7 @@ flowchart TB
 
 The browser talks to `http://localhost:8000`. Containers talk to each other by service name. Compose sets `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` only on the API container so a local curl works. That flag is ignored unless `SWITCHBOARD_ENV=dev`. See `docs/SECURITY.md`.
 
-`DATABASE_URL` and `REDIS_URL` are present in the process environment. The voice webhook writes `obs.webhook_receipt` and `obs.call_session` and best-effort publishes `telephony.call.received`. Shared repository coverage (`SB-017`) and the consumer-group helper (`SB-016`) are still open. The media gateway, intelligence, and dashboard do not open those clients.
+The voice webhook writes `obs.webhook_receipt` and `obs.call_session` through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Publish does not wait on a projector transaction. A Redis failure leaves the committed session in place. Process startup does not connect. `GET /health` probes Postgres and Redis only when `SWITCHBOARD_HEALTH_PROBES=1`. The media gateway can publish events and does not open Postgres. The dashboard does not open either client.
 
 ## Package import direction
 
@@ -157,6 +157,8 @@ flowchart TD
   conv[packages_conversation]
   cls[packages_classification]
   obs[packages_observability]
+  events[packages_events]
+  repos[packages_repositories]
   api[apps_api]
   gw[apps_media_gateway]
   intel[apps_intelligence]
@@ -165,15 +167,23 @@ flowchart TD
   tel --> schemas
   conv --> schemas
   cls --> schemas
+  events --> schemas
+  events --> obs
+  repos --> schemas
   api --> schemas
   api --> tel
   api --> obs
+  api --> events
+  api --> repos
   gw --> schemas
   gw --> conv
   gw --> obs
+  gw --> events
   intel --> schemas
   intel --> cls
   intel --> obs
+  intel --> events
+  intel --> repos
   ui --> schemas
 ```
 

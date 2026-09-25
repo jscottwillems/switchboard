@@ -6,12 +6,14 @@ ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 COPY packages/schemas /opt/packages/schemas
 COPY packages/conversation /opt/packages/conversation
 COPY packages/observability /opt/packages/observability
+COPY packages/events /opt/packages/events
 COPY apps/media_gateway /srv
 
 RUN pip install --no-cache-dir \
     /opt/packages/schemas \
     /opt/packages/conversation \
     /opt/packages/observability \
+    /opt/packages/events \
     /srv
 
 EXPOSE 8001

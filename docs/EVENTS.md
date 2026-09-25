@@ -21,7 +21,19 @@ Consumer groups:
 | `intelligence.extractor` | `apps/intelligence` | `interp.intelligence_finding` |
 | `intelligence.correlator` | `apps/intelligence` | `attr.*` |
 
-The skeleton does not publish or consume yet (`SB-016`).
+`packages/events` (`switchboard_events.EventBus`) is the shared publisher and consumer-group reader. `build_envelope` fills `event_id`, `occurred_at`, `producer`, and `call_session_id`, then `validate_event` runs. The stream entry has one field, `envelope`, containing the JSON text. A second publish of the same `event_id` does not append another entry (`switchboard.events:id:{event_id}` stores the stream id). `ack` records `switchboard.events:ack:{group}:{event_id}` so a redelivery of that id is not handed to the handler again.
+
+Redis errors on publish log `event_publish_failed` and return `PublishResult.failed`. They do not raise, and they do not roll back a Postgres commit (ADR-011). Read failures log `event_read_failed` and raise. Invalid entries are acknowledged and skipped.
+
+App entry points, all backed by that bus:
+
+| Process | Call |
+| --- | --- |
+| `apps/api` | `switchboard_api.telephony_events.publish_envelope` and `switchboard_api.deps.get_event_bus` |
+| `apps/media_gateway` | `switchboard_media.events.event_bus` |
+| `apps/intelligence` | `switchboard_intelligence.deps.event_bus` |
+
+`ConsumerGroup` is `api.projector`, `intelligence.extractor`, and `intelligence.correlator`. Do not XADD beside this helper.
 
 Consumers dedupe on `event_id`. Ordering on the stream is global and best-effort across calls. Handlers are idempotent.
 
