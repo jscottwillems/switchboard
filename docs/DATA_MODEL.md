@@ -121,13 +121,27 @@ Foreign keys point from `interp` and `attr` toward `obs`, and from `obs.call_ses
 | `interp.intelligence_finding` | `apps/intelligence` extractor |
 | `attr.campaign` and `attr.campaign_attribution` | `apps/intelligence` correlator |
 
-The media gateway and the dashboard have no database credentials in the target deployment. The skeleton images do not connect yet.
+The media gateway and the dashboard have no database credentials in the target deployment. The gateway publishes through `packages/events` and does not import `packages/repositories`.
+
+Python writes go through `packages/repositories`:
+
+| Port | Who calls it | Tables |
+| --- | --- | --- |
+| `TelephonyObsStore` | API voice webhook | active `ops.operator_number` lookup, idempotent `obs.call_session` insert, append-only `obs.webhook_receipt` |
+| `observation_writer` | API projector | `ops` read, `obs.*`, `interp.conversation_turn` |
+| `finding_writer` | intelligence extractor | `interp.intelligence_finding` |
+| `attribution_writer` | intelligence correlator | `attr.campaign`, `attr.campaign_attribution` |
+| `read_models` | API read routes (`SB-018`) | fetch helpers for every table above |
+
+`insert_ringing` is idempotent on `(carrier, external_call_id)` and does not change the stored caller number. New findings are inserted as `proposed` and have no campaign column. `set_status` on a finding updates `status` only.
 
 ## Redis keys
 
 | Key | Contents | Durability |
 | --- | --- | --- |
-| `switchboard.events` | Event envelopes | Recoverable only while Redis has the stream. Postgres is the record |
+| `switchboard.events` | Event envelopes. One field, `envelope`, JSON text | Recoverable only while Redis has the stream. Postgres is the record |
+| `switchboard.events:id:{event_id}` | Stream id already published for that `event_id` | Same lifetime as Redis. Makes publish idempotent |
+| `switchboard.events:ack:{group}:{event_id}` | Stream id acknowledged by that consumer group | Same lifetime as Redis. A redelivery is not handled twice |
 | `stream_token:{token}` | `call_session_id` and expiry | Ephemeral. Target TTL 60s, single use |
 
 Tokens are not rows in Postgres in 0.1.0.

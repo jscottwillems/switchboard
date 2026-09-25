@@ -18,7 +18,7 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | Intelligence extracted | `POST /v1/internal/extract` proposes `callback_number` when a segment contains an E.164 |
 | Call on the dashboard | Vue page calls `GET /v1/calls`, which returns an empty list |
 
-`docker-compose.yml` describes the local topology. The API voice webhook opens Postgres and best-effort Redis. The media gateway, intelligence, and dashboard do not. Read routes still return an empty list until `SB-018`.
+`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Read routes still return an empty list until `SB-018`. The media gateway can publish and does not open Postgres. The dashboard does not open either client.
 
 ## Ownership map
 
@@ -31,6 +31,8 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | `packages/classification/extractor.py` | SHERLOCK | Findings |
 | `packages/classification/correlator.py` | WATSON | Campaigns |
 | `packages/observability` | ATLAS interface, SENTINEL redaction | Extend `REDACTED_KEYS` rather than logging beside it |
+| `packages/events` | ATLAS | Redis stream publish and consumer groups |
+| `packages/repositories` | ATLAS | Postgres ports for `ops`, `obs`, `interp`, `attr` |
 | `apps/api` read models, errors, migrations | ATLAS | |
 | `apps/api` telephony routes | BELL | HTTP shapes stay aligned with `docs/API_CONTRACTS.md` |
 | `apps/media_gateway` | ECHO | Calls LOKI's selector in-process |
@@ -48,6 +50,8 @@ An agent does not take over another owner's directory to "finish" their subsyste
 ```mermaid
 flowchart TD
   schemas[packages_schemas_ATLAS]
+  events[packages_events_ATLAS]
+  repos[packages_repositories_ATLAS]
   tel[telephony_BELL]
   conv[conversation_LOKI]
   ext[extractor_SHERLOCK]
@@ -63,12 +67,19 @@ flowchart TD
   conv --> schemas
   ext --> schemas
   cor --> schemas
+  events --> schemas
+  repos --> schemas
   api --> schemas
   api --> tel
+  api --> events
+  api --> repos
   gw --> schemas
   gw --> conv
+  gw --> events
   intel --> ext
   intel --> cor
+  intel --> events
+  intel --> repos
   ui --> schemas
   sec --> api
   sec --> gw
@@ -478,3 +489,54 @@ This handoff sits on the ATLAS skeleton. It does not replace the handoff above. 
 - Operator authentication on the read API before any non-local dashboard deploy.
 - When `SB-017` adds repositories, turn health probes on in the deployment that should fail closed, and keep them off for the local compose file until those clients exist.
 - BELL adds a real `SignatureVerifier` next to the mock class when a carrier is chosen. Dedupe stays on `provider_call_id` (`SB-001`).
+
+## HANDOFF — ATLAS — 2026-09-25T23:33:52Z
+
+### Completed
+
+- Rebased SB-016 and SB-017 onto main `caea035` (specialist stack #12/#10/#11/#13/#14/#5).
+- SB-016. `packages/events` publishes a validated `EventEnvelope` to `switchboard.events` and reads it through `api.projector`, `intelligence.extractor`, and `intelligence.correlator`. The entry is still one `envelope` JSON field, approximate maxlen 100000. The same `event_id` does not append twice. `ack` dedupes redelivery for that group. Redis publish failures log `event_publish_failed` and return `PublishResult.failed`. They do not raise and do not roll back a committed session (ADR-011).
+- Bell's direct `XADD` in `switchboard_api.telephony_events` now calls `EventBus.publish`. `EVENT_STREAM_KEY` is still `switchboard.events`. `telephony_call_received_envelope` still builds `telephony.call.received`. The voice route is unchanged: it publishes only on the first insert of `(carrier, external_call_id)`.
+- SB-017. `packages/repositories` is the Postgres port for `ops`, `obs`, `interp`, and `attr` on `001_init.sql`. No new migration. `switchboard_api.obs_store.get_obs_store` returns that `TelephonyObsStore`, so SB-001 keeps active-operator lookup, the idempotent ringing insert, and the append-only receipt. Findings have no campaign column.
+
+### Files changed
+
+- `packages/events`, `packages/repositories`
+- `apps/api/switchboard_api/telephony_events.py`, `obs_store.py`, `deps.py`, `settings.py`, `apps/api/Dockerfile`
+- `apps/media_gateway/switchboard_media/events.py`, `apps/media_gateway/Dockerfile`
+- `apps/intelligence/switchboard_intelligence/deps.py`, `apps/intelligence/Dockerfile`
+- `tests/test_event_bus.py`, `tests/test_repositories.py`, `tests/db_support.py`
+- `docs/EVENTS.md`, `docs/DATA_MODEL.md`, `docs/ARCHITECTURE.md`, `docs/API_CONTRACTS.md`, `docs/STATUS.md`, `README.md`, `Makefile`, `pytest.ini`
+
+### Interfaces added-changed
+
+- `EventBus.publish`, `EventBus.read`, `EventBus.ack`, `build_envelope`, `ConsumerGroup`.
+- `publish_envelope` returns `PublishResult` and no longer opens its own Redis client.
+- `observation_writer`, `finding_writer`, `attribution_writer`, `read_models`, `unit_of_work`.
+- `TelephonyObsStore.find_active_operator_id`, `insert_ringing_session` → `(id, created)`, `insert_webhook_receipt` → receipt id.
+
+### Tests
+
+- `make test`: 123 passed, 2 skipped. The skips are the existing SB-014 and operator-auth tripwires.
+- SB-001/SB-002 cases in `tests/test_voice_webhook.py` and `tests/test_instruction_renderer.py` passed, including one published envelope for a repeated `provider_call_id`, a null `call_session_id` on a rejected number, and a stored session when Redis is down.
+- New cases: `tests/test_event_bus.py` (Redis db 15) and `tests/test_repositories.py`.
+- Docker Compose was not executed. The Docker CLI is not installed here.
+
+### Dependencies
+
+- `redis` on `packages/events`. `psycopg[binary]` on `packages/repositories`. The API image installs both.
+- The suite needs Postgres at `DATABASE_URL` and Redis at `REDIS_URL`.
+
+### Blocking issues
+
+- SB-003, SB-005, SB-008, SB-010, and SB-012 can use the bus. This change does not add those handlers. SB-018 can use `read_models` and is not wired to the read routes.
+- No transactional outbox. A crash between commit and publish can still drop an event (ADR-011).
+- Idempotency keys live for the life of the Redis instance.
+
+### Recommended next work
+
+- SB-003: `CallSessionRepository.apply_state` and `publish_envelope` for answered, completed, and failed.
+- SB-010: `EventBus.read(ConsumerGroup.INTELLIGENCE_EXTRACTOR, ...)` and `finding_writer`.
+- SB-012: `ConsumerGroup.INTELLIGENCE_CORRELATOR` and `attribution_writer`.
+- SB-005 / SB-008: publish from `switchboard_media.events.event_bus`.
+- SB-018: `open_read_models` for the call list and detail routes.

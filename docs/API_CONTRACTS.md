@@ -83,7 +83,7 @@ Response:
 
 Mock session ids are UUIDv5(`SWITCHBOARD_ID_NAMESPACE`, `mock:{provider_call_id}`).
 
-The voice route performs these five steps. Stream tokens remain the process-local store until `SB-014`. `telephony.call.received` is validated and written with a direct Redis `XADD` (`envelope` JSON, stream `switchboard.events`, approximate maxlen 100000). The shared consumer-group helper remains `SB-016`. A publish failure does not roll back the session. The status route still checks the signature and returns `accepted: true` without a write (`SB-003`). Schema-invalid bodies still fail before the handler (`SB-015`), so they do not insert a receipt.
+The voice route performs these five steps. Stream tokens remain the process-local store until `SB-014`. `telephony.call.received` is validated and published with `EventBus` (`envelope` JSON, stream `switchboard.events`, approximate maxlen 100000). Only the first insert of a `(carrier, external_call_id)` publishes. A publish failure does not roll back the session. The status route still checks the signature and returns `accepted: true` without a write (`SB-003`). Schema-invalid bodies still fail before the handler (`SB-015`), so they do not insert a receipt.
 
 ### `POST /v1/telephony/status/{provider}`
 
@@ -259,6 +259,22 @@ These are not HTTP APIs.
 | `CampaignCorrelator.propose(CorrelationInput)` | `packages/classification` | WATSON | `NullCampaignCorrelator` returns `[]` |
 
 `respond_to_audio` in `apps/media_gateway/switchboard_media/hotpath.py` is the hot-path order: STT, then selector, then TTS. It emits stage durations through `log_info`. The WebSocket handler does not call it yet (`SB-008`).
+
+## Shared clients
+
+These are in-process ports, not HTTP APIs. Call them instead of opening Redis or Postgres ad hoc.
+
+| Port | Module | Use |
+| --- | --- | --- |
+| `EventBus` | `packages/events` | Publish and consumer-group reads for `switchboard.events`. See `docs/EVENTS.md` |
+| `publish_envelope` | `apps/api/switchboard_api/telephony_events.py` | API publisher. Validates, then `EventBus.publish`. Redis failure does not raise |
+| `TelephonyObsStore` | `packages/repositories`, bound by `switchboard_api.obs_store.get_obs_store` | Voice webhook: active operator id, idempotent ringing session, webhook receipt |
+| `observation_writer` | `packages/repositories` | API projector writes |
+| `finding_writer` | `packages/repositories` | Extractor writes. No campaign column |
+| `attribution_writer` | `packages/repositories` | Correlator writes |
+| `read_models` | `packages/repositories` | Fetch helpers for `SB-018` |
+
+App composition roots are `switchboard_api.deps`, `switchboard_media.events`, and `switchboard_intelligence.deps`. The read routes still return the stub bodies until `SB-018`.
 
 ## Dashboard
 
