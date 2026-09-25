@@ -1,0 +1,1772 @@
+[
+  {
+    "started_offset_sec": -252,
+    "engagement_delay_ms": 11000,
+    "call": {
+      "session": {
+        "record_layer": "observation",
+        "id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+        "operator_number_id": "00000000-0000-4000-8000-000000000001",
+        "external_call_id": "call_live_irs",
+        "carrier": "mock",
+        "caller_number_e164": "+12025550142",
+        "called_number_e164": "+15550001001",
+        "state": "in_progress",
+        "started_at": "1970-01-01T00:00:00.000Z",
+        "answered_at": "1970-01-01T00:00:00.200Z",
+        "ended_at": null,
+        "end_reason": null
+      },
+      "media_streams": [
+        {
+          "record_layer": "observation",
+          "id": "4060527f-eba4-40f4-a7b8-27cc358cd535",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "external_stream_id": "mock-stream-call_live_irs",
+          "protocol": "switchboard.media.v1",
+          "encoding": "audio/pcmu",
+          "sample_rate_hz": 8000,
+          "state": "streaming",
+          "started_at": "1970-01-01T00:00:00.000Z",
+          "ended_at": null
+        }
+      ],
+      "transcript": [
+        {
+          "record_layer": "observation",
+          "id": "dc46e63a-e5b3-4603-a32f-25d7728f87bb",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "media_stream_id": "4060527f-eba4-40f4-a7b8-27cc358cd535",
+          "sequence": 0,
+          "speaker": "honeypot",
+          "source": "tts_input",
+          "text": "Hello?",
+          "language": "en",
+          "start_offset_ms": 0,
+          "end_offset_ms": 400,
+          "is_final": true,
+          "stt_confidence": null,
+          "provider": "mock-tts",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "17b0aab7-f775-4d80-a302-93e95bfaefa4",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "media_stream_id": "4060527f-eba4-40f4-a7b8-27cc358cd535",
+          "sequence": 1,
+          "speaker": "caller",
+          "source": "stt",
+          "text": "This is Officer Michael Brennan with the IRS Criminal Investigation Division. Am I speaking with the taxpayer of record?",
+          "language": "en",
+          "start_offset_ms": 8000,
+          "end_offset_ms": 13400,
+          "is_final": true,
+          "stt_confidence": 0.9,
+          "provider": "mock-stt",
+          "created_at": "1970-01-01T00:00:08.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "c36aef63-191b-4615-ae8b-51dc8d8e77b9",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "media_stream_id": "4060527f-eba4-40f4-a7b8-27cc358cd535",
+          "sequence": 2,
+          "speaker": "honeypot",
+          "source": "tts_input",
+          "text": "Who is this regarding? I want a case number before we continue.",
+          "language": "en",
+          "start_offset_ms": 20000,
+          "end_offset_ms": 22835,
+          "is_final": true,
+          "stt_confidence": null,
+          "provider": "mock-tts",
+          "created_at": "1970-01-01T00:00:20.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "c2635efa-8832-4ca7-a7be-fc5e3e67a91c",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "media_stream_id": "4060527f-eba4-40f4-a7b8-27cc358cd535",
+          "sequence": 3,
+          "speaker": "caller",
+          "source": "stt",
+          "text": "There is a federal warrant in your name. Notices were mailed. Stay on the line.",
+          "language": "en",
+          "start_offset_ms": 28000,
+          "end_offset_ms": 31555,
+          "is_final": true,
+          "stt_confidence": 0.9,
+          "provider": "mock-stt",
+          "created_at": "1970-01-01T00:00:28.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "1829a420-49ac-4bba-af6f-eefe63aa77cb",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "media_stream_id": "4060527f-eba4-40f4-a7b8-27cc358cd535",
+          "sequence": 4,
+          "speaker": "honeypot",
+          "source": "tts_input",
+          "text": "I have not seen a notice. What happens if I hang up?",
+          "language": "en",
+          "start_offset_ms": 55000,
+          "end_offset_ms": 57340,
+          "is_final": true,
+          "stt_confidence": null,
+          "provider": "mock-tts",
+          "created_at": "1970-01-01T00:00:55.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "792c5686-b4ed-486e-ae8f-d367c28bf41c",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "media_stream_id": "4060527f-eba4-40f4-a7b8-27cc358cd535",
+          "sequence": 5,
+          "speaker": "caller",
+          "source": "stt",
+          "text": "Local law enforcement is already tasked. You settle this today or they arrive.",
+          "language": "en",
+          "start_offset_ms": 64000,
+          "end_offset_ms": 67510,
+          "is_final": true,
+          "stt_confidence": 0.9,
+          "provider": "mock-stt",
+          "created_at": "1970-01-01T00:01:04.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "430dbe4e-ec91-4756-a075-aed83cf1533d",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "media_stream_id": "4060527f-eba4-40f4-a7b8-27cc358cd535",
+          "sequence": 6,
+          "speaker": "caller",
+          "source": "stt",
+          "text": "[unclear] ... payment cards ... read the codes before they expire.",
+          "language": "en",
+          "start_offset_ms": 110000,
+          "end_offset_ms": 112970,
+          "is_final": true,
+          "stt_confidence": 0.9,
+          "provider": "mock-stt",
+          "created_at": "1970-01-01T00:01:50.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "e3eb6f32-4701-4e12-a95d-2abf3202ba06",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "media_stream_id": "4060527f-eba4-40f4-a7b8-27cc358cd535",
+          "sequence": 7,
+          "speaker": "honeypot",
+          "source": "tts_input",
+          "text": "Repeat that last part. I did not catch the amount.",
+          "language": "en",
+          "start_offset_ms": 140000,
+          "end_offset_ms": 142250,
+          "is_final": true,
+          "stt_confidence": null,
+          "provider": "mock-tts",
+          "created_at": "1970-01-01T00:02:20.000Z"
+        }
+      ],
+      "turns": [
+        {
+          "record_layer": "interpretation",
+          "id": "be69a43b-1f16-4e69-ab5c-26e83ea0a15b",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "turn_index": 0,
+          "speaker": "honeypot",
+          "text": "Hello?",
+          "transcript_segment_ids": [
+            "dc46e63a-e5b3-4603-a32f-25d7728f87bb"
+          ],
+          "strategy_id": "fixed.v1",
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "3c295b0c-0bbd-4e20-a9cb-a218fc9ce97f",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "turn_index": 1,
+          "speaker": "caller",
+          "text": "This is Officer Michael Brennan with the IRS Criminal Investigation Division. Am I speaking with the taxpayer of record?",
+          "transcript_segment_ids": [
+            "17b0aab7-f775-4d80-a302-93e95bfaefa4"
+          ],
+          "strategy_id": null,
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:08.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "a811451a-34e5-4591-a3d6-16d928862646",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "turn_index": 2,
+          "speaker": "honeypot",
+          "text": "Who is this regarding? I want a case number before we continue.",
+          "transcript_segment_ids": [
+            "c36aef63-191b-4615-ae8b-51dc8d8e77b9"
+          ],
+          "strategy_id": "fixed.v1",
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:20.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "681f7aee-5fb9-472f-ab6e-06004c76c16a",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "turn_index": 3,
+          "speaker": "caller",
+          "text": "There is a federal warrant in your name. Notices were mailed. Stay on the line.",
+          "transcript_segment_ids": [
+            "c2635efa-8832-4ca7-a7be-fc5e3e67a91c"
+          ],
+          "strategy_id": null,
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:28.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "c736fc6a-faf7-4b23-a165-50d68a52d369",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "turn_index": 4,
+          "speaker": "honeypot",
+          "text": "I have not seen a notice. What happens if I hang up?",
+          "transcript_segment_ids": [
+            "1829a420-49ac-4bba-af6f-eefe63aa77cb"
+          ],
+          "strategy_id": "fixed.v1",
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:55.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "8b10bc72-ea9d-4d23-aa42-532a91b1e7a9",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "turn_index": 5,
+          "speaker": "caller",
+          "text": "Local law enforcement is already tasked. You settle this today or they arrive.",
+          "transcript_segment_ids": [
+            "792c5686-b4ed-486e-ae8f-d367c28bf41c"
+          ],
+          "strategy_id": null,
+          "confidence": 1,
+          "created_at": "1970-01-01T00:01:04.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "ce84f068-182e-414e-ac0c-c7f57bff043a",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "turn_index": 6,
+          "speaker": "caller",
+          "text": "[unclear] ... payment cards ... read the codes before they expire.",
+          "transcript_segment_ids": [
+            "430dbe4e-ec91-4756-a075-aed83cf1533d"
+          ],
+          "strategy_id": null,
+          "confidence": 1,
+          "created_at": "1970-01-01T00:01:50.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "51e76a09-659f-4690-a161-f34d1582eb2d",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "turn_index": 7,
+          "speaker": "honeypot",
+          "text": "Repeat that last part. I did not catch the amount.",
+          "transcript_segment_ids": [
+            "e3eb6f32-4701-4e12-a95d-2abf3202ba06"
+          ],
+          "strategy_id": "fixed.v1",
+          "confidence": 1,
+          "created_at": "1970-01-01T00:02:20.000Z"
+        }
+      ],
+      "findings": [
+        {
+          "record_layer": "interpretation",
+          "id": "6434d57d-3ee9-4281-a574-5ae2a61afbbc",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "kind": "pretext",
+          "value": "IRS Criminal Investigation Division",
+          "raw_quote": "Criminal Investigation Division",
+          "transcript_segment_ids": [
+            "17b0aab7-f775-4d80-a302-93e95bfaefa4"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.8,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "c13793c7-554d-4465-a68e-7e338c6f5b88",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "kind": "person_name",
+          "value": "Michael Brennan, same spoken name as call_h01",
+          "raw_quote": "Officer name",
+          "transcript_segment_ids": [
+            "17b0aab7-f775-4d80-a302-93e95bfaefa4"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.8,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "4eeba4b6-8e7c-4597-a632-08842eee53f6",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "kind": "pretext",
+          "value": "Law enforcement described as already tasked",
+          "raw_quote": "Dispatch pressure",
+          "transcript_segment_ids": [
+            "792c5686-b4ed-486e-ae8f-d367c28bf41c"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.8,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "b86b92c0-4fda-412c-a7f0-40eb5dac75b6",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "kind": "organization_name",
+          "value": "Michael Brennan has not been checked against a roster",
+          "raw_quote": "Roster check",
+          "transcript_segment_ids": [
+            "17b0aab7-f775-4d80-a302-93e95bfaefa4"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.35,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "5192cd8b-29ad-44d7-ae84-cee65a881b4f",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "kind": "pretext",
+          "value": "Payment-card wording not committed by STT",
+          "raw_quote": "Possible card read-back",
+          "transcript_segment_ids": [
+            "430dbe4e-ec91-4756-a075-aed83cf1533d"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.35,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        }
+      ],
+      "attributions": [
+        {
+          "record_layer": "attribution",
+          "id": "3f9fe94c-3402-4675-addc-7ac5af72b601",
+          "campaign_id": "0ff32df0-c18c-48ae-a520-48be20fb70fd",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "supporting_finding_ids": [
+            "6434d57d-3ee9-4281-a574-5ae2a61afbbc",
+            "c13793c7-554d-4465-a68e-7e338c6f5b88"
+          ],
+          "method": "fixture.shared_indicators",
+          "method_version": "0.1.0",
+          "confidence": 0.86,
+          "rationale": "Observed division line and the same officer name as a linked call. The payment-card turn is unverified, so the score is below the completed-call matches that captured an amount.",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        }
+      ],
+      "events": [
+        {
+          "event_id": "4b1b1581-12df-423d-a776-aa8ac00e5692",
+          "event_type": "telephony.call.answered",
+          "event_version": 1,
+          "occurred_at": "1970-01-01T00:00:00.000Z",
+          "producer": "api",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "causation_id": null,
+          "payload": {
+            "external_call_id": "call_live_irs"
+          },
+          "offset_ms": 0
+        },
+        {
+          "event_id": "86dda3fc-e11a-48ad-a375-4717dce0ad87",
+          "event_type": "speech.segment.final",
+          "event_version": 1,
+          "occurred_at": "1970-01-01T00:00:00.650Z",
+          "producer": "media_gateway",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "causation_id": null,
+          "payload": {
+            "transcript_segment_id": "67e67c67-697e-40a8-a959-4cdf8b2e4bc6",
+            "speaker": "caller",
+            "text": "Streaming recognition started",
+            "is_final": true,
+            "stt_confidence": 0.9,
+            "start_offset_ms": 650,
+            "end_offset_ms": 650,
+            "sequence": 0
+          },
+          "offset_ms": 650
+        },
+        {
+          "event_id": "83dc39dc-2bf8-411e-ab7f-b7a2a2348bea",
+          "event_type": "conversation.response.selected",
+          "event_version": 1,
+          "occurred_at": "1970-01-01T00:00:02.400Z",
+          "producer": "media_gateway",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "causation_id": null,
+          "payload": {
+            "turn_id": "6d7fa6cf-5265-418b-a33c-8e21f2297cb5",
+            "strategy_id": "fixed.v1",
+            "text": "Stall persona reply committed",
+            "confidence": 1
+          },
+          "offset_ms": 2400
+        },
+        {
+          "event_id": "2c58227d-7ffd-498e-a850-3f90306fb8cd",
+          "event_type": "speech.segment.final",
+          "event_version": 1,
+          "occurred_at": "1970-01-01T00:01:50.000Z",
+          "producer": "media_gateway",
+          "call_session_id": "f21f978e-5fc8-4fd3-ae5b-7a57f0e82a0d",
+          "causation_id": null,
+          "payload": {
+            "transcript_segment_id": "55641c83-d13d-4326-a425-e90659c31597",
+            "speaker": "caller",
+            "text": "Partial transcript below the commit threshold",
+            "is_final": true,
+            "stt_confidence": 0.9,
+            "start_offset_ms": 110000,
+            "end_offset_ms": 110000,
+            "sequence": 0
+          },
+          "offset_ms": 110000
+        }
+      ],
+      "gaps": {
+        "conversation_state": "payment_request",
+        "conversation_state_record_layer": "observation",
+        "classification": {
+          "label": "irs_impersonation",
+          "record_layer": "interpretation",
+          "confidence": 0.84
+        },
+        "engagement_duration_ms": 0,
+        "duration_ms": 0,
+        "campaign_id": "0ff32df0-c18c-48ae-a520-48be20fb70fd",
+        "campaign_label": "IRS Warrant Wave",
+        "pipeline": {
+          "sampled_at": "1970-01-01T00:00:00.000Z",
+          "stt_ms": 380,
+          "select_ms": 640,
+          "tts_ms": 290,
+          "e2e_ms": 1350
+        },
+        "timeline": [
+          {
+            "id": "71ab6c19-6705-419d-a557-cdac03f2f663",
+            "at": "1970-01-01T00:00:00.000Z",
+            "offset_ms": 0,
+            "event_type": "telephony.call.answered",
+            "title": "Answered",
+            "detail": "Honeypot leg connected. Call is still up."
+          },
+          {
+            "id": "82fbeb4a-cc41-428d-aded-5e2d258ecddb",
+            "at": "1970-01-01T00:00:00.200Z",
+            "offset_ms": 200,
+            "event_type": null,
+            "title": "Honeypot answered.",
+            "detail": "start → greeting"
+          },
+          {
+            "id": "7c12f26f-9388-49a0-a649-2ffe164a4861",
+            "at": "1970-01-01T00:00:08.000Z",
+            "offset_ms": 8000,
+            "event_type": null,
+            "title": "Caller claimed an IRS officer role.",
+            "detail": "greeting → identity_probe"
+          },
+          {
+            "id": "c68317f3-f9e8-4c61-a744-08300ae9d48c",
+            "at": "1970-01-01T00:00:28.000Z",
+            "offset_ms": 28000,
+            "event_type": null,
+            "title": "Caller introduced a warrant without a case number.",
+            "detail": "identity_probe → pretext"
+          },
+          {
+            "id": "3a3c0283-4067-4cd8-ab7e-233e5b79d5cb",
+            "at": "1970-01-01T00:01:04.000Z",
+            "offset_ms": 64000,
+            "event_type": null,
+            "title": "Caller said law enforcement is already tasked.",
+            "detail": "pretext → urgency"
+          },
+          {
+            "id": "3cb58b57-e6bc-46f9-aef5-61ddab2bd989",
+            "at": "1970-01-01T00:01:50.000Z",
+            "offset_ms": 110000,
+            "event_type": null,
+            "title": "A payment-card instruction was only partly recognized.",
+            "detail": "urgency → payment_request"
+          },
+          {
+            "id": "c4fa1b56-dd6e-4e2c-a243-6b5bcb49d419",
+            "at": "1970-01-01T00:01:50.000Z",
+            "offset_ms": 110000,
+            "event_type": "speech.segment.final",
+            "title": "Unverified payment line",
+            "detail": "STT did not commit the card wording. State moved anyway and is marked unverified."
+          }
+        ],
+        "state_transitions": [
+          {
+            "id": "a4463230-7ed9-4576-a953-ce190890e0fb",
+            "at": "1970-01-01T00:00:00.200Z",
+            "offset_ms": 200,
+            "from": null,
+            "to": "greeting",
+            "reason": "Honeypot answered.",
+            "record_layer": "observation"
+          },
+          {
+            "id": "baf61e24-d351-4d2f-ad5d-968d1b09c1a7",
+            "at": "1970-01-01T00:00:08.000Z",
+            "offset_ms": 8000,
+            "from": "greeting",
+            "to": "identity_probe",
+            "reason": "Caller claimed an IRS officer role.",
+            "record_layer": "interpretation"
+          },
+          {
+            "id": "a3df3c37-6eba-4dc9-a22d-b22fab24d233",
+            "at": "1970-01-01T00:00:28.000Z",
+            "offset_ms": 28000,
+            "from": "identity_probe",
+            "to": "pretext",
+            "reason": "Caller introduced a warrant without a case number.",
+            "record_layer": "interpretation"
+          },
+          {
+            "id": "d411d7ce-75cd-4807-afa5-a53b775b9ec5",
+            "at": "1970-01-01T00:01:04.000Z",
+            "offset_ms": 64000,
+            "from": "pretext",
+            "to": "urgency",
+            "reason": "Caller said law enforcement is already tasked.",
+            "record_layer": "interpretation"
+          },
+          {
+            "id": "e1ccca1b-9f6c-4c5b-a572-b3dcbb40a85a",
+            "at": "1970-01-01T00:01:50.000Z",
+            "offset_ms": 110000,
+            "from": "urgency",
+            "to": "payment_request",
+            "reason": "A payment-card instruction was only partly recognized.",
+            "record_layer": "observation"
+          }
+        ],
+        "paired_reads": [
+          {
+            "id": "c09c442f-37f4-4bf4-aac5-69b8bc423151",
+            "at": "1970-01-01T00:00:08.000Z",
+            "offset_ms": 8000,
+            "category": "script",
+            "raw": {
+              "text": "Caller said Officer Michael Brennan and IRS Criminal Investigation Division.",
+              "record_layer": "observation"
+            },
+            "interpretation": {
+              "text": "Division line matches IRS Warrant Wave. The officer name is a repeat of call_h01 and still unchecked.",
+              "record_layer": "interpretation"
+            }
+          },
+          {
+            "id": "92250ddd-48d7-4f3a-a1fc-8dd6db1125bb",
+            "at": "1970-01-01T00:01:04.000Z",
+            "offset_ms": 64000,
+            "category": "threat",
+            "raw": {
+              "text": "Caller said local law enforcement is already tasked.",
+              "record_layer": "observation"
+            },
+            "interpretation": {
+              "text": "Dispatch pressure is the wave's hang-up deterrent.",
+              "record_layer": "interpretation"
+            }
+          },
+          {
+            "id": "75e1ab61-e03e-4350-a868-1d75b55f4903",
+            "at": "1970-01-01T00:01:50.000Z",
+            "offset_ms": 110000,
+            "category": "payment",
+            "raw": {
+              "text": "Fragments sound like payment cards and reading codes before they expire.",
+              "record_layer": "observation"
+            },
+            "interpretation": {
+              "text": "If the fragments are right, this is the gift-card ask. It is not strong enough to treat as observed.",
+              "record_layer": "interpretation"
+            }
+          }
+        ],
+        "correlation_notes": [
+          {
+            "id": "eb698d56-fba0-4d5b-a0f7-071a21b4f971",
+            "campaign_id": "0ff32df0-c18c-48ae-a520-48be20fb70fd",
+            "campaign_label": "IRS Warrant Wave",
+            "score": 0.86,
+            "summary": "Live match to IRS Warrant Wave.",
+            "explanation": "Observed division line and the same officer name as a linked call. The payment-card turn is unverified, so the score is below the completed-call matches that captured an amount.",
+            "record_layer": "interpretation",
+            "matched_on": [
+              {
+                "label": "Criminal Investigation Division",
+                "record_layer": "observation"
+              },
+              {
+                "label": "Officer name repeat",
+                "record_layer": "observation"
+              },
+              {
+                "label": "Possible card read-back",
+                "record_layer": "observation"
+              }
+            ]
+          }
+        ],
+        "key_finding_ids": [
+          "6434d57d-3ee9-4281-a574-5ae2a61afbbc",
+          "4eeba4b6-8e7c-4597-a632-08842eee53f6",
+          "5192cd8b-29ad-44d7-ae84-cee65a881b4f"
+        ]
+      }
+    }
+  },
+  {
+    "started_offset_sec": -96,
+    "engagement_delay_ms": 5000,
+    "call": {
+      "session": {
+        "record_layer": "observation",
+        "id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+        "operator_number_id": "00000000-0000-4000-8000-000000000001",
+        "external_call_id": "call_live_ms",
+        "carrier": "mock",
+        "caller_number_e164": "+18885550199",
+        "called_number_e164": "+15550001001",
+        "state": "in_progress",
+        "started_at": "1970-01-01T00:00:00.000Z",
+        "answered_at": "1970-01-01T00:00:00.200Z",
+        "ended_at": null,
+        "end_reason": null
+      },
+      "media_streams": [
+        {
+          "record_layer": "observation",
+          "id": "06233608-8aca-460d-af30-40e8e21cb435",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "external_stream_id": "mock-stream-call_live_ms",
+          "protocol": "switchboard.media.v1",
+          "encoding": "audio/pcmu",
+          "sample_rate_hz": 8000,
+          "state": "streaming",
+          "started_at": "1970-01-01T00:00:00.000Z",
+          "ended_at": null
+        }
+      ],
+      "transcript": [
+        {
+          "record_layer": "observation",
+          "id": "9b631263-9ce4-4fef-a8a0-dce5e47def16",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "media_stream_id": "06233608-8aca-460d-af30-40e8e21cb435",
+          "sequence": 0,
+          "speaker": "honeypot",
+          "source": "tts_input",
+          "text": "Hello?",
+          "language": "en",
+          "start_offset_ms": 0,
+          "end_offset_ms": 400,
+          "is_final": true,
+          "stt_confidence": null,
+          "provider": "mock-tts",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "69bd916f-1c73-458b-a4ec-011029a75e9f",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "media_stream_id": "06233608-8aca-460d-af30-40e8e21cb435",
+          "sequence": 1,
+          "speaker": "caller",
+          "source": "stt",
+          "text": "Hello, this is Microsoft Support. Your computer reported a critical virus and a refund of three hundred ninety-nine dollars is pending.",
+          "language": "en",
+          "start_offset_ms": 5000,
+          "end_offset_ms": 11075,
+          "is_final": true,
+          "stt_confidence": 0.9,
+          "provider": "mock-stt",
+          "created_at": "1970-01-01T00:00:05.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "29614b9d-5ff7-4018-a6f9-29cad1992689",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "media_stream_id": "06233608-8aca-460d-af30-40e8e21cb435",
+          "sequence": 2,
+          "speaker": "honeypot",
+          "source": "tts_input",
+          "text": "Microsoft the company? How did you get this number?",
+          "language": "en",
+          "start_offset_ms": 18000,
+          "end_offset_ms": 20295,
+          "is_final": true,
+          "stt_confidence": null,
+          "provider": "mock-tts",
+          "created_at": "1970-01-01T00:00:18.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "824c4a60-6da7-49e0-a638-a324470f22f0",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "media_stream_id": "06233608-8aca-460d-af30-40e8e21cb435",
+          "sequence": 3,
+          "speaker": "caller",
+          "source": "stt",
+          "text": "We received an alert from your Windows license. Do not shut the computer down or you will lose the refund.",
+          "language": "en",
+          "start_offset_ms": 26000,
+          "end_offset_ms": 30770,
+          "is_final": true,
+          "stt_confidence": 0.9,
+          "provider": "mock-stt",
+          "created_at": "1970-01-01T00:00:26.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "8a7b324f-d082-4c8a-a0e7-f425e4fec596",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "media_stream_id": "06233608-8aca-460d-af30-40e8e21cb435",
+          "sequence": 4,
+          "speaker": "honeypot",
+          "source": "tts_input",
+          "text": "I am not in front of that computer. What alert?",
+          "language": "en",
+          "start_offset_ms": 48000,
+          "end_offset_ms": 50115,
+          "is_final": true,
+          "stt_confidence": null,
+          "provider": "mock-tts",
+          "created_at": "1970-01-01T00:00:48.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "77b6ecf4-946a-4069-aaf5-aa1a7943d5fb",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "media_stream_id": "06233608-8aca-460d-af30-40e8e21cb435",
+          "sequence": 5,
+          "speaker": "caller",
+          "source": "stt",
+          "text": "The pop-up is from Microsoft Defender. We need to connect and confirm the refund before the window closes.",
+          "language": "en",
+          "start_offset_ms": 56000,
+          "end_offset_ms": 60770,
+          "is_final": true,
+          "stt_confidence": 0.9,
+          "provider": "mock-stt",
+          "created_at": "1970-01-01T00:00:56.000Z"
+        }
+      ],
+      "turns": [
+        {
+          "record_layer": "interpretation",
+          "id": "3728d2b3-a251-4895-a274-3476fd0a1631",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "turn_index": 0,
+          "speaker": "honeypot",
+          "text": "Hello?",
+          "transcript_segment_ids": [
+            "9b631263-9ce4-4fef-a8a0-dce5e47def16"
+          ],
+          "strategy_id": "fixed.v1",
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "e5ebcbb2-e517-4193-a169-9a4adf076f83",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "turn_index": 1,
+          "speaker": "caller",
+          "text": "Hello, this is Microsoft Support. Your computer reported a critical virus and a refund of three hundred ninety-nine dollars is pending.",
+          "transcript_segment_ids": [
+            "69bd916f-1c73-458b-a4ec-011029a75e9f"
+          ],
+          "strategy_id": null,
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:05.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "30f6b97e-85dc-45ce-a121-1571b9f9bc94",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "turn_index": 2,
+          "speaker": "honeypot",
+          "text": "Microsoft the company? How did you get this number?",
+          "transcript_segment_ids": [
+            "29614b9d-5ff7-4018-a6f9-29cad1992689"
+          ],
+          "strategy_id": "fixed.v1",
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:18.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "19f27abc-0b83-44f2-aafa-422de7328a68",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "turn_index": 3,
+          "speaker": "caller",
+          "text": "We received an alert from your Windows license. Do not shut the computer down or you will lose the refund.",
+          "transcript_segment_ids": [
+            "824c4a60-6da7-49e0-a638-a324470f22f0"
+          ],
+          "strategy_id": null,
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:26.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "8ee67073-9b39-43d4-afca-560db5c7acbd",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "turn_index": 4,
+          "speaker": "honeypot",
+          "text": "I am not in front of that computer. What alert?",
+          "transcript_segment_ids": [
+            "8a7b324f-d082-4c8a-a0e7-f425e4fec596"
+          ],
+          "strategy_id": "fixed.v1",
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:48.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "b095b880-75a4-409f-ab54-4d79e212be40",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "turn_index": 5,
+          "speaker": "caller",
+          "text": "The pop-up is from Microsoft Defender. We need to connect and confirm the refund before the window closes.",
+          "transcript_segment_ids": [
+            "77b6ecf4-946a-4069-aaf5-aa1a7943d5fb"
+          ],
+          "strategy_id": null,
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:56.000Z"
+        }
+      ],
+      "findings": [
+        {
+          "record_layer": "interpretation",
+          "id": "7701cc41-348d-4c03-acea-b70c10e6ad11",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "kind": "pretext",
+          "value": "This is Microsoft Support",
+          "raw_quote": "Microsoft Support opener",
+          "transcript_segment_ids": [
+            "69bd916f-1c73-458b-a4ec-011029a75e9f"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.8,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "c216a853-3a65-4f22-a701-3dc7627bd957",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "kind": "payment_method",
+          "value": "$399 refund",
+          "raw_quote": "Refund lure",
+          "transcript_segment_ids": [
+            "69bd916f-1c73-458b-a4ec-011029a75e9f"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.8,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "35f46909-056b-41ff-a89d-a7a95f7f4bf4",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "kind": "pretext",
+          "value": "Shutdown would lose the refund",
+          "raw_quote": "Do not shut down",
+          "transcript_segment_ids": [
+            "824c4a60-6da7-49e0-a638-a324470f22f0"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.83,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "9f3d38f6-a26b-49a7-a07d-d162ef9628d7",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "kind": "other",
+          "value": "Caller said \"connect\" without naming a product",
+          "raw_quote": "Remote tool not named",
+          "transcript_segment_ids": [
+            "77b6ecf4-946a-4069-aaf5-aa1a7943d5fb"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.35,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        }
+      ],
+      "attributions": [
+        {
+          "record_layer": "attribution",
+          "id": "c0dfd03e-6bd3-4655-a2c9-5f1e78271eb8",
+          "campaign_id": "10a2c3be-a66a-4c06-a4d9-4676d27891c3",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "supporting_finding_ids": [
+            "7701cc41-348d-4c03-acea-b70c10e6ad11",
+            "c216a853-3a65-4f22-a701-3dc7627bd957"
+          ],
+          "method": "fixture.shared_indicators",
+          "method_version": "0.1.0",
+          "confidence": 0.8,
+          "rationale": "Observed Microsoft Support, the $399 figure, and Defender. The remote-tool step has not happened, so the score trails call_h03.",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        }
+      ],
+      "events": [
+        {
+          "event_id": "44033af4-9bea-4f04-ab46-530e9413a685",
+          "event_type": "telephony.call.answered",
+          "event_version": 1,
+          "occurred_at": "1970-01-01T00:00:00.000Z",
+          "producer": "api",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "causation_id": null,
+          "payload": {
+            "external_call_id": "call_live_ms"
+          },
+          "offset_ms": 0
+        },
+        {
+          "event_id": "75b330ab-7a07-44fe-a9a0-0151dbc26e29",
+          "event_type": "speech.segment.final",
+          "event_version": 1,
+          "occurred_at": "1970-01-01T00:00:00.650Z",
+          "producer": "media_gateway",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "causation_id": null,
+          "payload": {
+            "transcript_segment_id": "d9366294-64e9-4e0f-a67b-9efea50ee340",
+            "speaker": "caller",
+            "text": "Streaming recognition started",
+            "is_final": true,
+            "stt_confidence": 0.9,
+            "start_offset_ms": 650,
+            "end_offset_ms": 650,
+            "sequence": 0
+          },
+          "offset_ms": 650
+        },
+        {
+          "event_id": "7779352a-428b-4670-a270-dd9868082f41",
+          "event_type": "conversation.response.selected",
+          "event_version": 1,
+          "occurred_at": "1970-01-01T00:00:02.400Z",
+          "producer": "media_gateway",
+          "call_session_id": "03f90845-a22d-4b24-aea8-5e0ba8ad1829",
+          "causation_id": null,
+          "payload": {
+            "turn_id": "80330719-ac21-4194-a0cb-c2b8eb9d0a98",
+            "strategy_id": "fixed.v1",
+            "text": "Stall persona reply committed",
+            "confidence": 1
+          },
+          "offset_ms": 2400
+        }
+      ],
+      "gaps": {
+        "conversation_state": "pretext",
+        "conversation_state_record_layer": "interpretation",
+        "classification": {
+          "label": "tech_support",
+          "record_layer": "interpretation",
+          "confidence": 0.78
+        },
+        "engagement_duration_ms": 0,
+        "duration_ms": 0,
+        "campaign_id": "10a2c3be-a66a-4c06-a4d9-4676d27891c3",
+        "campaign_label": "Microsoft Defender Refund",
+        "pipeline": {
+          "sampled_at": "1970-01-01T00:00:00.000Z",
+          "stt_ms": 410,
+          "select_ms": 560,
+          "tts_ms": 270,
+          "e2e_ms": 1280
+        },
+        "timeline": [
+          {
+            "id": "34b0e57a-84ca-4293-afda-e1321fa90756",
+            "at": "1970-01-01T00:00:00.000Z",
+            "offset_ms": 0,
+            "event_type": "telephony.call.answered",
+            "title": "Answered",
+            "detail": "Honeypot leg connected. Call is still up."
+          },
+          {
+            "id": "6b78ffe2-aec8-46ad-aba6-1f029cfad188",
+            "at": "1970-01-01T00:00:00.200Z",
+            "offset_ms": 200,
+            "event_type": null,
+            "title": "Honeypot answered.",
+            "detail": "start → greeting"
+          },
+          {
+            "id": "c4396538-9b42-4799-a28a-191537e897c6",
+            "at": "1970-01-01T00:00:05.000Z",
+            "offset_ms": 5000,
+            "event_type": null,
+            "title": "Caller claimed Microsoft Support and a $399 refund.",
+            "detail": "greeting → pretext"
+          },
+          {
+            "id": "431f33d3-6ca6-4280-a32f-8420ada51ac5",
+            "at": "1970-01-01T00:00:56.000Z",
+            "offset_ms": 56000,
+            "event_type": "intelligence.finding.proposed",
+            "title": "Defender named, tool not named",
+            "detail": "Caller mentioned a connection and did not name AnyDesk or another tool yet."
+          }
+        ],
+        "state_transitions": [
+          {
+            "id": "adcce249-bcee-47bd-a421-bd80c5640ed7",
+            "at": "1970-01-01T00:00:00.200Z",
+            "offset_ms": 200,
+            "from": null,
+            "to": "greeting",
+            "reason": "Honeypot answered.",
+            "record_layer": "observation"
+          },
+          {
+            "id": "fcf568cc-2d8d-43a0-a885-0a4e026f99b3",
+            "at": "1970-01-01T00:00:05.000Z",
+            "offset_ms": 5000,
+            "from": "greeting",
+            "to": "pretext",
+            "reason": "Caller claimed Microsoft Support and a $399 refund.",
+            "record_layer": "interpretation"
+          }
+        ],
+        "paired_reads": [
+          {
+            "id": "c242c205-b856-4eee-a15c-5f4a0f13953b",
+            "at": "1970-01-01T00:00:05.000Z",
+            "offset_ms": 5000,
+            "category": "script",
+            "raw": {
+              "text": "Caller said \"this is Microsoft Support\" and a $399 refund is pending.",
+              "record_layer": "observation"
+            },
+            "interpretation": {
+              "text": "Opener matches Microsoft Defender Refund.",
+              "record_layer": "interpretation"
+            }
+          },
+          {
+            "id": "08373f70-a588-4fc5-a8ca-63f00ebdc1cb",
+            "at": "1970-01-01T00:00:56.000Z",
+            "offset_ms": 56000,
+            "category": "tooling",
+            "raw": {
+              "text": "Caller said the pop-up is from Microsoft Defender and that they need to connect.",
+              "record_layer": "observation"
+            },
+            "interpretation": {
+              "text": "A remote tool is likely next. None has been named on this call.",
+              "record_layer": "interpretation"
+            }
+          }
+        ],
+        "correlation_notes": [
+          {
+            "id": "4656689a-5986-4bb7-a77c-ab9e665f87fa",
+            "campaign_id": "10a2c3be-a66a-4c06-a4d9-4676d27891c3",
+            "campaign_label": "Microsoft Defender Refund",
+            "score": 0.8,
+            "summary": "Live Microsoft Defender Refund match, still in the opener.",
+            "explanation": "Observed Microsoft Support, the $399 figure, and Defender. The remote-tool step has not happened, so the score trails call_h03.",
+            "record_layer": "interpretation",
+            "matched_on": [
+              {
+                "label": "Microsoft Support opener",
+                "record_layer": "observation"
+              },
+              {
+                "label": "$399 refund",
+                "record_layer": "observation"
+              },
+              {
+                "label": "Microsoft Defender",
+                "record_layer": "observation"
+              }
+            ]
+          }
+        ],
+        "key_finding_ids": [
+          "7701cc41-348d-4c03-acea-b70c10e6ad11",
+          "35f46909-056b-41ff-a89d-a7a95f7f4bf4",
+          "9f3d38f6-a26b-49a7-a07d-d162ef9628d7"
+        ]
+      }
+    }
+  },
+  {
+    "started_offset_sec": -680,
+    "engagement_delay_ms": 6000,
+    "call": {
+      "session": {
+        "record_layer": "observation",
+        "id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+        "operator_number_id": "00000000-0000-4000-8000-000000000001",
+        "external_call_id": "call_live_chase",
+        "carrier": "mock",
+        "caller_number_e164": "+18005550174",
+        "called_number_e164": "+15550001001",
+        "state": "in_progress",
+        "started_at": "1970-01-01T00:00:00.000Z",
+        "answered_at": "1970-01-01T00:00:00.200Z",
+        "ended_at": null,
+        "end_reason": null
+      },
+      "media_streams": [
+        {
+          "record_layer": "observation",
+          "id": "8d19c2f6-7249-4e88-a7e6-5e78e08824b9",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "external_stream_id": "mock-stream-call_live_chase",
+          "protocol": "switchboard.media.v1",
+          "encoding": "audio/pcmu",
+          "sample_rate_hz": 8000,
+          "state": "streaming",
+          "started_at": "1970-01-01T00:00:00.000Z",
+          "ended_at": null
+        }
+      ],
+      "transcript": [
+        {
+          "record_layer": "observation",
+          "id": "8d76d6ef-da0e-4e73-a852-d8231ca30271",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "media_stream_id": "8d19c2f6-7249-4e88-a7e6-5e78e08824b9",
+          "sequence": 0,
+          "speaker": "honeypot",
+          "source": "tts_input",
+          "text": "Hello?",
+          "language": "en",
+          "start_offset_ms": 0,
+          "end_offset_ms": 400,
+          "is_final": true,
+          "stt_confidence": null,
+          "provider": "mock-tts",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "09d625ef-e10f-45bb-aa91-2b120bc4de62",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "media_stream_id": "8d19c2f6-7249-4e88-a7e6-5e78e08824b9",
+          "sequence": 1,
+          "speaker": "caller",
+          "source": "stt",
+          "text": "This is the Chase fraud department. We detected a Zelle transfer of two thousand four hundred dollars from your account.",
+          "language": "en",
+          "start_offset_ms": 4000,
+          "end_offset_ms": 9400,
+          "is_final": true,
+          "stt_confidence": 0.9,
+          "provider": "mock-stt",
+          "created_at": "1970-01-01T00:00:04.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "fc889cf2-3c08-430b-a21d-1ec1c24e9044",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "media_stream_id": "8d19c2f6-7249-4e88-a7e6-5e78e08824b9",
+          "sequence": 2,
+          "speaker": "honeypot",
+          "source": "tts_input",
+          "text": "I do not remember sending a Zelle transfer. Who am I speaking with?",
+          "language": "en",
+          "start_offset_ms": 16000,
+          "end_offset_ms": 19015,
+          "is_final": true,
+          "stt_confidence": null,
+          "provider": "mock-tts",
+          "created_at": "1970-01-01T00:00:16.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "1f01e1c8-ee7a-4704-a8cc-732c019540d8",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "media_stream_id": "8d19c2f6-7249-4e88-a7e6-5e78e08824b9",
+          "sequence": 3,
+          "speaker": "caller",
+          "source": "stt",
+          "text": "Fraud desk, badge four four one. The payment is reversible if you verify the one-time code we texted.",
+          "language": "en",
+          "start_offset_ms": 24000,
+          "end_offset_ms": 28545,
+          "is_final": true,
+          "stt_confidence": 0.9,
+          "provider": "mock-stt",
+          "created_at": "1970-01-01T00:00:24.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "825e6288-7306-40d8-a9a5-f7ecb75ce1bb",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "media_stream_id": "8d19c2f6-7249-4e88-a7e6-5e78e08824b9",
+          "sequence": 4,
+          "speaker": "honeypot",
+          "source": "tts_input",
+          "text": "I have not looked at my phone. What happens after the code?",
+          "language": "en",
+          "start_offset_ms": 48000,
+          "end_offset_ms": 50655,
+          "is_final": true,
+          "stt_confidence": null,
+          "provider": "mock-tts",
+          "created_at": "1970-01-01T00:00:48.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "ac90970e-911f-4801-a7f6-24b2c54edf61",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "media_stream_id": "8d19c2f6-7249-4e88-a7e6-5e78e08824b9",
+          "sequence": 5,
+          "speaker": "caller",
+          "source": "stt",
+          "text": "We move the remaining balance into a safe account in your name and reverse the Zelle. I need the code and the last four of the debit card.",
+          "language": "en",
+          "start_offset_ms": 56000,
+          "end_offset_ms": 62210,
+          "is_final": true,
+          "stt_confidence": 0.9,
+          "provider": "mock-stt",
+          "created_at": "1970-01-01T00:00:56.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "490d8c21-2217-4a16-a78d-f77682521286",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "media_stream_id": "8d19c2f6-7249-4e88-a7e6-5e78e08824b9",
+          "sequence": 6,
+          "speaker": "honeypot",
+          "source": "tts_input",
+          "text": "I am writing that down. Say the amount again, and do not ask me to read a code yet.",
+          "language": "en",
+          "start_offset_ms": 300000,
+          "end_offset_ms": 303735,
+          "is_final": true,
+          "stt_confidence": null,
+          "provider": "mock-tts",
+          "created_at": "1970-01-01T00:05:00.000Z"
+        },
+        {
+          "record_layer": "observation",
+          "id": "f1f82694-c4c1-4de7-a007-3eaffec648c0",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "media_stream_id": "8d19c2f6-7249-4e88-a7e6-5e78e08824b9",
+          "sequence": 7,
+          "speaker": "caller",
+          "source": "stt",
+          "text": "Two thousand four hundred dollars, Zelle, pending. The safe account is already open on our side. Do not call the branch.",
+          "language": "en",
+          "start_offset_ms": 312000,
+          "end_offset_ms": 317400,
+          "is_final": true,
+          "stt_confidence": 0.9,
+          "provider": "mock-stt",
+          "created_at": "1970-01-01T00:05:12.000Z"
+        }
+      ],
+      "turns": [
+        {
+          "record_layer": "interpretation",
+          "id": "09220d76-e029-4c0d-af6a-82d7d32d3104",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "turn_index": 0,
+          "speaker": "honeypot",
+          "text": "Hello?",
+          "transcript_segment_ids": [
+            "8d76d6ef-da0e-4e73-a852-d8231ca30271"
+          ],
+          "strategy_id": "fixed.v1",
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "27c65b66-4554-43ea-a859-e5f88ee988ad",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "turn_index": 1,
+          "speaker": "caller",
+          "text": "This is the Chase fraud department. We detected a Zelle transfer of two thousand four hundred dollars from your account.",
+          "transcript_segment_ids": [
+            "09d625ef-e10f-45bb-aa91-2b120bc4de62"
+          ],
+          "strategy_id": null,
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:04.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "41461258-698d-4963-ae52-13a04b369d26",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "turn_index": 2,
+          "speaker": "honeypot",
+          "text": "I do not remember sending a Zelle transfer. Who am I speaking with?",
+          "transcript_segment_ids": [
+            "fc889cf2-3c08-430b-a21d-1ec1c24e9044"
+          ],
+          "strategy_id": "fixed.v1",
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:16.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "8a79b8c6-d77c-435e-a6c1-8f4396d6df5d",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "turn_index": 3,
+          "speaker": "caller",
+          "text": "Fraud desk, badge four four one. The payment is reversible if you verify the one-time code we texted.",
+          "transcript_segment_ids": [
+            "1f01e1c8-ee7a-4704-a8cc-732c019540d8"
+          ],
+          "strategy_id": null,
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:24.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "a11138c9-2d25-4635-ae07-fac61460a87e",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "turn_index": 4,
+          "speaker": "honeypot",
+          "text": "I have not looked at my phone. What happens after the code?",
+          "transcript_segment_ids": [
+            "825e6288-7306-40d8-a9a5-f7ecb75ce1bb"
+          ],
+          "strategy_id": "fixed.v1",
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:48.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "d4fe956d-6b9d-43b4-a442-6c732f6dfd67",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "turn_index": 5,
+          "speaker": "caller",
+          "text": "We move the remaining balance into a safe account in your name and reverse the Zelle. I need the code and the last four of the debit card.",
+          "transcript_segment_ids": [
+            "ac90970e-911f-4801-a7f6-24b2c54edf61"
+          ],
+          "strategy_id": null,
+          "confidence": 1,
+          "created_at": "1970-01-01T00:00:56.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "bd3e710f-13c5-494c-a9a9-7823fe27a83b",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "turn_index": 6,
+          "speaker": "honeypot",
+          "text": "I am writing that down. Say the amount again, and do not ask me to read a code yet.",
+          "transcript_segment_ids": [
+            "490d8c21-2217-4a16-a78d-f77682521286"
+          ],
+          "strategy_id": "fixed.v1",
+          "confidence": 1,
+          "created_at": "1970-01-01T00:05:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "f1297e53-67e7-4a42-a64c-60c20d5f7319",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "turn_index": 7,
+          "speaker": "caller",
+          "text": "Two thousand four hundred dollars, Zelle, pending. The safe account is already open on our side. Do not call the branch.",
+          "transcript_segment_ids": [
+            "f1f82694-c4c1-4de7-a007-3eaffec648c0"
+          ],
+          "strategy_id": null,
+          "confidence": 1,
+          "created_at": "1970-01-01T00:05:12.000Z"
+        }
+      ],
+      "findings": [
+        {
+          "record_layer": "interpretation",
+          "id": "b2302735-84dc-451e-ad1f-dc5cbbbfe494",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "kind": "pretext",
+          "value": "This is the Chase fraud department",
+          "raw_quote": "Chase fraud department",
+          "transcript_segment_ids": [
+            "09d625ef-e10f-45bb-aa91-2b120bc4de62"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.8,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "919841e7-b861-45a5-ada3-cfc79182a2f0",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "kind": "payment_method",
+          "value": "$2,400 Zelle transfer",
+          "raw_quote": "Zelle amount",
+          "transcript_segment_ids": [
+            "09d625ef-e10f-45bb-aa91-2b120bc4de62",
+            "f1f82694-c4c1-4de7-a007-3eaffec648c0"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.8,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "fe622f7b-f01b-45a8-a02c-09cde1ae4711",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "kind": "other",
+          "value": "Caller asked the target to verify a one-time code",
+          "raw_quote": "OTP read-back",
+          "transcript_segment_ids": [
+            "1f01e1c8-ee7a-4704-a8cc-732c019540d8"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.8,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "5dc307f0-0b11-4095-a524-466328328480",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "kind": "pretext",
+          "value": "Remaining balance moved to a safe account already open on their side",
+          "raw_quote": "Safe account",
+          "transcript_segment_ids": [
+            "ac90970e-911f-4801-a7f6-24b2c54edf61",
+            "f1f82694-c4c1-4de7-a007-3eaffec648c0"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.93,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        },
+        {
+          "record_layer": "interpretation",
+          "id": "8058f68e-9af9-4f70-a825-90bcf5b5981c",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "kind": "organization_name",
+          "value": "Spoken badge 441, not checked",
+          "raw_quote": "Badge 441",
+          "transcript_segment_ids": [
+            "1f01e1c8-ee7a-4704-a8cc-732c019540d8"
+          ],
+          "extractor": "fixture.rule",
+          "extractor_version": "0.1.0",
+          "confidence": 0.35,
+          "status": "proposed",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        }
+      ],
+      "attributions": [
+        {
+          "record_layer": "attribution",
+          "id": "69c4d5c7-d08b-4dba-a538-4fe6bbaadea2",
+          "campaign_id": "2f6ab485-c5ef-4863-a23a-1b7a6880f53d",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "supporting_finding_ids": [
+            "b2302735-84dc-451e-ad1f-dc5cbbbfe494",
+            "919841e7-b861-45a5-ada3-cfc79182a2f0"
+          ],
+          "method": "fixture.shared_indicators",
+          "method_version": "0.1.0",
+          "confidence": 0.95,
+          "rationale": "Observed Chase opener, $2,400 Zelle, and an OTP ask. Safe-account wording matches call_h05. Badge 441 is unverified and was not required for the score.",
+          "created_at": "1970-01-01T00:00:00.000Z"
+        }
+      ],
+      "events": [
+        {
+          "event_id": "f3d1fcf7-7b01-4cab-a0fa-de1bef5eff00",
+          "event_type": "telephony.call.answered",
+          "event_version": 1,
+          "occurred_at": "1970-01-01T00:00:00.000Z",
+          "producer": "api",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "causation_id": null,
+          "payload": {
+            "external_call_id": "call_live_chase"
+          },
+          "offset_ms": 0
+        },
+        {
+          "event_id": "723dae13-3ff7-4751-a622-db7915d71bf0",
+          "event_type": "speech.segment.final",
+          "event_version": 1,
+          "occurred_at": "1970-01-01T00:00:00.650Z",
+          "producer": "media_gateway",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "causation_id": null,
+          "payload": {
+            "transcript_segment_id": "ad7db9ee-695d-4397-a39a-20151409c7a7",
+            "speaker": "caller",
+            "text": "Streaming recognition started",
+            "is_final": true,
+            "stt_confidence": 0.9,
+            "start_offset_ms": 650,
+            "end_offset_ms": 650,
+            "sequence": 0
+          },
+          "offset_ms": 650
+        },
+        {
+          "event_id": "ea5ae3fd-de42-4fd3-ae14-b4b7bab694ed",
+          "event_type": "conversation.response.selected",
+          "event_version": 1,
+          "occurred_at": "1970-01-01T00:00:02.400Z",
+          "producer": "media_gateway",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "causation_id": null,
+          "payload": {
+            "turn_id": "0d420b4d-c72e-43dd-a3ea-2c48d11fc843",
+            "strategy_id": "fixed.v1",
+            "text": "Stall persona reply committed",
+            "confidence": 1
+          },
+          "offset_ms": 2400
+        },
+        {
+          "event_id": "b02c9035-47b9-484f-a758-afeb41800185",
+          "event_type": "conversation.turn.recorded",
+          "event_version": 1,
+          "occurred_at": "1970-01-01T00:00:24.000Z",
+          "producer": "media_gateway",
+          "call_session_id": "373f46f2-0374-4544-a94e-75f59e93d0cd",
+          "causation_id": null,
+          "payload": {
+            "turn_id": "0d420b4d-c72e-43dd-a3ea-2c48d11fc843",
+            "turn_index": 0,
+            "speaker": "honeypot",
+            "text": "One-time-code request detected; persona instructed to stall",
+            "transcript_segment_ids": [],
+            "strategy_id": "fixed.v1",
+            "confidence": 1
+          },
+          "offset_ms": 24000
+        }
+      ],
+      "gaps": {
+        "conversation_state": "payment_request",
+        "conversation_state_record_layer": "interpretation",
+        "classification": {
+          "label": "bank_fraud",
+          "record_layer": "interpretation",
+          "confidence": 0.94
+        },
+        "engagement_duration_ms": 0,
+        "duration_ms": 0,
+        "campaign_id": "2f6ab485-c5ef-4863-a23a-1b7a6880f53d",
+        "campaign_label": "Chase Fraud Desk",
+        "pipeline": {
+          "sampled_at": "1970-01-01T00:00:00.000Z",
+          "stt_ms": 350,
+          "select_ms": 710,
+          "tts_ms": 305,
+          "e2e_ms": 1405
+        },
+        "timeline": [
+          {
+            "id": "941518c1-9671-4e16-aa90-064faffb6d60",
+            "at": "1970-01-01T00:00:00.000Z",
+            "offset_ms": 0,
+            "event_type": "telephony.call.answered",
+            "title": "Answered",
+            "detail": "Honeypot leg connected. Call is still up."
+          },
+          {
+            "id": "02e2ec44-15dd-4097-ad23-1801e5a190d8",
+            "at": "1970-01-01T00:00:00.200Z",
+            "offset_ms": 200,
+            "event_type": null,
+            "title": "Honeypot answered.",
+            "detail": "start → greeting"
+          },
+          {
+            "id": "8dc2882f-b0fe-4c78-a737-d8e7eaaad511",
+            "at": "1970-01-01T00:00:04.000Z",
+            "offset_ms": 4000,
+            "event_type": null,
+            "title": "Caller claimed Chase fraud and a $2,400 Zelle debit.",
+            "detail": "greeting → pretext"
+          },
+          {
+            "id": "e36f13d3-7e17-40d5-a181-8670aec4e66d",
+            "at": "1970-01-01T00:00:24.000Z",
+            "offset_ms": 24000,
+            "event_type": null,
+            "title": "Caller asked the target to verify a one-time code.",
+            "detail": "pretext → payment_request"
+          },
+          {
+            "id": "8675ee13-6b90-4f5f-a4e3-de3f38d4d2cd",
+            "at": "1970-01-01T00:00:56.000Z",
+            "offset_ms": 56000,
+            "event_type": "intelligence.finding.proposed",
+            "title": "Safe account and last four",
+            "detail": "Caller tied the reversal to a safe account plus the debit last four."
+          }
+        ],
+        "state_transitions": [
+          {
+            "id": "9a6c4864-0202-457a-a3af-8cce917261e6",
+            "at": "1970-01-01T00:00:00.200Z",
+            "offset_ms": 200,
+            "from": null,
+            "to": "greeting",
+            "reason": "Honeypot answered.",
+            "record_layer": "observation"
+          },
+          {
+            "id": "7ff288b4-4991-4b23-a82e-27ac6dc41a21",
+            "at": "1970-01-01T00:00:04.000Z",
+            "offset_ms": 4000,
+            "from": "greeting",
+            "to": "pretext",
+            "reason": "Caller claimed Chase fraud and a $2,400 Zelle debit.",
+            "record_layer": "interpretation"
+          },
+          {
+            "id": "d3353c03-279e-4fdb-a5d9-4607b310d448",
+            "at": "1970-01-01T00:00:24.000Z",
+            "offset_ms": 24000,
+            "from": "pretext",
+            "to": "payment_request",
+            "reason": "Caller asked the target to verify a one-time code.",
+            "record_layer": "interpretation"
+          }
+        ],
+        "paired_reads": [
+          {
+            "id": "d6eaa293-1474-4b8d-a54b-1aafb77bbd45",
+            "at": "1970-01-01T00:00:04.000Z",
+            "offset_ms": 4000,
+            "category": "script",
+            "raw": {
+              "text": "Caller said \"Chase fraud department\" and a Zelle transfer of $2,400.",
+              "record_layer": "observation"
+            },
+            "interpretation": {
+              "text": "Full opener for Chase Fraud Desk.",
+              "record_layer": "interpretation"
+            }
+          },
+          {
+            "id": "1b261a19-f5b0-41f5-ac81-fe4bcaa6b8d8",
+            "at": "1970-01-01T00:00:24.000Z",
+            "offset_ms": 24000,
+            "category": "identity",
+            "raw": {
+              "text": "Caller said badge four four one. The digits were clear enough to record and have not been checked.",
+              "record_layer": "observation"
+            },
+            "interpretation": null
+          },
+          {
+            "id": "807c4c97-6662-4c29-abfe-fd71833383e9",
+            "at": "1970-01-01T00:00:56.000Z",
+            "offset_ms": 56000,
+            "category": "payment",
+            "raw": {
+              "text": "Caller asked for a one-time code and the last four, and described a safe account.",
+              "record_layer": "observation"
+            },
+            "interpretation": {
+              "text": "Safe-account language is the mule handoff used on call_h05.",
+              "record_layer": "interpretation"
+            }
+          }
+        ],
+        "correlation_notes": [
+          {
+            "id": "3b7d40f6-5ec8-49d1-aaec-3546f05b0177",
+            "campaign_id": "2f6ab485-c5ef-4863-a23a-1b7a6880f53d",
+            "campaign_label": "Chase Fraud Desk",
+            "score": 0.95,
+            "summary": "Live Chase Fraud Desk match.",
+            "explanation": "Observed Chase opener, $2,400 Zelle, and an OTP ask. Safe-account wording matches call_h05. Badge 441 is unverified and was not required for the score.",
+            "record_layer": "interpretation",
+            "matched_on": [
+              {
+                "label": "Chase fraud department",
+                "record_layer": "observation"
+              },
+              {
+                "label": "$2,400 Zelle",
+                "record_layer": "observation"
+              },
+              {
+                "label": "Safe account",
+                "record_layer": "interpretation"
+              },
+              {
+                "label": "Badge 441",
+                "record_layer": "observation"
+              }
+            ]
+          }
+        ],
+        "key_finding_ids": [
+          "b2302735-84dc-451e-ad1f-dc5cbbbfe494",
+          "5dc307f0-0b11-4095-a524-466328328480",
+          "8058f68e-9af9-4f70-a825-90bcf5b5981c"
+        ]
+      }
+    }
+  }
+]

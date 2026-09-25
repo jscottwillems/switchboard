@@ -377,3 +377,45 @@ SB-009. Findings are `interp.intelligence_finding` rows (`IntelligenceFinding`, 
 
 - ATLAS: extend `FindingKind` only when a new kind is agreed, then Sherlock can emit it.
 - SHERLOCK: SB-010 after SB-016. Do not start it in this change.
+
+## HANDOFF — RADAR — 2026-09-25T21:10:00Z
+
+### Completed
+
+- Rebased the ops dashboard from `cursor/radar-ops-dashboard-6122` onto this Atlas tree. Routes kept: `/dashboard/live`, `/dashboard/calls`, `/dashboard/calls/:id`, `/dashboard/campaigns`, `/dashboard/campaigns/:id`, `/dashboard/system`, `/dashboard/reports`, `/dashboard/reports/:reportId`.
+- Mock adapter only. `apps/dashboard/src/data/client.ts` still exports `mockOpsDataPort`. No HTTP client was added.
+- `docs/FRONTEND_DATA_REQUIREMENTS.md` now uses contract 0.1.0 names. Record layer is `observation` | `interpretation` | `attribution`. Call state is `CallState`. Campaign status is `hypothesized` | `corroborated` | `closed`. Findings use `FindingKind` and `status: proposed`. Technical rows use `EventType` names from `docs/EVENTS.md`.
+- The same file lists UI fields that `docs/API_CONTRACTS.md` does not return. Those stay under `gaps`. Schemas were not extended.
+- `apps/dashboard` still typechecks and builds (`vue-tsc`, fixture check, Vite).
+
+### Files changed
+
+- `apps/dashboard` (ops UI, fixtures, fixture generator, checker)
+- `docs/FRONTEND_DATA_REQUIREMENTS.md`
+- `docs/STATUS.md`
+- `README.md` (how to run the dashboard)
+
+### Interfaces added-changed
+
+- `OpsDataPort` methods are unchanged in name. Their payloads now carry `CallSession`, `TranscriptSegment`, `IntelligenceFinding`, `CampaignAttribution`, `Campaign`, and `EventEnvelope` fields, plus a `gaps` object.
+- Display map for CLERK `fact_class` strings is onto `RecordLayer`. `reported_caller_metadata` and `raw_observation` badge as observation. There is no unverified enum in the contract.
+
+### Tests
+
+- `apps/dashboard`: `npm run check:fixtures`, `npm run typecheck`, `npm run build`.
+- Browser check against the Vite preview: live board, call history, call detail, campaign list and detail, system, reports, unknown call id, unknown report id.
+
+### Dependencies
+
+- Dashboard runtime: `vue`, `vue-router`, `pinia`. Dev: `vite`, `vue-tsc`, `typescript`.
+- TypeScript types import `@switchboard/schemas` (`packages/schemas/ts`). The dashboard image already copies that tree.
+
+### Blocking issues
+
+- None for the mock UI. The read API is still the empty stub, so the screens cannot bind to it yet.
+
+### Recommended next work
+
+- **SB-013** (RADAR, still open). Swap `opsData` for an HTTP adapter on `GET /v1/calls` and `GET /v1/calls/{id}` once **SB-018** returns stored rows. Keep transcript segments and findings visually separate. Render empty list and `call_not_found`. Do not invent gap fields on the wire.
+- Leave campaign volume, dialogue beats, classification, latency, cost, and the report catalog as gaps until ATLAS or CLERK add a route. `SB-019` is CLERK's manifest, not this report index.
+- `docs/API_CONTRACTS.md` still says the Vue app calls `GET /v1/calls` once on load. That describes the skeleton stub this dashboard replaced. The ops UI does not call the API. ATLAS should update that paragraph when the HTTP adapter lands.

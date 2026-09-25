@@ -1,0 +1,263 @@
+{
+  "index": [
+    {
+      "report_id": "syn-pkg-call-001__single_call",
+      "package_id": "syn-pkg-call-001",
+      "package_ids": [
+        "syn-pkg-call-001"
+      ],
+      "kind": "single_call",
+      "title": "Single-call evidence report syn-call-001",
+      "synthetic": true,
+      "available_formats": [
+        "json",
+        "markdown",
+        "pdf_ready",
+        "csv",
+        "campaign_summary"
+      ]
+    },
+    {
+      "report_id": "syn-pkg-campaign-001__multi_call_campaign",
+      "package_id": "syn-pkg-campaign-001",
+      "package_ids": [
+        "syn-pkg-campaign-001"
+      ],
+      "kind": "multi_call_campaign",
+      "title": "Multi-call campaign evidence report syn-campaign-001",
+      "synthetic": true,
+      "available_formats": [
+        "json",
+        "markdown",
+        "pdf_ready",
+        "csv",
+        "campaign_summary"
+      ]
+    },
+    {
+      "report_id": "syn-pkg-incident-001__technical_incident",
+      "package_id": "syn-pkg-incident-001",
+      "package_ids": [
+        "syn-pkg-incident-001"
+      ],
+      "kind": "technical_incident",
+      "title": "Technical incident evidence report syn-incident-001",
+      "synthetic": true,
+      "available_formats": [
+        "json",
+        "markdown",
+        "pdf_ready",
+        "csv",
+        "campaign_summary"
+      ]
+    },
+    {
+      "report_id": "syn-export-synthetic-001__machine_readable_json",
+      "package_id": "syn-export-synthetic-001",
+      "package_ids": [
+        "syn-pkg-call-001",
+        "syn-pkg-campaign-001",
+        "syn-pkg-incident-001"
+      ],
+      "kind": "machine_readable_json",
+      "title": "Machine-readable export syn-export-synthetic-001",
+      "synthetic": true,
+      "available_formats": [
+        "json"
+      ]
+    }
+  ],
+  "renders": [
+    {
+      "report_id": "syn-pkg-call-001__single_call",
+      "format": "json",
+      "parts": [
+        {
+          "filename": "syn-pkg-call-001__single_call.json",
+          "content_type": "application/json; charset=utf-8",
+          "body": "{\n  \"schema_version\": \"1.0.0\",\n  \"report_id\": \"syn-pkg-call-001__single_call\",\n  \"kind\": \"single_call\",\n  \"scope\": \"single_call\",\n  \"package_id\": \"syn-pkg-call-001\",\n  \"synthetic\": true,\n  \"title\": \"Single-call evidence report syn-call-001\",\n  \"banner\": \"SYNTHETIC FIXTURE. Values in this report are copied from labeled synthetic inputs.\",\n  \"upstream_input_schema\": \"clerk.provisional_upstream.v0\",\n  \"sections\": [\n    {\n      \"section_id\": \"displayed_caller_metadata\",\n      \"title\": \"Displayed caller metadata\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-call-001\",\n          \"fact_class\": \"reported_caller_metadata\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"displayed_caller_number\",\n              \"value\": \"+1-202-555-0143\"\n            },\n            {\n              \"name\": \"displayed_caller_name\",\n              \"value\": \"CARD SERVICES\"\n            },\n            {\n              \"name\": \"displayed_callee_number\",\n              \"value\": \"+1-555-0100\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"section_id\": \"transcript_excerpts\",\n      \"title\": \"Transcript excerpts\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-ex-001\",\n          \"fact_class\": \"raw_observation\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"speaker\",\n              \"value\": \"caller\"\n            },\n            {\n              \"name\": \"text\",\n              \"value\": \"This is the Visa fraud department. I am agent Marcus.\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"section_id\": \"spoken_identifiers\",\n      \"title\": \"Spoken identifiers\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-spk-001\",\n          \"fact_class\": \"spoken_identifier\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"kind\",\n              \"value\": \"organization\"\n            },\n            {\n              \"name\": \"value\",\n              \"value\": \"Visa\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"section_id\": \"structured_observations\",\n      \"title\": \"Structured observations\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-obs-confirmed\",\n          \"fact_class\": \"confirmed_observation\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": true,\n          \"fields\": [\n            {\n              \"name\": \"text\",\n              \"value\": \"Caller asked the target to install a remote access program.\"\n            }\n          ]\n        },\n        {\n          \"entry_id\": \"syn-obs-derived\",\n          \"fact_class\": \"derived_interpretation\",\n          \"epistemic\": \"derived_interpretation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"text\",\n              \"value\": \"The remote-access request is the extraction step of this script.\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"section_id\": \"campaign_association\",\n      \"title\": \"Campaign association\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-campaign-001\",\n          \"fact_class\": \"derived_association\",\n          \"epistemic\": \"campaign_attribution\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"campaign_id\",\n              \"value\": \"syn-campaign-001\"\n            },\n            {\n              \"name\": \"associated\",\n              \"value\": \"true\"\n            },\n            {\n              \"name\": \"label\",\n              \"value\": \"Visa fraud desk\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-call-001__single_call",
+      "format": "markdown",
+      "parts": [
+        {
+          "filename": "syn-pkg-call-001__single_call.md",
+          "content_type": "text/markdown; charset=utf-8",
+          "body": "# Single-call evidence report syn-call-001\n\n> SYNTHETIC FIXTURE. Values in this report are copied from labeled synthetic inputs.\n\nPackage ID: syn-pkg-call-001\nReport ID: syn-pkg-call-001__single_call\nSynthetic: true\n\n## Displayed caller metadata\n\n- fact_class: reported_caller_metadata\n- displayed_caller_number: +1-202-555-0143\n- displayed_caller_name: CARD SERVICES\n\n## Transcript excerpts\n\n- fact_class: raw_observation\n- text: This is the Visa fraud department. I am agent Marcus.\n\n## Spoken identifiers\n\n- fact_class: spoken_identifier\n- value: Visa\n\n## Structured observations\n\n- fact_class: confirmed_observation\n- text: Caller asked the target to install a remote access program.\n\n- fact_class: derived_interpretation\n- text: The remote-access request is the extraction step of this script.\n\n## Campaign association\n\n- fact_class: derived_association\n- campaign_id: syn-campaign-001\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-call-001__single_call",
+      "format": "pdf_ready",
+      "parts": [
+        {
+          "filename": "syn-pkg-call-001__single_call.html",
+          "content_type": "text/html; charset=utf-8",
+          "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head><meta charset=\"utf-8\"><title>Single-call evidence report syn-call-001</title></head>\n<body>\n<p>SYNTHETIC FIXTURE. Values in this report are copied from labeled synthetic inputs.</p>\n<h1>Single-call evidence report syn-call-001</h1>\n<p>Report ID: syn-pkg-call-001__single_call</p>\n<p>Mock PDF-ready projection. The dashboard does not run CLERK's A4 renderer.</p>\n</body>\n</html>\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-call-001__single_call",
+      "format": "csv",
+      "parts": [
+        {
+          "filename": "calls.csv",
+          "content_type": "text/csv; charset=utf-8",
+          "body": "call_id,displayed_caller_number,displayed_caller_name,duration_seconds\nsyn-call-001,+1-202-555-0143,CARD SERVICES,187\n"
+        },
+        {
+          "filename": "observations.csv",
+          "content_type": "text/csv; charset=utf-8",
+          "body": "entry_id,fact_class,text\nsyn-obs-confirmed,confirmed_observation,Caller asked the target to install a remote access program.\nsyn-obs-derived,derived_interpretation,The remote-access request is the extraction step of this script.\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-call-001__single_call",
+      "format": "campaign_summary",
+      "parts": [
+        {
+          "filename": "syn-pkg-call-001__single_call.campaign_summary.json",
+          "content_type": "application/json; charset=utf-8",
+          "body": "{\n  \"schema_version\": \"1.0.0\",\n  \"package_id\": \"syn-pkg-call-001\",\n  \"synthetic\": true,\n  \"associated\": true,\n  \"campaign_id\": \"syn-campaign-001\",\n  \"fact_class\": \"derived_association\",\n  \"epistemic\": \"campaign_attribution\",\n  \"label\": \"Visa fraud desk\",\n  \"member_call_ids\": [\n    \"syn-call-001\"\n  ],\n  \"packaged_call_ids\": [\n    \"syn-call-001\"\n  ],\n  \"confidence_level\": \"high\",\n  \"confidence_score\": 0.86,\n  \"confidence_basis\": \"Confidence supplied with the synthetic campaign record.\",\n  \"reason_codes\": [\n    \"shared_callback\"\n  ]\n}\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-campaign-001__multi_call_campaign",
+      "format": "json",
+      "parts": [
+        {
+          "filename": "syn-pkg-campaign-001__multi_call_campaign.json",
+          "content_type": "application/json; charset=utf-8",
+          "body": "{\n  \"schema_version\": \"1.0.0\",\n  \"report_id\": \"syn-pkg-campaign-001__multi_call_campaign\",\n  \"kind\": \"multi_call_campaign\",\n  \"scope\": \"campaign\",\n  \"package_id\": \"syn-pkg-campaign-001\",\n  \"synthetic\": true,\n  \"title\": \"Multi-call campaign evidence report syn-campaign-001\",\n  \"banner\": \"SYNTHETIC FIXTURE. Values in this report are copied from labeled synthetic inputs.\",\n  \"upstream_input_schema\": \"clerk.provisional_upstream.v0\",\n  \"sections\": [\n    {\n      \"section_id\": \"call_identity\",\n      \"title\": \"Call identity\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-call-001\",\n          \"fact_class\": \"raw_observation\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"call_id\",\n              \"value\": \"syn-call-001\"\n            },\n            {\n              \"name\": \"session_id\",\n              \"value\": \"syn-session-001\"\n            }\n          ]\n        },\n        {\n          \"entry_id\": \"syn-call-002\",\n          \"fact_class\": \"raw_observation\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"call_id\",\n              \"value\": \"syn-call-002\"\n            },\n            {\n              \"name\": \"session_id\",\n              \"value\": \"syn-session-002\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"section_id\": \"displayed_caller_metadata\",\n      \"title\": \"Displayed caller metadata\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-call-001-meta\",\n          \"fact_class\": \"reported_caller_metadata\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"call_id\",\n              \"value\": \"syn-call-001\"\n            },\n            {\n              \"name\": \"displayed_caller_number\",\n              \"value\": \"+1-202-555-0143\"\n            },\n            {\n              \"name\": \"displayed_caller_name\",\n              \"value\": \"CARD SERVICES\"\n            }\n          ]\n        },\n        {\n          \"entry_id\": \"syn-call-002-meta\",\n          \"fact_class\": \"reported_caller_metadata\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"call_id\",\n              \"value\": \"syn-call-002\"\n            },\n            {\n              \"name\": \"displayed_caller_number\",\n              \"value\": \"+1-202-555-0177\"\n            },\n            {\n              \"name\": \"displayed_caller_name\",\n              \"value\": \"CARD SERVICES\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"section_id\": \"spoken_identifiers\",\n      \"title\": \"Spoken identifiers\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-spk-001\",\n          \"fact_class\": \"spoken_identifier\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"value\",\n              \"value\": \"Visa\"\n            },\n            {\n              \"name\": \"call_id\",\n              \"value\": \"syn-call-001\"\n            }\n          ]\n        },\n        {\n          \"entry_id\": \"syn-spk-002\",\n          \"fact_class\": \"spoken_identifier\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"value\",\n              \"value\": \"1-800-555-0199\"\n            },\n            {\n              \"name\": \"call_id\",\n              \"value\": \"syn-call-002\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"section_id\": \"structured_observations\",\n      \"title\": \"Structured observations\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-obs-confirmed\",\n          \"fact_class\": \"confirmed_observation\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": true,\n          \"fields\": [\n            {\n              \"name\": \"text\",\n              \"value\": \"Both calls name CARD SERVICES and a callback of 1-800-555-0199.\"\n            }\n          ]\n        },\n        {\n          \"entry_id\": \"syn-obs-derived\",\n          \"fact_class\": \"derived_interpretation\",\n          \"epistemic\": \"derived_interpretation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"text\",\n              \"value\": \"Shared callback and opener are the script overlap supplied with the package.\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"section_id\": \"association_reasons\",\n      \"title\": \"Association reasons\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-reason-001\",\n          \"fact_class\": \"derived_association\",\n          \"epistemic\": \"campaign_attribution\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"campaign_id\",\n              \"value\": \"syn-campaign-001\"\n            },\n            {\n              \"name\": \"reason\",\n              \"value\": \"Shared spoken callback 1-800-555-0199.\"\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-campaign-001__multi_call_campaign",
+      "format": "markdown",
+      "parts": [
+        {
+          "filename": "syn-pkg-campaign-001__multi_call_campaign.md",
+          "content_type": "text/markdown; charset=utf-8",
+          "body": "# Multi-call campaign evidence report syn-campaign-001\n\n> SYNTHETIC FIXTURE. Values in this report are copied from labeled synthetic inputs.\n\nPackage ID: syn-pkg-campaign-001\nReport ID: syn-pkg-campaign-001__multi_call_campaign\nSynthetic: true\n\n## Call identity\n\n- syn-call-001\n- syn-call-002\n\n## Association reasons\n\n- fact_class: derived_association\n- reason: Shared spoken callback 1-800-555-0199.\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-campaign-001__multi_call_campaign",
+      "format": "pdf_ready",
+      "parts": [
+        {
+          "filename": "syn-pkg-campaign-001__multi_call_campaign.html",
+          "content_type": "text/html; charset=utf-8",
+          "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head><meta charset=\"utf-8\"><title>Multi-call campaign evidence report syn-campaign-001</title></head>\n<body>\n<p>SYNTHETIC FIXTURE. Values in this report are copied from labeled synthetic inputs.</p>\n<h1>Multi-call campaign evidence report syn-campaign-001</h1>\n<p>Report ID: syn-pkg-campaign-001__multi_call_campaign</p>\n<p>Mock PDF-ready projection. The dashboard does not run CLERK's A4 renderer.</p>\n</body>\n</html>\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-campaign-001__multi_call_campaign",
+      "format": "csv",
+      "parts": [
+        {
+          "filename": "calls.csv",
+          "content_type": "text/csv; charset=utf-8",
+          "body": "call_id,displayed_caller_number,displayed_caller_name,duration_seconds\nsyn-call-001,+1-202-555-0143,CARD SERVICES,187\nsyn-call-002,+1-202-555-0177,CARD SERVICES,204\n"
+        },
+        {
+          "filename": "observations.csv",
+          "content_type": "text/csv; charset=utf-8",
+          "body": "entry_id,fact_class,text\nsyn-reason-001,derived_association,Shared spoken callback 1-800-555-0199.\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-campaign-001__multi_call_campaign",
+      "format": "campaign_summary",
+      "parts": [
+        {
+          "filename": "syn-pkg-campaign-001__multi_call_campaign.campaign_summary.json",
+          "content_type": "application/json; charset=utf-8",
+          "body": "{\n  \"schema_version\": \"1.0.0\",\n  \"package_id\": \"syn-pkg-campaign-001\",\n  \"synthetic\": true,\n  \"associated\": true,\n  \"campaign_id\": \"syn-campaign-001\",\n  \"fact_class\": \"derived_association\",\n  \"epistemic\": \"campaign_attribution\",\n  \"label\": \"Visa fraud desk\",\n  \"member_call_ids\": [\n    \"syn-call-001\",\n    \"syn-call-002\"\n  ],\n  \"packaged_call_ids\": [\n    \"syn-call-001\",\n    \"syn-call-002\"\n  ],\n  \"confidence_level\": \"high\",\n  \"confidence_score\": 0.86,\n  \"confidence_basis\": \"Confidence supplied with the synthetic campaign record.\",\n  \"reason_codes\": [\n    \"shared_callback\"\n  ]\n}\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-incident-001__technical_incident",
+      "format": "json",
+      "parts": [
+        {
+          "filename": "syn-pkg-incident-001__technical_incident.json",
+          "content_type": "application/json; charset=utf-8",
+          "body": "{\n  \"schema_version\": \"1.0.0\",\n  \"report_id\": \"syn-pkg-incident-001__technical_incident\",\n  \"kind\": \"technical_incident\",\n  \"scope\": \"technical_incident\",\n  \"package_id\": \"syn-pkg-incident-001\",\n  \"synthetic\": true,\n  \"title\": \"Technical incident evidence report syn-incident-001\",\n  \"banner\": \"SYNTHETIC FIXTURE. Values in this report are copied from labeled synthetic inputs.\",\n  \"upstream_input_schema\": \"clerk.provisional_upstream.v0\",\n  \"sections\": [\n    {\n      \"section_id\": \"incident_record\",\n      \"title\": \"Incident record\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-incident-001\",\n          \"fact_class\": \"derived_interpretation\",\n          \"epistemic\": \"derived_interpretation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"summary\",\n              \"value\": \"Displayed caller number +1-202-555-0143 is not the SIP From user +1-415-555-0138.\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"section_id\": \"displayed_caller_metadata\",\n      \"title\": \"Displayed caller metadata\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-call-001\",\n          \"fact_class\": \"reported_caller_metadata\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"displayed_caller_number\",\n              \"value\": \"+1-202-555-0143\"\n            },\n            {\n              \"name\": \"sip_from_user\",\n              \"value\": \"+1-415-555-0138\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"section_id\": \"transcript_excerpts\",\n      \"title\": \"Transcript excerpts\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-ex-001\",\n          \"fact_class\": \"raw_observation\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"text\",\n              \"value\": \"This is the Visa fraud department. I am agent Marcus.\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"section_id\": \"spoken_identifiers\",\n      \"title\": \"Spoken identifiers\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-spk-001\",\n          \"fact_class\": \"spoken_identifier\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": false,\n          \"fields\": [\n            {\n              \"name\": \"value\",\n              \"value\": \"Marcus\"\n            },\n            {\n              \"name\": \"kind\",\n              \"value\": \"person_name\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"section_id\": \"structured_observations\",\n      \"title\": \"Structured observations\",\n      \"empty\": false,\n      \"entries\": [\n        {\n          \"entry_id\": \"syn-obs-confirmed\",\n          \"fact_class\": \"confirmed_observation\",\n          \"epistemic\": \"raw_observation\",\n          \"confirmed\": true,\n          \"fields\": [\n            {\n              \"name\": \"text\",\n              \"value\": \"SIP From user and the displayed caller number differ on this leg.\"\n            }\n          ]\n        }\n      ]\n    },\n    {\n      \"section_id\": \"campaign_association\",\n      \"title\": \"Campaign association\",\n      \"empty\": true,\n      \"entries\": []\n    }\n  ]\n}\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-incident-001__technical_incident",
+      "format": "markdown",
+      "parts": [
+        {
+          "filename": "syn-pkg-incident-001__technical_incident.md",
+          "content_type": "text/markdown; charset=utf-8",
+          "body": "# Technical incident evidence report syn-incident-001\n\n> SYNTHETIC FIXTURE. Values in this report are copied from labeled synthetic inputs.\n\nPackage ID: syn-pkg-incident-001\nReport ID: syn-pkg-incident-001__technical_incident\nSynthetic: true\n\n## Incident record\n\n- fact_class: derived_interpretation\n- summary: Displayed caller number +1-202-555-0143 is not the SIP From user +1-415-555-0138.\n\n## Displayed caller metadata\n\n- fact_class: reported_caller_metadata\n- displayed_caller_number: +1-202-555-0143\n- sip_from_user: +1-415-555-0138\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-incident-001__technical_incident",
+      "format": "pdf_ready",
+      "parts": [
+        {
+          "filename": "syn-pkg-incident-001__technical_incident.html",
+          "content_type": "text/html; charset=utf-8",
+          "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head><meta charset=\"utf-8\"><title>Technical incident evidence report syn-incident-001</title></head>\n<body>\n<p>SYNTHETIC FIXTURE. Values in this report are copied from labeled synthetic inputs.</p>\n<h1>Technical incident evidence report syn-incident-001</h1>\n<p>Report ID: syn-pkg-incident-001__technical_incident</p>\n<p>Mock PDF-ready projection. The dashboard does not run CLERK's A4 renderer.</p>\n</body>\n</html>\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-incident-001__technical_incident",
+      "format": "csv",
+      "parts": [
+        {
+          "filename": "calls.csv",
+          "content_type": "text/csv; charset=utf-8",
+          "body": "call_id,displayed_caller_number,displayed_caller_name,duration_seconds\nsyn-call-001,+1-202-555-0143,CARD SERVICES,187\n"
+        },
+        {
+          "filename": "observations.csv",
+          "content_type": "text/csv; charset=utf-8",
+          "body": "entry_id,fact_class,text\nsyn-incident-001,derived_interpretation,Displayed caller number is not the SIP From user.\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-pkg-incident-001__technical_incident",
+      "format": "campaign_summary",
+      "parts": [
+        {
+          "filename": "syn-pkg-incident-001__technical_incident.campaign_summary.json",
+          "content_type": "application/json; charset=utf-8",
+          "body": "{\n  \"schema_version\": \"1.0.0\",\n  \"package_id\": \"syn-pkg-incident-001\",\n  \"synthetic\": true,\n  \"associated\": false,\n  \"campaign_id\": null,\n  \"fact_class\": null,\n  \"epistemic\": null,\n  \"label\": null,\n  \"member_call_ids\": [],\n  \"packaged_call_ids\": [],\n  \"confidence_level\": null,\n  \"confidence_score\": null,\n  \"confidence_basis\": null,\n  \"reason_codes\": []\n}\n"
+        }
+      ]
+    },
+    {
+      "report_id": "syn-export-synthetic-001__machine_readable_json",
+      "format": "json",
+      "parts": [
+        {
+          "filename": "syn-export-synthetic-001__machine_readable_json.json",
+          "content_type": "application/json; charset=utf-8",
+          "body": "{\n  \"export_type\": \"clerk.evidence_export\",\n  \"schema_version\": \"1.0.0\",\n  \"synthetic\": true,\n  \"generated_at\": \"2026-09-25T18:00:00Z\",\n  \"package_ids\": [\n    \"syn-pkg-call-001\",\n    \"syn-pkg-campaign-001\",\n    \"syn-pkg-incident-001\"\n  ],\n  \"packages\": [\n    {\n      \"schema_version\": \"1.0.0\",\n      \"package_id\": \"syn-pkg-call-001\",\n      \"synthetic\": true,\n      \"generator\": \"clerk\",\n      \"upstream_input_schema\": \"clerk.provisional_upstream.v0\",\n      \"scope\": \"single_call\",\n      \"calls\": [\n        {\n          \"identity\": {\n            \"call_id\": \"syn-call-001\",\n            \"session_id\": \"syn-session-001\"\n          },\n          \"reported_caller_metadata\": {\n            \"fact_class\": \"reported_caller_metadata\",\n            \"epistemic\": \"raw_observation\",\n            \"displayed_caller_number\": \"+1-202-555-0143\",\n            \"displayed_caller_name\": \"CARD SERVICES\"\n          },\n          \"transcript_excerpts\": [\n            {\n              \"excerpt_id\": \"syn-ex-001\",\n              \"fact_class\": \"raw_observation\",\n              \"epistemic\": \"raw_observation\",\n              \"text\": \"This is the Visa fraud department. I am agent Marcus.\"\n            }\n          ],\n          \"spoken_identifiers\": [\n            {\n              \"identifier_id\": \"syn-spk-001\",\n              \"fact_class\": \"spoken_identifier\",\n              \"epistemic\": \"raw_observation\",\n              \"value\": \"Visa\"\n            }\n          ]\n        }\n      ],\n      \"observations\": [\n        {\n          \"observation_id\": \"syn-obs-confirmed\",\n          \"fact_class\": \"confirmed_observation\",\n          \"epistemic\": \"raw_observation\",\n          \"text\": \"Caller asked the target to install a remote access program.\"\n        },\n        {\n          \"observation_id\": \"syn-obs-derived\",\n          \"fact_class\": \"derived_interpretation\",\n          \"epistemic\": \"derived_interpretation\",\n          \"text\": \"The remote-access request is the extraction step of this script.\"\n        }\n      ],\n      \"campaign_association\": {\n        \"fact_class\": \"derived_association\",\n        \"epistemic\": \"campaign_attribution\",\n        \"campaign_id\": \"syn-campaign-001\",\n        \"associated\": true\n      }\n    }\n  ]\n}\n"
+        }
+      ]
+    }
+  ]
+}

@@ -59,7 +59,21 @@ The compose file sets `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` for local development o
 sh scripts/mock_inbound_call.sh
 ```
 
-The API returns a `connect_stream` instruction and stores the session when `to_e164` is an active operator number. The dashboard shows an empty call list until the read-model tickets land.
+The API returns a `connect_stream` instruction and stores the session when `to_e164` is an active operator number. The read routes still return an empty list or `404`.
+
+## Dashboard
+
+The operator UI is `apps/dashboard`. It is a Vue app on mock fixtures, aligned to the contracts in `packages/schemas`. It does not call the API yet.
+
+```sh
+cd apps/dashboard
+npm install
+npm run dev
+```
+
+Open `http://localhost:5173`. Routes: `/dashboard/live`, `/dashboard/calls`, `/dashboard/calls/:id`, `/dashboard/campaigns`, `/dashboard/campaigns/:id`, `/dashboard/system`, `/dashboard/reports`, `/dashboard/reports/:reportId`.
+
+`npm run typecheck` and `npm run build` run in that directory. Shapes the screens need, and the fields the read API does not return yet, are listed in [docs/FRONTEND_DATA_REQUIREMENTS.md](docs/FRONTEND_DATA_REQUIREMENTS.md).
 
 Without Docker, install and test the contracts:
 
