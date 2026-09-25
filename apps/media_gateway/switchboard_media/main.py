@@ -18,11 +18,7 @@ from switchboard_media.protocol import (
     frame_from_websocket_message,
 )
 from switchboard_media.settings import get_settings
-from switchboard_media.tokens import (
-    ApiStreamTokenValidator,
-    StreamTokenCheckError,
-    StreamTokenValidator,
-)
+from switchboard_media.tokens import ApiStreamTokenValidator, StreamTokenValidator
 
 app = FastAPI(title="Switchboard Media Gateway", version=CONTRACT_VERSION)
 log_info("media_gateway_starting", redis_configured=bool(get_settings().redis_url))
@@ -59,9 +55,6 @@ async def streams(
     try:
         # Once per socket. Bounded by STREAM_TOKEN_VALIDATE_TIMEOUT_S.
         result = validator.validate(token)
-    except StreamTokenCheckError:
-        await _reject(websocket, "validate_unavailable")
-        return
     except Exception:
         await _reject(websocket, "validate_unavailable")
         return

@@ -23,19 +23,15 @@ class StreamTokenCheckError(Exception):
 
 
 class _ResponseBody(Protocol):
-    def read(self) -> bytes:
-        """Return the HTTP body."""
+    def read(self) -> bytes: ...
 
-    def __enter__(self) -> "_ResponseBody":
-        """Enter the response context."""
+    def __enter__(self) -> "_ResponseBody": ...
 
-    def __exit__(self, exc_type: object, exc: object, tb: object) -> None:
-        """Leave the response context."""
+    def __exit__(self, exc_type: object, exc: object, tb: object) -> None: ...
 
 
 class UrlOpener(Protocol):
-    def __call__(self, request: urllib.request.Request, timeout: float) -> _ResponseBody:
-        """Perform the HTTP call. `timeout` is keyword-compatible with urlopen."""
+    def __call__(self, request: urllib.request.Request, timeout: float) -> _ResponseBody: ...
 
 
 class StreamTokenValidator(Protocol):
@@ -74,6 +70,7 @@ class ApiStreamTokenValidator:
             },
         )
         try:
+            # Keyword timeout: urlopen's second positional argument is the body.
             with self._opener(request, timeout=self._timeout_s) as response:
                 raw = response.read()
         except (urllib.error.URLError, TimeoutError, OSError) as exc:

@@ -316,7 +316,7 @@ ATLAS's own next implementation tickets are SB-016 and SB-017. Other agents shou
 ### Tests
 
 - `tests/test_echo_media.py` covers SB-004, SB-006, and SB-020.
-- Run `make test` from the repo root.
+- `make test`: 40 passed.
 
 ### Dependencies
 

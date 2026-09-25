@@ -133,10 +133,14 @@ def _api_opener(seen: list[urllib.request.Request]):
         del timeout
         seen.append(request)
         header = request.headers.get("X-switchboard-internal-token")
+        content_type = request.headers.get("Content-type", "application/json")
         response = api.post(
             VALIDATE_PATH,
             content=request.data,
-            headers={INTERNAL_TOKEN_HEADER: header or ""},
+            headers={
+                INTERNAL_TOKEN_HEADER: header or "",
+                "Content-Type": content_type,
+            },
         )
         if response.status_code != 200:
             raise urllib.error.URLError(f"http {response.status_code}")
@@ -206,6 +210,7 @@ def test_present_token_is_posted_to_internal_validate() -> None:
     assert request.get_method() == "POST"
     assert json.loads(request.data) == {"token": token}
     assert request.headers.get("X-switchboard-internal-token") == "test-internal-token"
+    assert request.headers.get("Content-type") == "application/json"
 
     unknown = validator.validate("not-a-real-token")
     assert unknown.valid is False
