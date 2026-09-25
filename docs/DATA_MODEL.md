@@ -131,7 +131,7 @@ Python writes go through `packages/repositories`:
 | `observation_writer` | API projector | `ops` read, `obs.*`, `interp.conversation_turn` |
 | `finding_writer` | intelligence extractor | `interp.intelligence_finding` |
 | `attribution_writer` | intelligence correlator | `attr.campaign`, `attr.campaign_attribution` |
-| `read_models` | API read routes (`SB-018`) | fetch helpers for every table above |
+| `read_models` | API call read routes | fetch helpers for every table above. `GET /v1/calls` and call detail use this port |
 
 `insert_ringing` is idempotent on `(carrier, external_call_id)` and does not change the stored caller number. New findings are inserted as `proposed` and have no campaign column. `set_status` on a finding updates `status` only.
 

@@ -144,7 +144,7 @@ flowchart TB
 
 The browser talks to `http://localhost:8000`. Containers talk to each other by service name. Compose sets `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` only on the API container so a local curl works. That flag is ignored unless `SWITCHBOARD_ENV=dev`. See `docs/SECURITY.md`.
 
-The voice webhook writes `obs.webhook_receipt` and `obs.call_session` through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Publish does not wait on a projector transaction. A Redis failure leaves the committed session in place. Process startup does not connect. `GET /health` probes Postgres and Redis only when `SWITCHBOARD_HEALTH_PROBES=1`. The media gateway can publish events and does not open Postgres. The dashboard does not open either client.
+The voice webhook writes `obs.webhook_receipt` and `obs.call_session` through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows, plus the related layers on the detail route, through `read_models`. Publish does not wait on a projector transaction. A Redis failure leaves the committed session in place. Process startup does not connect. `GET /health` probes Postgres and Redis only when `SWITCHBOARD_HEALTH_PROBES=1`. The media gateway can publish events and does not open Postgres. The dashboard does not open either client.
 
 ## Package import direction
 

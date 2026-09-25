@@ -2,7 +2,7 @@
 
 Contract version **0.1.0**. Updated by ATLAS on 2026-09-25.
 
-The authoritative docs exist, the repository layout exists, and the shared schemas exist. The first-milestone phone call is not implemented. ECHO has landed media parsing, token checks, deterministic mock TTS, and hot-path timing (SB-004, SB-006, SB-020). The other stubs advertise the contracts and stop there.
+The authoritative docs exist, the repository layout exists, and the shared schemas exist. The first-milestone phone call is not implemented. ECHO has landed media parsing, token checks, deterministic mock TTS, and hot-path timing (SB-004, SB-006, SB-020). Call list and detail read stored rows (SB-018). Campaign reads and the status webhook still advertise the contracts and stop there.
 
 ## What runs today
 
@@ -16,9 +16,9 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | TTS and audio to caller | `MockTts` returns 160 deterministic PCMU bytes. The socket does not call it |
 | Transcript stored | No projector |
 | Intelligence extracted | `POST /v1/internal/extract` proposes `callback_number` when a segment contains an E.164 |
-| Call on the dashboard | Vue page calls `GET /v1/calls`, which returns an empty list |
+| Call on the dashboard | `GET /v1/calls` and `GET /v1/calls/{id}` return stored rows. The Vue app still uses mock fixtures until SB-013 |
 
-`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Read routes still return an empty list until `SB-018`. The media gateway can publish and does not open Postgres. The dashboard does not open either client.
+`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. Campaign routes still return an empty list and `404`. The media gateway can publish and does not open Postgres. The dashboard does not open either client.
 
 ## Ownership map
 
@@ -540,3 +540,48 @@ This handoff sits on the ATLAS skeleton. It does not replace the handoff above. 
 - SB-012: `ConsumerGroup.INTELLIGENCE_CORRELATOR` and `attribution_writer`.
 - SB-005 / SB-008: publish from `switchboard_media.events.event_bus`.
 - SB-018: `open_read_models` for the call list and detail routes.
+
+## HANDOFF — ATLAS — 2026-09-25T23:40:16Z
+
+### Completed
+
+- SB-018. `GET /v1/calls` and `GET /v1/calls/{id}` read Postgres through `open_read_models` (`packages/repositories`). Unknown ids return `404 call_not_found`.
+- The list is `CallSessionSummary`: `id`, `state`, `caller_number_e164`, `called_number_e164`, `started_at`, `ended_at`. Order is newest `started_at`, then `id`. `limit` is 1–200, default 50. `next_cursor` is the repository's opaque cursor. A cursor that does not decode is `422 invalid_request`, and the cursor value is not echoed. An empty table is `items: []`, `next_cursor: null`.
+- Detail is `CallDetailResponse`: `session`, `media_streams`, and `transcript` are observations; `turns` and `findings` are interpretations; `attributions` are attribution. A known session with no child rows returns empty arrays. Transcript, findings, and attribution sub-routes return the same rows, or `404 call_not_found` when the session is missing.
+- There is no live route. `in_progress` sessions are in `GET /v1/calls`. RADAR can filter that list for the live board.
+- Operator authentication is still the open tripwire. These routes do not import `switchboard_api.operator_auth` and do not require a credential, matching the other read routes and `docs/SECURITY.md`.
+- Campaign routes are unchanged stubs. The dashboard was not edited (`SB-013`).
+
+### Files changed
+
+- `apps/api/switchboard_api/routes/calls.py`, `deps.py`
+- `tests/test_call_reads.py`
+- `docs/API_CONTRACTS.md`, `docs/ARCHITECTURE.md`, `docs/DATA_MODEL.md`, `docs/STATUS.md`, `README.md`
+
+### Interfaces added-changed
+
+- No schema fields were added. `CallListResponse` and `CallDetailResponse` are the existing models.
+- Call routes call `ReadModels` (`call_sessions.list_page` / `get`, plus `list_for_session` on media streams, transcripts, turns, findings, and attributions). No ad-hoc SQL in the route.
+
+### Tests
+
+- `tests/test_call_reads.py` inserts sessions through `open_observation_writer`, findings through `open_finding_writer`, and attributions through `open_attribution_writer`, then asserts the HTTP bodies.
+- Covered: empty list, unknown id on detail and the three sub-routes, limit bounds, bad cursor, default limit 50, a signed voice webhook on the list, newest-first pages, `in_progress` and `completed` rows, and detail layers kept apart (`observation` transcript, `interpretation` finding, `attribution` link).
+- Targeted `tests/test_call_reads.py` and `tests/test_api.py`: 14 passed. Full `make test` is recorded on the follow-up to this handoff.
+
+### Dependencies
+
+- `packages/repositories` and Postgres at `DATABASE_URL`. The API process still does not migrate on startup.
+- No new third-party library.
+
+### Blocking issues
+
+- Operator authentication on the read API is still open. Do not publish port 8000 as if that were access control.
+- Campaign list and detail are still empty stubs.
+- The dashboard still binds `mockOpsDataPort`. SB-013 can switch `fetchCallHistory` and `fetchCallDetail` to these routes. Gap fields in `docs/FRONTEND_DATA_REQUIREMENTS.md` are still absent on the wire.
+
+### Recommended next work
+
+- RADAR SB-013: HTTP adapter for `GET /v1/calls` and `GET /v1/calls/{id}`. Render an empty list and `call_not_found`. Keep transcript segments and findings visually separate. Poll the list for the live board. Do not invent gap fields.
+- SENTINEL: operator authentication before any shared deployment. The tripwire in `tests/test_runtime_gaps.py` still skips until `switchboard_api.operator_auth` exists.
+- Campaign reads stay a later ATLAS ticket. This change does not start them.

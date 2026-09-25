@@ -95,17 +95,19 @@ The stub checks the signature and returns `accepted: true` without a write.
 
 ### Read models
 
-| Method and path | Success body | Stub |
+| Method and path | Success body | Current behavior |
 | --- | --- | --- |
-| `GET /v1/calls?limit&cursor` | `CallListResponse` | Empty list, `next_cursor: null` |
-| `GET /v1/calls/{call_session_id}` | `CallDetailResponse` | `404 call_not_found` |
-| `GET /v1/calls/{call_session_id}/transcript` | `TranscriptListResponse` | `404` |
-| `GET /v1/calls/{call_session_id}/findings` | `FindingListResponse` | `404` |
-| `GET /v1/calls/{call_session_id}/attributions` | `AttributionListResponse` | `404` |
+| `GET /v1/calls?limit&cursor` | `CallListResponse` | Stored sessions, newest `started_at` then `id`. An empty table is `items: []`, `next_cursor: null` |
+| `GET /v1/calls/{call_session_id}` | `CallDetailResponse` | Stored layers. Unknown id is `404 call_not_found`. A known id with no child rows returns empty arrays |
+| `GET /v1/calls/{call_session_id}/transcript` | `TranscriptListResponse` | Segments for that session, `sequence` ascending. Unknown id is `404 call_not_found` |
+| `GET /v1/calls/{call_session_id}/findings` | `FindingListResponse` | Findings for that session. Unknown id is `404 call_not_found` |
+| `GET /v1/calls/{call_session_id}/attributions` | `AttributionListResponse` | Attributions for that session. Unknown id is `404 call_not_found` |
 | `GET /v1/campaigns?limit&cursor` | `CampaignListResponse` | Empty list |
 | `GET /v1/campaigns/{campaign_id}` | `Campaign` | `404 campaign_not_found` |
 
-`limit` is an integer from 1 to 200, default 50. `cursor` is an opaque string returned as `next_cursor`.
+`limit` is an integer from 1 to 200, default 50. `cursor` is an opaque string returned as `next_cursor`. A cursor that does not decode is `422 invalid_request`. The cursor value is not echoed.
+
+`GET /v1/calls` reads `obs.call_session` through `read_models`. There is no separate live route. `in_progress` rows are in this list. RADAR filters them for the live board (`SB-013`). Detail and the transcript, findings, and attribution routes return `404 call_not_found` when the session id is unknown. A known session with no rows in a layer returns an empty array for that layer. Campaign routes are still the empty stub.
 
 `CallDetailResponse` carries the layers side by side: `session` and `media_streams` and `transcript` are observations; `turns` and `findings` are interpretations; `attributions` are campaign linkage. Clients must not treat a finding as a transcript.
 
@@ -272,9 +274,9 @@ These are in-process ports, not HTTP APIs. Call them instead of opening Redis or
 | `observation_writer` | `packages/repositories` | API projector writes |
 | `finding_writer` | `packages/repositories` | Extractor writes. No campaign column |
 | `attribution_writer` | `packages/repositories` | Correlator writes |
-| `read_models` | `packages/repositories` | Fetch helpers for `SB-018` |
+| `read_models` | `packages/repositories` | Fetch helpers. Call routes use `open_read_models` |
 
-App composition roots are `switchboard_api.deps`, `switchboard_media.events`, and `switchboard_intelligence.deps`. The read routes still return the stub bodies until `SB-018`.
+App composition roots are `switchboard_api.deps`, `switchboard_media.events`, and `switchboard_intelligence.deps`. Call list, detail, transcript, findings, and attributions read Postgres. Campaign routes still return the stub bodies.
 
 ## Dashboard
 
