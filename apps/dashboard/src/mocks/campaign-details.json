@@ -1,0 +1,639 @@
+[
+  {
+    "id": "camp_irs",
+    "name": "IRS Warrant Wave",
+    "status": "active",
+    "classification": {
+      "label": "irs_impersonation",
+      "provenance": "inferred",
+      "confidence": 0.9
+    },
+    "firstSeenAt": "2026-09-19T14:12:00.000Z",
+    "lastSeenAt": "2026-09-25T20:05:00.000Z",
+    "callCount": 26,
+    "summary": "Callers pose as IRS Criminal Investigation Division officers, cite a 44-IRS case number, and push retail payment-card codes under a warrant threat. Officer names repeat and are not on a checked roster.",
+    "relatedCallIds": [
+      "call_live_irs",
+      "call_h01",
+      "call_h02",
+      "call_h08"
+    ],
+    "timeline": [
+      {
+        "id": "camp_irs_tl1",
+        "at": "2026-09-19T14:12:00.000Z",
+        "title": "Wave opened",
+        "detail": "First calls with the Criminal Investigation Division line and a 44-IRS case pattern."
+      },
+      {
+        "id": "camp_irs_tl2",
+        "at": "2026-09-21T15:44:00.000Z",
+        "title": "Second officer name",
+        "detail": "Dana Shah spelled on call_h08. Case suffix 1880. Payment path unchanged."
+      },
+      {
+        "id": "camp_irs_tl3",
+        "at": "2026-09-25T11:40:00.000Z",
+        "title": "Badge challenge drop",
+        "detail": "call_h02 abandoned when the honeypot asked for a badge number."
+      },
+      {
+        "id": "camp_irs_tl4",
+        "at": "2026-09-25T14:20:00.000Z",
+        "title": "Full script captured",
+        "detail": "call_h01 reached an $8,400 card read-back and a warning not to call a local IRS office."
+      }
+    ],
+    "commonScriptPhrases": [
+      {
+        "id": "camp_irs_p1",
+        "kind": "script_phrase",
+        "label": "Division line",
+        "value": "IRS Criminal Investigation Division",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_irs_p2",
+        "kind": "script_phrase",
+        "label": "Case pattern",
+        "value": "Case 44-IRS-####",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_irs_p3",
+        "kind": "script_phrase",
+        "label": "Hang-up penalty",
+        "value": "Hanging up executes the warrant or brings dispatch",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.87,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_irs_p4",
+        "kind": "script_phrase",
+        "label": "Card wording",
+        "value": "Government payment cards, codes read back on the call",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": []
+      }
+    ],
+    "sharedIndicators": [
+      {
+        "id": "camp_irs_s1",
+        "kind": "indicator",
+        "label": "Spoofed DC calling number",
+        "value": "+1 (202) 555-01xx on linked calls",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_irs_s2",
+        "kind": "tactic",
+        "label": "Warrant pressure",
+        "value": "A federal warrant is named before any document is offered",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.89,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_irs_s3",
+        "kind": "entity",
+        "label": "Repeated officer name",
+        "value": "Michael Brennan appears on more than one call and is not roster-checked",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_irs_s4",
+        "kind": "amount",
+        "label": "Card amounts",
+        "value": "Spoken demands include $8,400 and $6,200",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      }
+    ],
+    "similarity": [
+      {
+        "callId": "call_h01",
+        "score": 0.92,
+        "explanation": "Full script: division line, 44-IRS-2291, dispatch threat, and an $8,400 card read-back.",
+        "provenance": "inferred"
+      },
+      {
+        "callId": "call_h08",
+        "score": 0.9,
+        "explanation": "Same case pattern with suffix 1880 and a $6,200 card demand. Officer name differs.",
+        "provenance": "inferred"
+      },
+      {
+        "callId": "call_live_irs",
+        "score": 0.86,
+        "explanation": "Live call repeats the Brennan name and division line. The card ask is only an unverified STT fragment.",
+        "provenance": "inferred"
+      },
+      {
+        "callId": "call_h02",
+        "score": 0.74,
+        "explanation": "Warrant opener only. Caller dropped when asked for a badge number, before a case id or amount.",
+        "provenance": "inferred"
+      }
+    ],
+    "activity": [
+      {
+        "day": "2026-09-19",
+        "hour": 14,
+        "count": 2
+      },
+      {
+        "day": "2026-09-19",
+        "hour": 15,
+        "count": 3
+      },
+      {
+        "day": "2026-09-21",
+        "hour": 15,
+        "count": 4
+      },
+      {
+        "day": "2026-09-21",
+        "hour": 16,
+        "count": 2
+      },
+      {
+        "day": "2026-09-22",
+        "hour": 13,
+        "count": 1
+      },
+      {
+        "day": "2026-09-22",
+        "hour": 14,
+        "count": 3
+      },
+      {
+        "day": "2026-09-23",
+        "hour": 14,
+        "count": 2
+      },
+      {
+        "day": "2026-09-23",
+        "hour": 15,
+        "count": 2
+      },
+      {
+        "day": "2026-09-24",
+        "hour": 13,
+        "count": 2
+      },
+      {
+        "day": "2026-09-24",
+        "hour": 15,
+        "count": 1
+      },
+      {
+        "day": "2026-09-25",
+        "hour": 11,
+        "count": 1
+      },
+      {
+        "day": "2026-09-25",
+        "hour": 14,
+        "count": 2
+      },
+      {
+        "day": "2026-09-25",
+        "hour": 20,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "camp_ms",
+    "name": "Microsoft Defender Refund",
+    "status": "active",
+    "classification": {
+      "label": "tech_support",
+      "provenance": "inferred",
+      "confidence": 0.86
+    },
+    "firstSeenAt": "2026-09-19T10:22:00.000Z",
+    "lastSeenAt": "2026-09-25T19:40:00.000Z",
+    "callCount": 18,
+    "summary": "Callers claim Microsoft Support, warn that shutting down cancels a $399 Defender refund, and move toward a remote session. AnyDesk was named on one completed call.",
+    "relatedCallIds": [
+      "call_live_ms",
+      "call_h03",
+      "call_h04",
+      "call_h10"
+    ],
+    "timeline": [
+      {
+        "id": "camp_ms_tl1",
+        "at": "2026-09-19T10:22:00.000Z",
+        "title": "First refund opener",
+        "detail": "call_h10 matched the opener and then died on a TTS underrun."
+      },
+      {
+        "id": "camp_ms_tl2",
+        "at": "2026-09-24T09:12:00.000Z",
+        "title": "Stall drop",
+        "detail": "call_h04 abandoned while the honeypot stayed away from the computer."
+      },
+      {
+        "id": "camp_ms_tl3",
+        "at": "2026-09-24T16:18:00.000Z",
+        "title": "AnyDesk named",
+        "detail": "call_h03 asked for an AnyDesk session. The honeypot did not connect. Digits were not committed."
+      },
+      {
+        "id": "camp_ms_tl4",
+        "at": "2026-09-25T19:50:00.000Z",
+        "title": "Live opener",
+        "detail": "A new call is in pretext with the $399 refund and no tool name yet."
+      }
+    ],
+    "commonScriptPhrases": [
+      {
+        "id": "camp_ms_p1",
+        "kind": "script_phrase",
+        "label": "Support opener",
+        "value": "This is Microsoft Support",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_ms_p2",
+        "kind": "script_phrase",
+        "label": "Refund lure",
+        "value": "A $399 refund is pending or waiting",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_ms_p3",
+        "kind": "script_phrase",
+        "label": "Shutdown warning",
+        "value": "Do not shut the computer down",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.85,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_ms_p4",
+        "kind": "script_phrase",
+        "label": "Remote session",
+        "value": "Connect with a remote tool to confirm the refund",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": []
+      }
+    ],
+    "sharedIndicators": [
+      {
+        "id": "camp_ms_s1",
+        "kind": "indicator",
+        "label": "Toll-free caller id",
+        "value": "+1 (888) 555-01xx on linked calls",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_ms_s2",
+        "kind": "entity",
+        "label": "Product lure",
+        "value": "Microsoft Defender pop-up or subscription",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_ms_s3",
+        "kind": "tactic",
+        "label": "Refund keeps the line up",
+        "value": "The refund is the reason given for not ending the call",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.84,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_ms_s4",
+        "kind": "entity",
+        "label": "AnyDesk address",
+        "value": "Nine digits were requested once and not confirmed",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      }
+    ],
+    "similarity": [
+      {
+        "callId": "call_h03",
+        "score": 0.94,
+        "explanation": "Full path through Defender and an AnyDesk request. Address digits remain unverified.",
+        "provenance": "inferred"
+      },
+      {
+        "callId": "call_live_ms",
+        "score": 0.8,
+        "explanation": "Live opener with the $399 refund and Defender. No tool name yet.",
+        "provenance": "inferred"
+      },
+      {
+        "callId": "call_h10",
+        "score": 0.73,
+        "explanation": "Same opener, ended by TTS_UNDERRUN before a tool or amount.",
+        "provenance": "inferred"
+      },
+      {
+        "callId": "call_h04",
+        "score": 0.71,
+        "explanation": "Defender refund and a one-hour deadline. Caller left during the walk-to-the-PC stall.",
+        "provenance": "inferred"
+      }
+    ],
+    "activity": [
+      {
+        "day": "2026-09-19",
+        "hour": 10,
+        "count": 3
+      },
+      {
+        "day": "2026-09-20",
+        "hour": 9,
+        "count": 2
+      },
+      {
+        "day": "2026-09-20",
+        "hour": 10,
+        "count": 2
+      },
+      {
+        "day": "2026-09-21",
+        "hour": 9,
+        "count": 1
+      },
+      {
+        "day": "2026-09-22",
+        "hour": 11,
+        "count": 2
+      },
+      {
+        "day": "2026-09-23",
+        "hour": 16,
+        "count": 1
+      },
+      {
+        "day": "2026-09-24",
+        "hour": 9,
+        "count": 2
+      },
+      {
+        "day": "2026-09-24",
+        "hour": 16,
+        "count": 3
+      },
+      {
+        "day": "2026-09-25",
+        "hour": 15,
+        "count": 1
+      },
+      {
+        "day": "2026-09-25",
+        "hour": 20,
+        "count": 1
+      }
+    ]
+  },
+  {
+    "id": "camp_chase",
+    "name": "Chase Fraud Desk",
+    "status": "active",
+    "classification": {
+      "label": "bank_fraud",
+      "provenance": "inferred",
+      "confidence": 0.93
+    },
+    "firstSeenAt": "2026-09-20T19:05:00.000Z",
+    "lastSeenAt": "2026-09-25T20:10:00.000Z",
+    "callCount": 15,
+    "summary": "Callers impersonate a Chase fraud desk, cite a $2,400 Zelle transfer, and ask for a one-time code plus the debit last four so funds can move to a safe account.",
+    "relatedCallIds": [
+      "call_live_chase",
+      "call_h05",
+      "call_h06"
+    ],
+    "timeline": [
+      {
+        "id": "camp_chase_tl1",
+        "at": "2026-09-20T19:05:00.000Z",
+        "title": "Evening cluster started",
+        "detail": "First Zelle-reversal calls, concentrated after 18:00 UTC."
+      },
+      {
+        "id": "camp_chase_tl2",
+        "at": "2026-09-23T13:02:00.000Z",
+        "title": "Card-number challenge",
+        "detail": "call_h06 died when the honeypot moved to dial the number on the card."
+      },
+      {
+        "id": "camp_chase_tl3",
+        "at": "2026-09-23T19:48:00.000Z",
+        "title": "Safe account captured",
+        "detail": "call_h05 recorded the OTP ask and the safe-account handoff. The honeypot refused the code."
+      },
+      {
+        "id": "camp_chase_tl4",
+        "at": "2026-09-25T20:00:00.000Z",
+        "title": "Live replay",
+        "detail": "An active call repeats the $2,400 Zelle script and badge 441, which is not checked."
+      }
+    ],
+    "commonScriptPhrases": [
+      {
+        "id": "camp_chase_p1",
+        "kind": "script_phrase",
+        "label": "Desk opener",
+        "value": "This is the Chase fraud department",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_chase_p2",
+        "kind": "script_phrase",
+        "label": "Zelle debit",
+        "value": "We detected a Zelle transfer",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_chase_p3",
+        "kind": "script_phrase",
+        "label": "Safe account",
+        "value": "Move the remaining balance into a safe account in your name",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.92,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_chase_p4",
+        "kind": "script_phrase",
+        "label": "Badge claim",
+        "value": "Fraud desk badge number spoken on some calls",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      }
+    ],
+    "sharedIndicators": [
+      {
+        "id": "camp_chase_s1",
+        "kind": "amount",
+        "label": "Zelle figure",
+        "value": "$2,400 on calls that reach the amount",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_chase_s2",
+        "kind": "indicator",
+        "label": "OTP ask",
+        "value": "Target is told to read a texted one-time code",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_chase_s3",
+        "kind": "tactic",
+        "label": "Mule handoff",
+        "value": "Safe account is treated as the reversal path",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.9,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_chase_s4",
+        "kind": "entity",
+        "label": "Badge 441",
+        "value": "Spoken on the live call, not checked",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      },
+      {
+        "id": "camp_chase_s5",
+        "kind": "tactic",
+        "label": "Avoid the real bank",
+        "value": "Caller says not to use the number on the card or the branch",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": []
+      }
+    ],
+    "similarity": [
+      {
+        "callId": "call_h05",
+        "score": 0.96,
+        "explanation": "Completed path: Zelle amount, OTP refusal, and the safe-account sentence.",
+        "provenance": "inferred"
+      },
+      {
+        "callId": "call_live_chase",
+        "score": 0.95,
+        "explanation": "Live call repeats the $2,400 script. Badge 441 is unverified raw speech.",
+        "provenance": "inferred"
+      },
+      {
+        "callId": "call_h06",
+        "score": 0.62,
+        "explanation": "Opener only. No amount. Caller left when the honeypot turned to the number on the card.",
+        "provenance": "inferred"
+      }
+    ],
+    "activity": [
+      {
+        "day": "2026-09-20",
+        "hour": 19,
+        "count": 2
+      },
+      {
+        "day": "2026-09-21",
+        "hour": 20,
+        "count": 1
+      },
+      {
+        "day": "2026-09-22",
+        "hour": 18,
+        "count": 2
+      },
+      {
+        "day": "2026-09-22",
+        "hour": 19,
+        "count": 1
+      },
+      {
+        "day": "2026-09-23",
+        "hour": 13,
+        "count": 1
+      },
+      {
+        "day": "2026-09-23",
+        "hour": 19,
+        "count": 3
+      },
+      {
+        "day": "2026-09-24",
+        "hour": 18,
+        "count": 2
+      },
+      {
+        "day": "2026-09-24",
+        "hour": 21,
+        "count": 1
+      },
+      {
+        "day": "2026-09-25",
+        "hour": 20,
+        "count": 2
+      }
+    ]
+  }
+]

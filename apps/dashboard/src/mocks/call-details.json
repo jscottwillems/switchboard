@@ -1,0 +1,3832 @@
+[
+  {
+    "id": "call_h01",
+    "startedAt": "2026-09-25T14:02:00.000Z",
+    "endedAt": "2026-09-25T14:20:12.000Z",
+    "durationMs": 1092000,
+    "engagementDurationMs": 880000,
+    "status": "completed",
+    "callerNumberMasked": "+1 (202) 555-0148",
+    "conversationState": "closing",
+    "stateProvenance": "inferred",
+    "classification": {
+      "label": "irs_impersonation",
+      "provenance": "inferred",
+      "confidence": 0.93
+    },
+    "campaignId": "camp_irs",
+    "campaignName": "IRS Warrant Wave",
+    "keyIndicators": [
+      {
+        "id": "call_h01_i1",
+        "kind": "script_phrase",
+        "label": "Criminal Investigation Division",
+        "value": "IRS Criminal Investigation Division",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h01_t2"
+        ]
+      },
+      {
+        "id": "call_h01_i4",
+        "kind": "tactic",
+        "label": "Dispatch threat",
+        "value": "Same-day law-enforcement dispatch unless the target stays on the line",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.9,
+        "evidenceTurnIds": [
+          "call_h01_t6"
+        ]
+      },
+      {
+        "id": "call_h01_i6",
+        "kind": "entity",
+        "label": "Officer name",
+        "value": "Michael Brennan is a spoken name with no roster match",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h01_t2"
+        ]
+      }
+    ],
+    "intelligence": [
+      {
+        "id": "call_h01_i1",
+        "kind": "script_phrase",
+        "label": "Criminal Investigation Division",
+        "value": "IRS Criminal Investigation Division",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h01_t2"
+        ]
+      },
+      {
+        "id": "call_h01_i2",
+        "kind": "entity",
+        "label": "Case number",
+        "value": "44-IRS-2291",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h01_t4",
+          "call_h01_t12"
+        ]
+      },
+      {
+        "id": "call_h01_i3",
+        "kind": "amount",
+        "label": "Card demand",
+        "value": "$8,400 in payment cards",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h01_t8"
+        ]
+      },
+      {
+        "id": "call_h01_i4",
+        "kind": "tactic",
+        "label": "Dispatch threat",
+        "value": "Same-day law-enforcement dispatch unless the target stays on the line",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.9,
+        "evidenceTurnIds": [
+          "call_h01_t6"
+        ]
+      },
+      {
+        "id": "call_h01_i5",
+        "kind": "tactic",
+        "label": "Gift-card cash-out",
+        "value": "Read-back of retail payment-card codes",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.92,
+        "evidenceTurnIds": [
+          "call_h01_t8"
+        ]
+      },
+      {
+        "id": "call_h01_i6",
+        "kind": "entity",
+        "label": "Officer name",
+        "value": "Michael Brennan is a spoken name with no roster match",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h01_t2"
+        ]
+      }
+    ],
+    "pipeline": {
+      "sampledAt": "2026-09-25T14:20:12.000Z",
+      "sttMs": 420,
+      "llmMs": 890,
+      "ttsMs": 300,
+      "e2eMs": 1650
+    },
+    "timeline": [
+      {
+        "id": "call_h01_l0",
+        "at": "2026-09-25T14:02:00.000Z",
+        "offsetMs": 0,
+        "kind": "telephony",
+        "title": "Answered",
+        "detail": "Honeypot leg connected."
+      },
+      {
+        "id": "call_h01_l_call_h01_s1",
+        "at": "2026-09-25T14:02:00.200Z",
+        "offsetMs": 200,
+        "kind": "state",
+        "title": "Honeypot answered with a short hello.",
+        "detail": "start → greeting"
+      },
+      {
+        "id": "call_h01_l_call_h01_s2",
+        "at": "2026-09-25T14:02:11.000Z",
+        "offsetMs": 11000,
+        "kind": "state",
+        "title": "Caller claimed an IRS officer role and asked for the taxpayer.",
+        "detail": "greeting → identity_probe"
+      },
+      {
+        "id": "call_h01_l_call_h01_s3",
+        "at": "2026-09-25T14:02:36.000Z",
+        "offsetMs": 36000,
+        "kind": "state",
+        "title": "Caller introduced a case number and a warrant story.",
+        "detail": "identity_probe → pretext"
+      },
+      {
+        "id": "call_h01_l_call_h01_s4",
+        "at": "2026-09-25T14:03:22.000Z",
+        "offsetMs": 82000,
+        "kind": "state",
+        "title": "Caller threatened same-day dispatch if the line drops.",
+        "detail": "pretext → urgency"
+      },
+      {
+        "id": "call_h01_l_call_h01_s5",
+        "at": "2026-09-25T14:04:32.000Z",
+        "offsetMs": 152000,
+        "kind": "state",
+        "title": "Caller named payment cards and an amount.",
+        "detail": "urgency → payment_request"
+      },
+      {
+        "id": "call_h01_lx1",
+        "at": "2026-09-25T14:04:32.000Z",
+        "offsetMs": 152000,
+        "kind": "intel",
+        "title": "Payment amount captured",
+        "detail": "Caller stated $8,400 in government payment cards."
+      },
+      {
+        "id": "call_h01_l_call_h01_s6",
+        "at": "2026-09-25T14:18:20.000Z",
+        "offsetMs": 980000,
+        "kind": "state",
+        "title": "Honeypot moved to leave the line and the caller allowed a short close.",
+        "detail": "payment_request → closing"
+      },
+      {
+        "id": "call_h01_lend",
+        "at": "2026-09-25T14:20:12.000Z",
+        "offsetMs": 1092000,
+        "kind": "telephony",
+        "title": "Caller released the line",
+        "detail": "Caller ended the call after the honeypot promised to call back with the cards."
+      }
+    ],
+    "transcript": [
+      {
+        "id": "call_h01_t1",
+        "speaker": "honeypot",
+        "text": "Hello?",
+        "offsetMs": 0,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h01_t2",
+        "speaker": "caller",
+        "text": "This is Officer Michael Brennan with the IRS Criminal Investigation Division. Am I speaking with the taxpayer?",
+        "offsetMs": 11000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h01_t3",
+        "speaker": "honeypot",
+        "text": "What case number should I write down?",
+        "offsetMs": 28000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h01_t4",
+        "speaker": "caller",
+        "text": "Case 44-IRS-2291. A federal warrant is already in your name for tax irregularities.",
+        "offsetMs": 36000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h01_t5",
+        "speaker": "honeypot",
+        "text": "I have not received a letter. Who signs that warrant?",
+        "offsetMs": 70000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h01_t6",
+        "speaker": "caller",
+        "text": "Local law enforcement is being dispatched unless this is settled today. Do not hang up.",
+        "offsetMs": 82000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h01_t7",
+        "speaker": "honeypot",
+        "text": "Settled how? Say it once, slowly.",
+        "offsetMs": 140000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h01_t8",
+        "speaker": "caller",
+        "text": "You will buy government payment cards for eight thousand four hundred dollars and read me the codes.",
+        "offsetMs": 152000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h01_t9",
+        "speaker": "honeypot",
+        "text": "I have to walk to a store. I will call this number back.",
+        "offsetMs": 420000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h01_t10",
+        "speaker": "caller",
+        "text": "You cannot call back. Stay on this recorded line. I will wait ten minutes.",
+        "offsetMs": 440000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h01_t11",
+        "speaker": "honeypot",
+        "text": "I am stepping away with the handset. If this drops I will redial.",
+        "offsetMs": 980000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h01_t12",
+        "speaker": "caller",
+        "text": "Do not speak to the local IRS office. They are not cleared on case 44-IRS-2291.",
+        "offsetMs": 1000000,
+        "provenance": "observed"
+      }
+    ],
+    "stateTransitions": [
+      {
+        "id": "call_h01_s1",
+        "at": "2026-09-25T14:02:00.200Z",
+        "offsetMs": 200,
+        "from": null,
+        "to": "greeting",
+        "reason": "Honeypot answered with a short hello.",
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h01_s2",
+        "at": "2026-09-25T14:02:11.000Z",
+        "offsetMs": 11000,
+        "from": "greeting",
+        "to": "identity_probe",
+        "reason": "Caller claimed an IRS officer role and asked for the taxpayer.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h01_s3",
+        "at": "2026-09-25T14:02:36.000Z",
+        "offsetMs": 36000,
+        "from": "identity_probe",
+        "to": "pretext",
+        "reason": "Caller introduced a case number and a warrant story.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h01_s4",
+        "at": "2026-09-25T14:03:22.000Z",
+        "offsetMs": 82000,
+        "from": "pretext",
+        "to": "urgency",
+        "reason": "Caller threatened same-day dispatch if the line drops.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h01_s5",
+        "at": "2026-09-25T14:04:32.000Z",
+        "offsetMs": 152000,
+        "from": "urgency",
+        "to": "payment_request",
+        "reason": "Caller named payment cards and an amount.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h01_s6",
+        "at": "2026-09-25T14:18:20.000Z",
+        "offsetMs": 980000,
+        "from": "payment_request",
+        "to": "closing",
+        "reason": "Honeypot moved to leave the line and the caller allowed a short close.",
+        "provenance": "inferred"
+      }
+    ],
+    "observations": [
+      {
+        "id": "call_h01_o1",
+        "at": "2026-09-25T14:02:36.000Z",
+        "offsetMs": 36000,
+        "category": "script",
+        "raw": {
+          "text": "Caller said \"IRS Criminal Investigation Division\" and case 44-IRS-2291.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Warrant-and-case-number opening matches the IRS Warrant Wave script.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h01_o2",
+        "at": "2026-09-25T14:03:22.000Z",
+        "offsetMs": 82000,
+        "category": "threat",
+        "raw": {
+          "text": "Caller said local law enforcement is being dispatched unless this is settled today.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "The dispatch line is pressure to keep the target from hanging up, not a verified enforcement action.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h01_o3",
+        "at": "2026-09-25T14:04:32.000Z",
+        "offsetMs": 152000,
+        "category": "payment",
+        "raw": {
+          "text": "Caller instructed the target to buy government payment cards for $8,400 and read the codes.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Gift-card codes are the cash-out path for this wave.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h01_o4",
+        "at": "2026-09-25T14:18:40.000Z",
+        "offsetMs": 1000000,
+        "category": "callback",
+        "raw": {
+          "text": "Caller said not to contact the local IRS office.",
+          "provenance": "observed"
+        },
+        "interpretation": null
+      }
+    ],
+    "correlation": [
+      {
+        "id": "call_h01_c1",
+        "campaignId": "camp_irs",
+        "campaignName": "IRS Warrant Wave",
+        "score": 0.92,
+        "summary": "Strong match to IRS Warrant Wave.",
+        "explanation": "Observed case-number pattern 44-IRS-####, the Criminal Investigation Division line, and a payment-card code read-back line up with the wave. The officer name is still unverified and was not required for the match.",
+        "provenance": "inferred",
+        "matchedOn": [
+          {
+            "label": "Criminal Investigation Division",
+            "provenance": "observed"
+          },
+          {
+            "label": "Case 44-IRS-2291",
+            "provenance": "observed"
+          },
+          {
+            "label": "Payment-card code read-back",
+            "provenance": "inferred"
+          }
+        ]
+      },
+      {
+        "id": "call_h01_c2",
+        "campaignId": "camp_chase",
+        "campaignName": "Chase Fraud Desk",
+        "score": 0.28,
+        "summary": "Chase Fraud Desk rejected.",
+        "explanation": "Both scripts push same-day payment, but this call never mentions a bank, Zelle, or a one-time code. Shared urgency is not enough.",
+        "provenance": "inferred",
+        "matchedOn": [
+          {
+            "label": "Same-day payment pressure",
+            "provenance": "inferred"
+          }
+        ]
+      }
+    ],
+    "technicalEvents": [
+      {
+        "id": "call_h01_e1",
+        "at": "2026-09-25T14:02:00.000Z",
+        "offsetMs": 0,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Inbound leg answered",
+        "attributes": [
+          {
+            "key": "codec",
+            "value": "PCMU"
+          },
+          {
+            "key": "leg",
+            "value": "honeypot"
+          }
+        ]
+      },
+      {
+        "id": "call_h01_e2",
+        "at": "2026-09-25T14:02:00.650Z",
+        "offsetMs": 650,
+        "source": "stt",
+        "severity": "info",
+        "message": "Streaming recognition started",
+        "attributes": [
+          {
+            "key": "locale",
+            "value": "en-US"
+          }
+        ]
+      },
+      {
+        "id": "call_h01_e3",
+        "at": "2026-09-25T14:02:02.400Z",
+        "offsetMs": 2400,
+        "source": "llm",
+        "severity": "info",
+        "message": "Stall persona reply committed",
+        "attributes": [
+          {
+            "key": "persona",
+            "value": "calm-stall"
+          }
+        ]
+      },
+      {
+        "id": "call_h01_ex1",
+        "at": "2026-09-25T14:04:30.000Z",
+        "offsetMs": 150000,
+        "source": "llm",
+        "severity": "info",
+        "message": "State proposal payment_request accepted",
+        "attributes": [
+          {
+            "key": "confidence",
+            "value": "0.93"
+          }
+        ]
+      },
+      {
+        "id": "call_h01_e_end",
+        "at": "2026-09-25T14:20:12.000Z",
+        "offsetMs": 1092000,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Caller ended the call after the honeypot promised to call back with the cards.",
+        "attributes": [
+          {
+            "key": "status",
+            "value": "completed"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "call_h02",
+    "startedAt": "2026-09-25T11:40:00.000Z",
+    "endedAt": "2026-09-25T11:46:05.000Z",
+    "durationMs": 365000,
+    "engagementDurationMs": 130000,
+    "status": "abandoned",
+    "callerNumberMasked": "+1 (202) 555-0160",
+    "conversationState": "urgency",
+    "stateProvenance": "inferred",
+    "classification": {
+      "label": "irs_impersonation",
+      "provenance": "inferred",
+      "confidence": 0.81
+    },
+    "campaignId": "camp_irs",
+    "campaignName": "IRS Warrant Wave",
+    "keyIndicators": [
+      {
+        "id": "call_h02_i1",
+        "kind": "script_phrase",
+        "label": "Criminal Investigation Division",
+        "value": "IRS Criminal Investigation Division",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h02_t2"
+        ]
+      },
+      {
+        "id": "call_h02_i3",
+        "kind": "tactic",
+        "label": "Stall penalty",
+        "value": "Caller claims delay causes the warrant to execute",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.77,
+        "evidenceTurnIds": [
+          "call_h02_t4"
+        ]
+      },
+      {
+        "id": "call_h02_i4",
+        "kind": "callback",
+        "label": "Badge withheld",
+        "value": "No badge number was spoken",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h02_t4"
+        ]
+      }
+    ],
+    "intelligence": [
+      {
+        "id": "call_h02_i1",
+        "kind": "script_phrase",
+        "label": "Criminal Investigation Division",
+        "value": "IRS Criminal Investigation Division",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h02_t2"
+        ]
+      },
+      {
+        "id": "call_h02_i2",
+        "kind": "tactic",
+        "label": "Warrant opener",
+        "value": "Warrant named before any case identifier",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h02_t2"
+        ]
+      },
+      {
+        "id": "call_h02_i3",
+        "kind": "tactic",
+        "label": "Stall penalty",
+        "value": "Caller claims delay causes the warrant to execute",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.77,
+        "evidenceTurnIds": [
+          "call_h02_t4"
+        ]
+      },
+      {
+        "id": "call_h02_i4",
+        "kind": "callback",
+        "label": "Badge withheld",
+        "value": "No badge number was spoken",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h02_t4"
+        ]
+      }
+    ],
+    "pipeline": {
+      "sampledAt": "2026-09-25T11:46:05.000Z",
+      "sttMs": 510,
+      "llmMs": 700,
+      "ttsMs": 280,
+      "e2eMs": 1530
+    },
+    "timeline": [
+      {
+        "id": "call_h02_l0",
+        "at": "2026-09-25T11:40:00.000Z",
+        "offsetMs": 0,
+        "kind": "telephony",
+        "title": "Answered",
+        "detail": "Honeypot leg connected."
+      },
+      {
+        "id": "call_h02_l_call_h02_s1",
+        "at": "2026-09-25T11:40:00.200Z",
+        "offsetMs": 200,
+        "kind": "state",
+        "title": "Honeypot answered.",
+        "detail": "start → greeting"
+      },
+      {
+        "id": "call_h02_l_call_h02_s2",
+        "at": "2026-09-25T11:40:08.000Z",
+        "offsetMs": 8000,
+        "kind": "state",
+        "title": "Caller opened with a warrant claim and an IRS division name.",
+        "detail": "greeting → pretext"
+      },
+      {
+        "id": "call_h02_l_call_h02_s3",
+        "at": "2026-09-25T11:40:30.000Z",
+        "offsetMs": 30000,
+        "kind": "state",
+        "title": "Caller said the warrant executes if the target stalls.",
+        "detail": "pretext → urgency"
+      },
+      {
+        "id": "call_h02_lx1",
+        "at": "2026-09-25T11:45:50.000Z",
+        "offsetMs": 350000,
+        "kind": "telephony",
+        "title": "Caller disconnect",
+        "detail": "Far end released after refusing the badge challenge."
+      },
+      {
+        "id": "call_h02_lend",
+        "at": "2026-09-25T11:46:05.000Z",
+        "offsetMs": 365000,
+        "kind": "telephony",
+        "title": "Caller hung up",
+        "detail": "Caller disconnected after the honeypot asked for a badge number."
+      }
+    ],
+    "transcript": [
+      {
+        "id": "call_h02_t1",
+        "speaker": "honeypot",
+        "text": "Hello?",
+        "offsetMs": 0,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h02_t2",
+        "speaker": "caller",
+        "text": "IRS Criminal Investigation Division. There is a warrant with your name on it. Do not leave the phone.",
+        "offsetMs": 8000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h02_t3",
+        "speaker": "honeypot",
+        "text": "Which office, and what is the badge number?",
+        "offsetMs": 22000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h02_t4",
+        "speaker": "caller",
+        "text": "I do not give badge numbers on an unsecured line. The warrant executes if you stall.",
+        "offsetMs": 30000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h02_t5",
+        "speaker": "honeypot",
+        "text": "Then read the case number the way it is printed.",
+        "offsetMs": 70000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h02_t6",
+        "speaker": "caller",
+        "text": "You are refusing to cooperate. I am releasing this line.",
+        "offsetMs": 78000,
+        "provenance": "observed"
+      }
+    ],
+    "stateTransitions": [
+      {
+        "id": "call_h02_s1",
+        "at": "2026-09-25T11:40:00.200Z",
+        "offsetMs": 200,
+        "from": null,
+        "to": "greeting",
+        "reason": "Honeypot answered.",
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h02_s2",
+        "at": "2026-09-25T11:40:08.000Z",
+        "offsetMs": 8000,
+        "from": "greeting",
+        "to": "pretext",
+        "reason": "Caller opened with a warrant claim and an IRS division name.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h02_s3",
+        "at": "2026-09-25T11:40:30.000Z",
+        "offsetMs": 30000,
+        "from": "pretext",
+        "to": "urgency",
+        "reason": "Caller said the warrant executes if the target stalls.",
+        "provenance": "inferred"
+      }
+    ],
+    "observations": [
+      {
+        "id": "call_h02_o1",
+        "at": "2026-09-25T11:40:08.000Z",
+        "offsetMs": 8000,
+        "category": "script",
+        "raw": {
+          "text": "Caller said \"IRS Criminal Investigation Division\" and that a warrant is in the target name.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Opening matches IRS Warrant Wave even without a case number.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h02_o2",
+        "at": "2026-09-25T11:40:30.000Z",
+        "offsetMs": 30000,
+        "category": "identity",
+        "raw": {
+          "text": "Caller refused to give a badge number and called the line unsecured.",
+          "provenance": "observed"
+        },
+        "interpretation": null
+      }
+    ],
+    "correlation": [
+      {
+        "id": "call_h02_c1",
+        "campaignId": "camp_irs",
+        "campaignName": "IRS Warrant Wave",
+        "score": 0.74,
+        "summary": "Partial IRS Warrant Wave match.",
+        "explanation": "The division name and warrant opener were observed. The call died before a case number or payment path, so the score stays below the full-script matches.",
+        "provenance": "inferred",
+        "matchedOn": [
+          {
+            "label": "Criminal Investigation Division",
+            "provenance": "observed"
+          },
+          {
+            "label": "Warrant opener",
+            "provenance": "observed"
+          }
+        ]
+      }
+    ],
+    "technicalEvents": [
+      {
+        "id": "call_h02_e1",
+        "at": "2026-09-25T11:40:00.000Z",
+        "offsetMs": 0,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Inbound leg answered",
+        "attributes": [
+          {
+            "key": "codec",
+            "value": "PCMU"
+          },
+          {
+            "key": "leg",
+            "value": "honeypot"
+          }
+        ]
+      },
+      {
+        "id": "call_h02_e2",
+        "at": "2026-09-25T11:40:00.650Z",
+        "offsetMs": 650,
+        "source": "stt",
+        "severity": "info",
+        "message": "Streaming recognition started",
+        "attributes": [
+          {
+            "key": "locale",
+            "value": "en-US"
+          }
+        ]
+      },
+      {
+        "id": "call_h02_e3",
+        "at": "2026-09-25T11:40:02.400Z",
+        "offsetMs": 2400,
+        "source": "llm",
+        "severity": "info",
+        "message": "Stall persona reply committed",
+        "attributes": [
+          {
+            "key": "persona",
+            "value": "calm-stall"
+          }
+        ]
+      },
+      {
+        "id": "call_h02_ex1",
+        "at": "2026-09-25T11:45:50.000Z",
+        "offsetMs": 350000,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Far end BYE after the badge challenge",
+        "attributes": [
+          {
+            "key": "cause",
+            "value": "normal-clearing"
+          }
+        ]
+      },
+      {
+        "id": "call_h02_e_end",
+        "at": "2026-09-25T11:46:05.000Z",
+        "offsetMs": 365000,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Caller disconnected after the honeypot asked for a badge number.",
+        "attributes": [
+          {
+            "key": "status",
+            "value": "abandoned"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "call_h03",
+    "startedAt": "2026-09-24T16:18:00.000Z",
+    "endedAt": "2026-09-24T16:40:40.000Z",
+    "durationMs": 1360000,
+    "engagementDurationMs": 1145000,
+    "status": "completed",
+    "callerNumberMasked": "+1 (888) 555-0133",
+    "conversationState": "extraction",
+    "stateProvenance": "inferred",
+    "classification": {
+      "label": "tech_support",
+      "provenance": "inferred",
+      "confidence": 0.9
+    },
+    "campaignId": "camp_ms",
+    "campaignName": "Microsoft Defender Refund",
+    "keyIndicators": [
+      {
+        "id": "call_h03_i1",
+        "kind": "script_phrase",
+        "label": "Microsoft Support opener",
+        "value": "This is Microsoft Support",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h03_t2"
+        ]
+      },
+      {
+        "id": "call_h03_i3",
+        "kind": "tactic",
+        "label": "Do not shut down",
+        "value": "Shutdown would cancel the refund",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.86,
+        "evidenceTurnIds": [
+          "call_h03_t4"
+        ]
+      },
+      {
+        "id": "call_h03_i5",
+        "kind": "callback",
+        "label": "AnyDesk address",
+        "value": "Nine-digit address requested; digits not confirmed",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h03_t8"
+        ]
+      }
+    ],
+    "intelligence": [
+      {
+        "id": "call_h03_i1",
+        "kind": "script_phrase",
+        "label": "Microsoft Support opener",
+        "value": "This is Microsoft Support",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h03_t2"
+        ]
+      },
+      {
+        "id": "call_h03_i2",
+        "kind": "amount",
+        "label": "Refund lure",
+        "value": "$399 refund",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h03_t2"
+        ]
+      },
+      {
+        "id": "call_h03_i3",
+        "kind": "tactic",
+        "label": "Do not shut down",
+        "value": "Shutdown would cancel the refund",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.86,
+        "evidenceTurnIds": [
+          "call_h03_t4"
+        ]
+      },
+      {
+        "id": "call_h03_i4",
+        "kind": "entity",
+        "label": "Remote tool",
+        "value": "AnyDesk",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h03_t6"
+        ]
+      },
+      {
+        "id": "call_h03_i5",
+        "kind": "callback",
+        "label": "AnyDesk address",
+        "value": "Nine-digit address requested; digits not confirmed",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h03_t8"
+        ]
+      }
+    ],
+    "pipeline": {
+      "sampledAt": "2026-09-24T16:40:40.000Z",
+      "sttMs": 390,
+      "llmMs": 760,
+      "ttsMs": 340,
+      "e2eMs": 1530
+    },
+    "timeline": [
+      {
+        "id": "call_h03_l0",
+        "at": "2026-09-24T16:18:00.000Z",
+        "offsetMs": 0,
+        "kind": "telephony",
+        "title": "Answered",
+        "detail": "Honeypot leg connected."
+      },
+      {
+        "id": "call_h03_l_call_h03_s1",
+        "at": "2026-09-24T16:18:00.200Z",
+        "offsetMs": 200,
+        "kind": "state",
+        "title": "Honeypot answered.",
+        "detail": "start → greeting"
+      },
+      {
+        "id": "call_h03_l_call_h03_s2",
+        "at": "2026-09-24T16:18:09.000Z",
+        "offsetMs": 9000,
+        "kind": "state",
+        "title": "Caller claimed Microsoft Support and a pending refund.",
+        "detail": "greeting → pretext"
+      },
+      {
+        "id": "call_h03_l_call_h03_s3",
+        "at": "2026-09-24T16:18:34.000Z",
+        "offsetMs": 34000,
+        "kind": "state",
+        "title": "Caller said shutting down cancels the refund.",
+        "detail": "pretext → urgency"
+      },
+      {
+        "id": "call_h03_l_call_h03_s4",
+        "at": "2026-09-24T16:19:42.000Z",
+        "offsetMs": 102000,
+        "kind": "state",
+        "title": "Caller named AnyDesk and asked for a remote session.",
+        "detail": "urgency → extraction"
+      },
+      {
+        "id": "call_h03_lx1",
+        "at": "2026-09-24T16:19:42.000Z",
+        "offsetMs": 102000,
+        "kind": "intel",
+        "title": "Remote tool named",
+        "detail": "Caller asked for AnyDesk. Honeypot did not connect."
+      },
+      {
+        "id": "call_h03_lend",
+        "at": "2026-09-24T16:40:40.000Z",
+        "offsetMs": 1360000,
+        "kind": "telephony",
+        "title": "Caller released after tool instructions",
+        "detail": "Caller ended the call after describing an AnyDesk session the honeypot did not join."
+      }
+    ],
+    "transcript": [
+      {
+        "id": "call_h03_t1",
+        "speaker": "honeypot",
+        "text": "Hello?",
+        "offsetMs": 0,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h03_t2",
+        "speaker": "caller",
+        "text": "This is Microsoft Support. Your computer reported a virus and a refund of three hundred ninety-nine dollars is waiting.",
+        "offsetMs": 9000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h03_t3",
+        "speaker": "honeypot",
+        "text": "How did Microsoft get this phone number?",
+        "offsetMs": 26000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h03_t4",
+        "speaker": "caller",
+        "text": "The alert came from your Windows license. Do not shut the computer down or the refund is cancelled.",
+        "offsetMs": 34000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h03_t5",
+        "speaker": "honeypot",
+        "text": "I am not in front of that machine. What exactly is on the screen?",
+        "offsetMs": 90000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h03_t6",
+        "speaker": "caller",
+        "text": "A Microsoft Defender pop-up. We have to connect with AnyDesk so I can confirm the refund.",
+        "offsetMs": 102000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h03_t7",
+        "speaker": "honeypot",
+        "text": "Read the AnyDesk address slowly. I am writing, not clicking.",
+        "offsetMs": 400000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h03_t8",
+        "speaker": "caller",
+        "text": "The address is on your screen, nine digits. Tell me when the green connect button is up. Do not close Defender.",
+        "offsetMs": 412000,
+        "provenance": "observed"
+      }
+    ],
+    "stateTransitions": [
+      {
+        "id": "call_h03_s1",
+        "at": "2026-09-24T16:18:00.200Z",
+        "offsetMs": 200,
+        "from": null,
+        "to": "greeting",
+        "reason": "Honeypot answered.",
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h03_s2",
+        "at": "2026-09-24T16:18:09.000Z",
+        "offsetMs": 9000,
+        "from": "greeting",
+        "to": "pretext",
+        "reason": "Caller claimed Microsoft Support and a pending refund.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h03_s3",
+        "at": "2026-09-24T16:18:34.000Z",
+        "offsetMs": 34000,
+        "from": "pretext",
+        "to": "urgency",
+        "reason": "Caller said shutting down cancels the refund.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h03_s4",
+        "at": "2026-09-24T16:19:42.000Z",
+        "offsetMs": 102000,
+        "from": "urgency",
+        "to": "extraction",
+        "reason": "Caller named AnyDesk and asked for a remote session.",
+        "provenance": "inferred"
+      }
+    ],
+    "observations": [
+      {
+        "id": "call_h03_o1",
+        "at": "2026-09-24T16:18:09.000Z",
+        "offsetMs": 9000,
+        "category": "script",
+        "raw": {
+          "text": "Caller said \"This is Microsoft Support\" and that a $399 refund is waiting.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Refund-for-virus opening matches Microsoft Defender Refund.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h03_o2",
+        "at": "2026-09-24T16:19:42.000Z",
+        "offsetMs": 102000,
+        "category": "tooling",
+        "raw": {
+          "text": "Caller told the target to connect with AnyDesk and not to close Defender.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "The refund story is cover for a remote-access session.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h03_o3",
+        "at": "2026-09-24T16:24:52.000Z",
+        "offsetMs": 412000,
+        "category": "tooling",
+        "raw": {
+          "text": "Caller referred to a nine-digit address. Individual digits were not locked by STT.",
+          "provenance": "unverified"
+        },
+        "interpretation": {
+          "text": "An AnyDesk address was requested even though the digits are unverified.",
+          "provenance": "inferred"
+        }
+      }
+    ],
+    "correlation": [
+      {
+        "id": "call_h03_c1",
+        "campaignId": "camp_ms",
+        "campaignName": "Microsoft Defender Refund",
+        "score": 0.94,
+        "summary": "Microsoft Defender Refund match.",
+        "explanation": "Observed Microsoft Support opener, $399 refund, Defender pop-up, and an AnyDesk request. The address digits stayed unverified and were not required.",
+        "provenance": "inferred",
+        "matchedOn": [
+          {
+            "label": "Microsoft Support opener",
+            "provenance": "observed"
+          },
+          {
+            "label": "$399 refund",
+            "provenance": "observed"
+          },
+          {
+            "label": "AnyDesk",
+            "provenance": "observed"
+          }
+        ]
+      }
+    ],
+    "technicalEvents": [
+      {
+        "id": "call_h03_e1",
+        "at": "2026-09-24T16:18:00.000Z",
+        "offsetMs": 0,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Inbound leg answered",
+        "attributes": [
+          {
+            "key": "codec",
+            "value": "PCMU"
+          },
+          {
+            "key": "leg",
+            "value": "honeypot"
+          }
+        ]
+      },
+      {
+        "id": "call_h03_e2",
+        "at": "2026-09-24T16:18:00.650Z",
+        "offsetMs": 650,
+        "source": "stt",
+        "severity": "info",
+        "message": "Streaming recognition started",
+        "attributes": [
+          {
+            "key": "locale",
+            "value": "en-US"
+          }
+        ]
+      },
+      {
+        "id": "call_h03_e3",
+        "at": "2026-09-24T16:18:02.400Z",
+        "offsetMs": 2400,
+        "source": "llm",
+        "severity": "info",
+        "message": "Stall persona reply committed",
+        "attributes": [
+          {
+            "key": "persona",
+            "value": "calm-stall"
+          }
+        ]
+      },
+      {
+        "id": "call_h03_ex1",
+        "at": "2026-09-24T16:19:42.000Z",
+        "offsetMs": 102000,
+        "source": "orchestrator",
+        "severity": "info",
+        "message": "Remote-control request flagged; honeypot stayed off the tool",
+        "attributes": [
+          {
+            "key": "tool",
+            "value": "AnyDesk"
+          }
+        ]
+      },
+      {
+        "id": "call_h03_e_end",
+        "at": "2026-09-24T16:40:40.000Z",
+        "offsetMs": 1360000,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Caller ended the call after describing an AnyDesk session the honeypot did not join.",
+        "attributes": [
+          {
+            "key": "status",
+            "value": "completed"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "call_h04",
+    "startedAt": "2026-09-24T09:12:00.000Z",
+    "endedAt": "2026-09-24T09:21:18.000Z",
+    "durationMs": 558000,
+    "engagementDurationMs": 422000,
+    "status": "abandoned",
+    "callerNumberMasked": "+1 (888) 555-0177",
+    "conversationState": "compliance_stall",
+    "stateProvenance": "observed",
+    "classification": {
+      "label": "tech_support",
+      "provenance": "inferred",
+      "confidence": 0.72
+    },
+    "campaignId": "camp_ms",
+    "campaignName": "Microsoft Defender Refund",
+    "keyIndicators": [
+      {
+        "id": "call_h04_i1",
+        "kind": "script_phrase",
+        "label": "Microsoft Support opener",
+        "value": "Microsoft Support calling about a refund",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h04_t2"
+        ]
+      },
+      {
+        "id": "call_h04_i2",
+        "kind": "tactic",
+        "label": "Refund deadline",
+        "value": "Refund window closing within the hour",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.7,
+        "evidenceTurnIds": [
+          "call_h04_t4"
+        ]
+      },
+      {
+        "id": "call_h04_i3",
+        "kind": "entity",
+        "label": "Product name",
+        "value": "Microsoft Defender",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h04_t2"
+        ]
+      }
+    ],
+    "intelligence": [
+      {
+        "id": "call_h04_i1",
+        "kind": "script_phrase",
+        "label": "Microsoft Support opener",
+        "value": "Microsoft Support calling about a refund",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h04_t2"
+        ]
+      },
+      {
+        "id": "call_h04_i2",
+        "kind": "tactic",
+        "label": "Refund deadline",
+        "value": "Refund window closing within the hour",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.7,
+        "evidenceTurnIds": [
+          "call_h04_t4"
+        ]
+      },
+      {
+        "id": "call_h04_i3",
+        "kind": "entity",
+        "label": "Product name",
+        "value": "Microsoft Defender",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h04_t2"
+        ]
+      }
+    ],
+    "pipeline": {
+      "sampledAt": "2026-09-24T09:21:18.000Z",
+      "sttMs": 450,
+      "llmMs": 640,
+      "ttsMs": 310,
+      "e2eMs": 1440
+    },
+    "timeline": [
+      {
+        "id": "call_h04_l0",
+        "at": "2026-09-24T09:12:00.000Z",
+        "offsetMs": 0,
+        "kind": "telephony",
+        "title": "Answered",
+        "detail": "Honeypot leg connected."
+      },
+      {
+        "id": "call_h04_l_call_h04_s1",
+        "at": "2026-09-24T09:12:00.200Z",
+        "offsetMs": 200,
+        "kind": "state",
+        "title": "Honeypot answered.",
+        "detail": "start → greeting"
+      },
+      {
+        "id": "call_h04_l_call_h04_s2",
+        "at": "2026-09-24T09:12:07.000Z",
+        "offsetMs": 7000,
+        "kind": "state",
+        "title": "Caller claimed Microsoft Support and a Defender refund.",
+        "detail": "greeting → pretext"
+      },
+      {
+        "id": "call_h04_l_call_h04_s3",
+        "at": "2026-09-24T09:12:28.000Z",
+        "offsetMs": 28000,
+        "kind": "state",
+        "title": "Caller put an hour-long deadline on the refund.",
+        "detail": "pretext → urgency"
+      },
+      {
+        "id": "call_h04_l_call_h04_s4",
+        "at": "2026-09-24T09:16:00.000Z",
+        "offsetMs": 240000,
+        "kind": "state",
+        "title": "Honeypot kept the caller waiting away from the computer.",
+        "detail": "urgency → compliance_stall"
+      },
+      {
+        "id": "call_h04_lend",
+        "at": "2026-09-24T09:21:18.000Z",
+        "offsetMs": 558000,
+        "kind": "telephony",
+        "title": "Caller hung up during the stall",
+        "detail": "Caller disconnected while the honeypot claimed to be walking to the computer."
+      }
+    ],
+    "transcript": [
+      {
+        "id": "call_h04_t1",
+        "speaker": "honeypot",
+        "text": "Hello?",
+        "offsetMs": 0,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h04_t2",
+        "speaker": "caller",
+        "text": "Microsoft Support calling about a refund on your Defender subscription. A virus report is open.",
+        "offsetMs": 7000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h04_t3",
+        "speaker": "honeypot",
+        "text": "I am in another room from that computer. You will have to wait.",
+        "offsetMs": 20000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h04_t4",
+        "speaker": "caller",
+        "text": "Do not shut it down while you walk. The refund window is closing this hour.",
+        "offsetMs": 28000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h04_t5",
+        "speaker": "honeypot",
+        "text": "I am still walking over. Stay on the line.",
+        "offsetMs": 240000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h04_t6",
+        "speaker": "caller",
+        "text": "I cannot hold for people who will not sit at the machine. Goodbye.",
+        "offsetMs": 255000,
+        "provenance": "observed"
+      }
+    ],
+    "stateTransitions": [
+      {
+        "id": "call_h04_s1",
+        "at": "2026-09-24T09:12:00.200Z",
+        "offsetMs": 200,
+        "from": null,
+        "to": "greeting",
+        "reason": "Honeypot answered.",
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h04_s2",
+        "at": "2026-09-24T09:12:07.000Z",
+        "offsetMs": 7000,
+        "from": "greeting",
+        "to": "pretext",
+        "reason": "Caller claimed Microsoft Support and a Defender refund.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h04_s3",
+        "at": "2026-09-24T09:12:28.000Z",
+        "offsetMs": 28000,
+        "from": "pretext",
+        "to": "urgency",
+        "reason": "Caller put an hour-long deadline on the refund.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h04_s4",
+        "at": "2026-09-24T09:16:00.000Z",
+        "offsetMs": 240000,
+        "from": "urgency",
+        "to": "compliance_stall",
+        "reason": "Honeypot kept the caller waiting away from the computer.",
+        "provenance": "observed"
+      }
+    ],
+    "observations": [
+      {
+        "id": "call_h04_o1",
+        "at": "2026-09-24T09:12:07.000Z",
+        "offsetMs": 7000,
+        "category": "script",
+        "raw": {
+          "text": "Caller said Microsoft Support and a Defender subscription refund, plus an open virus report.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Likely the same refund wave, earlier in the script, before a remote tool is named.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h04_o2",
+        "at": "2026-09-24T09:16:15.000Z",
+        "offsetMs": 255000,
+        "category": "other",
+        "raw": {
+          "text": "Caller refused to hold while the target was away from the computer.",
+          "provenance": "observed"
+        },
+        "interpretation": null
+      }
+    ],
+    "correlation": [
+      {
+        "id": "call_h04_c1",
+        "campaignId": "camp_ms",
+        "campaignName": "Microsoft Defender Refund",
+        "score": 0.71,
+        "summary": "Early Microsoft Defender Refund match.",
+        "explanation": "Defender and the refund opener were observed. No remote tool was named before the caller abandoned, so this is a partial script.",
+        "provenance": "inferred",
+        "matchedOn": [
+          {
+            "label": "Microsoft Support opener",
+            "provenance": "observed"
+          },
+          {
+            "label": "Microsoft Defender",
+            "provenance": "observed"
+          }
+        ]
+      }
+    ],
+    "technicalEvents": [
+      {
+        "id": "call_h04_e1",
+        "at": "2026-09-24T09:12:00.000Z",
+        "offsetMs": 0,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Inbound leg answered",
+        "attributes": [
+          {
+            "key": "codec",
+            "value": "PCMU"
+          },
+          {
+            "key": "leg",
+            "value": "honeypot"
+          }
+        ]
+      },
+      {
+        "id": "call_h04_e2",
+        "at": "2026-09-24T09:12:00.650Z",
+        "offsetMs": 650,
+        "source": "stt",
+        "severity": "info",
+        "message": "Streaming recognition started",
+        "attributes": [
+          {
+            "key": "locale",
+            "value": "en-US"
+          }
+        ]
+      },
+      {
+        "id": "call_h04_e3",
+        "at": "2026-09-24T09:12:02.400Z",
+        "offsetMs": 2400,
+        "source": "llm",
+        "severity": "info",
+        "message": "Stall persona reply committed",
+        "attributes": [
+          {
+            "key": "persona",
+            "value": "calm-stall"
+          }
+        ]
+      },
+      {
+        "id": "call_h04_e_end",
+        "at": "2026-09-24T09:21:18.000Z",
+        "offsetMs": 558000,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Caller disconnected while the honeypot claimed to be walking to the computer.",
+        "attributes": [
+          {
+            "key": "status",
+            "value": "abandoned"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "call_h05",
+    "startedAt": "2026-09-23T19:48:00.000Z",
+    "endedAt": "2026-09-23T20:02:33.000Z",
+    "durationMs": 873000,
+    "engagementDurationMs": 731000,
+    "status": "completed",
+    "callerNumberMasked": "+1 (800) 555-0119",
+    "conversationState": "extraction",
+    "stateProvenance": "inferred",
+    "classification": {
+      "label": "bank_fraud",
+      "provenance": "inferred",
+      "confidence": 0.95
+    },
+    "campaignId": "camp_chase",
+    "campaignName": "Chase Fraud Desk",
+    "keyIndicators": [
+      {
+        "id": "call_h05_i1",
+        "kind": "script_phrase",
+        "label": "Chase fraud department",
+        "value": "This is the Chase fraud department",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h05_t2"
+        ]
+      },
+      {
+        "id": "call_h05_i3",
+        "kind": "indicator",
+        "label": "OTP read-back",
+        "value": "Caller asked the target to read a one-time code",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h05_t4"
+        ]
+      },
+      {
+        "id": "call_h05_i4",
+        "kind": "tactic",
+        "label": "Safe account",
+        "value": "Remaining balance moved to a safe account in the target name",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.91,
+        "evidenceTurnIds": [
+          "call_h05_t6"
+        ]
+      }
+    ],
+    "intelligence": [
+      {
+        "id": "call_h05_i1",
+        "kind": "script_phrase",
+        "label": "Chase fraud department",
+        "value": "This is the Chase fraud department",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h05_t2"
+        ]
+      },
+      {
+        "id": "call_h05_i2",
+        "kind": "amount",
+        "label": "Zelle amount",
+        "value": "$2,400 Zelle transfer",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h05_t2"
+        ]
+      },
+      {
+        "id": "call_h05_i3",
+        "kind": "indicator",
+        "label": "OTP read-back",
+        "value": "Caller asked the target to read a one-time code",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h05_t4"
+        ]
+      },
+      {
+        "id": "call_h05_i4",
+        "kind": "tactic",
+        "label": "Safe account",
+        "value": "Remaining balance moved to a safe account in the target name",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.91,
+        "evidenceTurnIds": [
+          "call_h05_t6"
+        ]
+      },
+      {
+        "id": "call_h05_i5",
+        "kind": "entity",
+        "label": "Last four",
+        "value": "Debit last four requested and refused",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h05_t6",
+          "call_h05_t7"
+        ]
+      }
+    ],
+    "pipeline": {
+      "sampledAt": "2026-09-23T20:02:33.000Z",
+      "sttMs": 360,
+      "llmMs": 810,
+      "ttsMs": 290,
+      "e2eMs": 1500
+    },
+    "timeline": [
+      {
+        "id": "call_h05_l0",
+        "at": "2026-09-23T19:48:00.000Z",
+        "offsetMs": 0,
+        "kind": "telephony",
+        "title": "Answered",
+        "detail": "Honeypot leg connected."
+      },
+      {
+        "id": "call_h05_l_call_h05_s1",
+        "at": "2026-09-23T19:48:00.200Z",
+        "offsetMs": 200,
+        "kind": "state",
+        "title": "Honeypot answered.",
+        "detail": "start → greeting"
+      },
+      {
+        "id": "call_h05_l_call_h05_s2",
+        "at": "2026-09-23T19:48:06.000Z",
+        "offsetMs": 6000,
+        "kind": "state",
+        "title": "Caller claimed the Chase fraud department and a Zelle debit.",
+        "detail": "greeting → pretext"
+      },
+      {
+        "id": "call_h05_l_call_h05_s3",
+        "at": "2026-09-23T19:48:26.000Z",
+        "offsetMs": 26000,
+        "kind": "state",
+        "title": "Caller asked for a one-time code and warned against the number on the card.",
+        "detail": "pretext → payment_request"
+      },
+      {
+        "id": "call_h05_l_call_h05_s4",
+        "at": "2026-09-23T19:49:32.000Z",
+        "offsetMs": 92000,
+        "kind": "state",
+        "title": "Caller asked for the code plus the last four, tied to a safe account.",
+        "detail": "payment_request → extraction"
+      },
+      {
+        "id": "call_h05_lx1",
+        "at": "2026-09-23T19:49:32.000Z",
+        "offsetMs": 92000,
+        "kind": "intel",
+        "title": "Safe-account ask",
+        "detail": "Caller wanted a code and the last four moved into a safe account."
+      },
+      {
+        "id": "call_h05_lend",
+        "at": "2026-09-23T20:02:33.000Z",
+        "offsetMs": 873000,
+        "kind": "telephony",
+        "title": "Caller released after the code refusal",
+        "detail": "Caller ended the call when the honeypot would not read a one-time code."
+      }
+    ],
+    "transcript": [
+      {
+        "id": "call_h05_t1",
+        "speaker": "honeypot",
+        "text": "Hello?",
+        "offsetMs": 0,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h05_t2",
+        "speaker": "caller",
+        "text": "This is the Chase fraud department. We detected a Zelle transfer of two thousand four hundred dollars.",
+        "offsetMs": 6000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h05_t3",
+        "speaker": "honeypot",
+        "text": "I do not remember a Zelle payment. Which department are you with?",
+        "offsetMs": 18000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h05_t4",
+        "speaker": "caller",
+        "text": "Fraud desk. We can reverse it if you read the one-time code we just texted. Do not call the number on your card.",
+        "offsetMs": 26000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h05_t5",
+        "speaker": "honeypot",
+        "text": "I am not going to read a code out loud. What is the alternative?",
+        "offsetMs": 80000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h05_t6",
+        "speaker": "caller",
+        "text": "Then we move the rest of the balance into a safe account that is already open in your name. I still need the code and the last four of the debit card.",
+        "offsetMs": 92000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h05_t7",
+        "speaker": "honeypot",
+        "text": "I will not give the last four or the code. You can note that I refused.",
+        "offsetMs": 700000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h05_t8",
+        "speaker": "caller",
+        "text": "Then the Zelle payment will post. This was your notice.",
+        "offsetMs": 712000,
+        "provenance": "observed"
+      }
+    ],
+    "stateTransitions": [
+      {
+        "id": "call_h05_s1",
+        "at": "2026-09-23T19:48:00.200Z",
+        "offsetMs": 200,
+        "from": null,
+        "to": "greeting",
+        "reason": "Honeypot answered.",
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h05_s2",
+        "at": "2026-09-23T19:48:06.000Z",
+        "offsetMs": 6000,
+        "from": "greeting",
+        "to": "pretext",
+        "reason": "Caller claimed the Chase fraud department and a Zelle debit.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h05_s3",
+        "at": "2026-09-23T19:48:26.000Z",
+        "offsetMs": 26000,
+        "from": "pretext",
+        "to": "payment_request",
+        "reason": "Caller asked for a one-time code and warned against the number on the card.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h05_s4",
+        "at": "2026-09-23T19:49:32.000Z",
+        "offsetMs": 92000,
+        "from": "payment_request",
+        "to": "extraction",
+        "reason": "Caller asked for the code plus the last four, tied to a safe account.",
+        "provenance": "inferred"
+      }
+    ],
+    "observations": [
+      {
+        "id": "call_h05_o1",
+        "at": "2026-09-23T19:48:06.000Z",
+        "offsetMs": 6000,
+        "category": "script",
+        "raw": {
+          "text": "Caller said \"Chase fraud department\" and a Zelle transfer of $2,400.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "This is the Chase Fraud Desk opener.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h05_o2",
+        "at": "2026-09-23T19:48:26.000Z",
+        "offsetMs": 26000,
+        "category": "payment",
+        "raw": {
+          "text": "Caller asked for a texted one-time code and said not to use the number on the card.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Isolating the target from the real bank is part of the script.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h05_o3",
+        "at": "2026-09-23T19:49:32.000Z",
+        "offsetMs": 92000,
+        "category": "payment",
+        "raw": {
+          "text": "Caller said the remaining balance would move to a safe account and asked for the last four.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Safe account is a mule handoff, not a Chase product the honeypot can see.",
+          "provenance": "inferred"
+        }
+      }
+    ],
+    "correlation": [
+      {
+        "id": "call_h05_c1",
+        "campaignId": "camp_chase",
+        "campaignName": "Chase Fraud Desk",
+        "score": 0.96,
+        "summary": "Chase Fraud Desk match.",
+        "explanation": "Observed Chase fraud opener, $2,400 Zelle, OTP read-back, and a safe-account handoff. The honeypot refused the code, which did not change the match.",
+        "provenance": "inferred",
+        "matchedOn": [
+          {
+            "label": "Chase fraud department",
+            "provenance": "observed"
+          },
+          {
+            "label": "$2,400 Zelle",
+            "provenance": "observed"
+          },
+          {
+            "label": "Safe account",
+            "provenance": "inferred"
+          }
+        ]
+      }
+    ],
+    "technicalEvents": [
+      {
+        "id": "call_h05_e1",
+        "at": "2026-09-23T19:48:00.000Z",
+        "offsetMs": 0,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Inbound leg answered",
+        "attributes": [
+          {
+            "key": "codec",
+            "value": "PCMU"
+          },
+          {
+            "key": "leg",
+            "value": "honeypot"
+          }
+        ]
+      },
+      {
+        "id": "call_h05_e2",
+        "at": "2026-09-23T19:48:00.650Z",
+        "offsetMs": 650,
+        "source": "stt",
+        "severity": "info",
+        "message": "Streaming recognition started",
+        "attributes": [
+          {
+            "key": "locale",
+            "value": "en-US"
+          }
+        ]
+      },
+      {
+        "id": "call_h05_e3",
+        "at": "2026-09-23T19:48:02.400Z",
+        "offsetMs": 2400,
+        "source": "llm",
+        "severity": "info",
+        "message": "Stall persona reply committed",
+        "attributes": [
+          {
+            "key": "persona",
+            "value": "calm-stall"
+          }
+        ]
+      },
+      {
+        "id": "call_h05_ex1",
+        "at": "2026-09-23T19:48:26.000Z",
+        "offsetMs": 26000,
+        "source": "orchestrator",
+        "severity": "warn",
+        "message": "One-time-code request detected; persona instructed to refuse",
+        "attributes": [
+          {
+            "key": "policy",
+            "value": "no-otp-readback"
+          }
+        ]
+      },
+      {
+        "id": "call_h05_e_end",
+        "at": "2026-09-23T20:02:33.000Z",
+        "offsetMs": 873000,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Caller ended the call when the honeypot would not read a one-time code.",
+        "attributes": [
+          {
+            "key": "status",
+            "value": "completed"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "call_h06",
+    "startedAt": "2026-09-23T13:02:00.000Z",
+    "endedAt": "2026-09-23T13:05:48.000Z",
+    "durationMs": 228000,
+    "engagementDurationMs": 80000,
+    "status": "abandoned",
+    "callerNumberMasked": "+1 (800) 555-0182",
+    "conversationState": "identity_probe",
+    "stateProvenance": "inferred",
+    "classification": {
+      "label": "bank_fraud",
+      "provenance": "inferred",
+      "confidence": 0.64
+    },
+    "campaignId": "camp_chase",
+    "campaignName": "Chase Fraud Desk",
+    "keyIndicators": [
+      {
+        "id": "call_h06_i1",
+        "kind": "script_phrase",
+        "label": "Chase fraud department",
+        "value": "Chase fraud department",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h06_t2"
+        ]
+      },
+      {
+        "id": "call_h06_i2",
+        "kind": "indicator",
+        "label": "Zelle mention",
+        "value": "Suspicious Zelle transfer, amount not stated",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h06_t2"
+        ]
+      },
+      {
+        "id": "call_h06_i3",
+        "kind": "tactic",
+        "label": "Isolate from the bank",
+        "value": "Caller forbade using the number on the card",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h06_t4"
+        ]
+      }
+    ],
+    "intelligence": [
+      {
+        "id": "call_h06_i1",
+        "kind": "script_phrase",
+        "label": "Chase fraud department",
+        "value": "Chase fraud department",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h06_t2"
+        ]
+      },
+      {
+        "id": "call_h06_i2",
+        "kind": "indicator",
+        "label": "Zelle mention",
+        "value": "Suspicious Zelle transfer, amount not stated",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h06_t2"
+        ]
+      },
+      {
+        "id": "call_h06_i3",
+        "kind": "tactic",
+        "label": "Isolate from the bank",
+        "value": "Caller forbade using the number on the card",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h06_t4"
+        ]
+      }
+    ],
+    "pipeline": {
+      "sampledAt": "2026-09-23T13:05:48.000Z",
+      "sttMs": 700,
+      "llmMs": 540,
+      "ttsMs": 260,
+      "e2eMs": 1540
+    },
+    "timeline": [
+      {
+        "id": "call_h06_l0",
+        "at": "2026-09-23T13:02:00.000Z",
+        "offsetMs": 0,
+        "kind": "telephony",
+        "title": "Answered",
+        "detail": "Honeypot leg connected."
+      },
+      {
+        "id": "call_h06_l_call_h06_s1",
+        "at": "2026-09-23T13:02:00.200Z",
+        "offsetMs": 200,
+        "kind": "state",
+        "title": "Honeypot answered.",
+        "detail": "start → greeting"
+      },
+      {
+        "id": "call_h06_l_call_h06_s2",
+        "at": "2026-09-23T13:02:05.000Z",
+        "offsetMs": 5000,
+        "kind": "state",
+        "title": "Caller claimed Chase fraud and started an account verification.",
+        "detail": "greeting → identity_probe"
+      },
+      {
+        "id": "call_h06_lend",
+        "at": "2026-09-23T13:05:48.000Z",
+        "offsetMs": 228000,
+        "kind": "telephony",
+        "title": "Caller hung up",
+        "detail": "Caller disconnected when asked to wait while the honeypot dialed the number on the card."
+      }
+    ],
+    "transcript": [
+      {
+        "id": "call_h06_t1",
+        "speaker": "honeypot",
+        "text": "Hello?",
+        "offsetMs": 0,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h06_t2",
+        "speaker": "caller",
+        "text": "Chase fraud department. We locked a suspicious Zelle transfer. I need you to verify the account.",
+        "offsetMs": 5000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h06_t3",
+        "speaker": "honeypot",
+        "text": "I am going to call the number printed on the card while you wait.",
+        "offsetMs": 16000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h06_t4",
+        "speaker": "caller",
+        "text": "Do not call that number. Those agents cannot see this case. I will have to drop the line.",
+        "offsetMs": 24000,
+        "provenance": "observed"
+      }
+    ],
+    "stateTransitions": [
+      {
+        "id": "call_h06_s1",
+        "at": "2026-09-23T13:02:00.200Z",
+        "offsetMs": 200,
+        "from": null,
+        "to": "greeting",
+        "reason": "Honeypot answered.",
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h06_s2",
+        "at": "2026-09-23T13:02:05.000Z",
+        "offsetMs": 5000,
+        "from": "greeting",
+        "to": "identity_probe",
+        "reason": "Caller claimed Chase fraud and started an account verification.",
+        "provenance": "inferred"
+      }
+    ],
+    "observations": [
+      {
+        "id": "call_h06_o1",
+        "at": "2026-09-23T13:02:05.000Z",
+        "offsetMs": 5000,
+        "category": "identity",
+        "raw": {
+          "text": "Caller said Chase fraud department and a locked Zelle transfer.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Short opener is consistent with Chase Fraud Desk but ended before payment instructions.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h06_o2",
+        "at": "2026-09-23T13:02:24.000Z",
+        "offsetMs": 24000,
+        "category": "callback",
+        "raw": {
+          "text": "Caller said not to call the number on the card.",
+          "provenance": "observed"
+        },
+        "interpretation": null
+      }
+    ],
+    "correlation": [
+      {
+        "id": "call_h06_c1",
+        "campaignId": "camp_chase",
+        "campaignName": "Chase Fraud Desk",
+        "score": 0.62,
+        "summary": "Thin Chase Fraud Desk match.",
+        "explanation": "The fraud-department name and a Zelle mention were observed. Amount, OTP, and safe-account lines never arrived. Score is above the link threshold and below a full script.",
+        "provenance": "inferred",
+        "matchedOn": [
+          {
+            "label": "Chase fraud department",
+            "provenance": "observed"
+          },
+          {
+            "label": "Zelle mention",
+            "provenance": "observed"
+          }
+        ]
+      }
+    ],
+    "technicalEvents": [
+      {
+        "id": "call_h06_e1",
+        "at": "2026-09-23T13:02:00.000Z",
+        "offsetMs": 0,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Inbound leg answered",
+        "attributes": [
+          {
+            "key": "codec",
+            "value": "PCMU"
+          },
+          {
+            "key": "leg",
+            "value": "honeypot"
+          }
+        ]
+      },
+      {
+        "id": "call_h06_e2",
+        "at": "2026-09-23T13:02:00.650Z",
+        "offsetMs": 650,
+        "source": "stt",
+        "severity": "info",
+        "message": "Streaming recognition started",
+        "attributes": [
+          {
+            "key": "locale",
+            "value": "en-US"
+          }
+        ]
+      },
+      {
+        "id": "call_h06_e3",
+        "at": "2026-09-23T13:02:02.400Z",
+        "offsetMs": 2400,
+        "source": "llm",
+        "severity": "info",
+        "message": "Stall persona reply committed",
+        "attributes": [
+          {
+            "key": "persona",
+            "value": "calm-stall"
+          }
+        ]
+      },
+      {
+        "id": "call_h06_ex1",
+        "at": "2026-09-23T13:02:20.000Z",
+        "offsetMs": 20000,
+        "source": "stt",
+        "severity": "warn",
+        "message": "Elevated partial latency on the caller channel",
+        "attributes": [
+          {
+            "key": "partial_ms",
+            "value": "700"
+          }
+        ]
+      },
+      {
+        "id": "call_h06_e_end",
+        "at": "2026-09-23T13:05:48.000Z",
+        "offsetMs": 228000,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Caller disconnected when asked to wait while the honeypot dialed the number on the card.",
+        "attributes": [
+          {
+            "key": "status",
+            "value": "abandoned"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "call_h07",
+    "startedAt": "2026-09-22T08:31:00.000Z",
+    "endedAt": "2026-09-22T08:42:05.000Z",
+    "durationMs": 665000,
+    "engagementDurationMs": 520000,
+    "status": "completed",
+    "callerNumberMasked": "+1 (312) 555-0166",
+    "conversationState": "payment_request",
+    "stateProvenance": "inferred",
+    "classification": {
+      "label": "utility_shutoff",
+      "provenance": "inferred",
+      "confidence": 0.67
+    },
+    "campaignId": null,
+    "campaignName": null,
+    "keyIndicators": [
+      {
+        "id": "call_h07_i1",
+        "kind": "entity",
+        "label": "Claimed utility",
+        "value": "Peoples Energy collections",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h07_t2"
+        ]
+      },
+      {
+        "id": "call_h07_i2",
+        "kind": "amount",
+        "label": "Past-due demand",
+        "value": "$286 prepaid card",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h07_t4"
+        ]
+      },
+      {
+        "id": "call_h07_i3",
+        "kind": "tactic",
+        "label": "Same-day shutoff",
+        "value": "Service ends at 6 PM unless the card is read back",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.66,
+        "evidenceTurnIds": [
+          "call_h07_t2",
+          "call_h07_t6"
+        ]
+      }
+    ],
+    "intelligence": [
+      {
+        "id": "call_h07_i1",
+        "kind": "entity",
+        "label": "Claimed utility",
+        "value": "Peoples Energy collections",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h07_t2"
+        ]
+      },
+      {
+        "id": "call_h07_i2",
+        "kind": "amount",
+        "label": "Past-due demand",
+        "value": "$286 prepaid card",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h07_t4"
+        ]
+      },
+      {
+        "id": "call_h07_i3",
+        "kind": "tactic",
+        "label": "Same-day shutoff",
+        "value": "Service ends at 6 PM unless the card is read back",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.66,
+        "evidenceTurnIds": [
+          "call_h07_t2",
+          "call_h07_t6"
+        ]
+      },
+      {
+        "id": "call_h07_i4",
+        "kind": "script_phrase",
+        "label": "Campaign phrase match",
+        "value": "No shared phrase with IRS, Microsoft, or Chase waves",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": []
+      }
+    ],
+    "pipeline": {
+      "sampledAt": "2026-09-22T08:42:05.000Z",
+      "sttMs": 480,
+      "llmMs": 600,
+      "ttsMs": 300,
+      "e2eMs": 1420
+    },
+    "timeline": [
+      {
+        "id": "call_h07_l0",
+        "at": "2026-09-22T08:31:00.000Z",
+        "offsetMs": 0,
+        "kind": "telephony",
+        "title": "Answered",
+        "detail": "Honeypot leg connected."
+      },
+      {
+        "id": "call_h07_l_call_h07_s1",
+        "at": "2026-09-22T08:31:00.200Z",
+        "offsetMs": 200,
+        "kind": "state",
+        "title": "Honeypot answered.",
+        "detail": "start → greeting"
+      },
+      {
+        "id": "call_h07_l_call_h07_s2",
+        "at": "2026-09-22T08:31:08.000Z",
+        "offsetMs": 8000,
+        "kind": "state",
+        "title": "Caller claimed a utility collections desk and a same-day shutoff.",
+        "detail": "greeting → pretext"
+      },
+      {
+        "id": "call_h07_l_call_h07_s3",
+        "at": "2026-09-22T08:31:30.000Z",
+        "offsetMs": 30000,
+        "kind": "state",
+        "title": "Caller demanded a prepaid card and a number read-back.",
+        "detail": "pretext → payment_request"
+      },
+      {
+        "id": "call_h07_lend",
+        "at": "2026-09-22T08:42:05.000Z",
+        "offsetMs": 665000,
+        "kind": "telephony",
+        "title": "Caller released",
+        "detail": "Caller ended the call after the honeypot refused a same-day prepaid card."
+      }
+    ],
+    "transcript": [
+      {
+        "id": "call_h07_t1",
+        "speaker": "honeypot",
+        "text": "Hello?",
+        "offsetMs": 0,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h07_t2",
+        "speaker": "caller",
+        "text": "This is Peoples Energy collections. Your service shuts off at 6 PM today unless the past-due balance is paid.",
+        "offsetMs": 8000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h07_t3",
+        "speaker": "honeypot",
+        "text": "What address is the shutoff for, and what is the balance?",
+        "offsetMs": 22000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h07_t4",
+        "speaker": "caller",
+        "text": "The balance is two hundred eighty-six dollars. Pay with a prepaid card at the pharmacy and read me the number. We cannot take a card over a recorded line otherwise.",
+        "offsetMs": 30000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h07_t5",
+        "speaker": "honeypot",
+        "text": "I pay the utility on the website. I am not buying a card.",
+        "offsetMs": 120000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h07_t6",
+        "speaker": "caller",
+        "text": "The website will not post before the truck rolls. This is the only path left today.",
+        "offsetMs": 132000,
+        "provenance": "observed"
+      }
+    ],
+    "stateTransitions": [
+      {
+        "id": "call_h07_s1",
+        "at": "2026-09-22T08:31:00.200Z",
+        "offsetMs": 200,
+        "from": null,
+        "to": "greeting",
+        "reason": "Honeypot answered.",
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h07_s2",
+        "at": "2026-09-22T08:31:08.000Z",
+        "offsetMs": 8000,
+        "from": "greeting",
+        "to": "pretext",
+        "reason": "Caller claimed a utility collections desk and a same-day shutoff.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h07_s3",
+        "at": "2026-09-22T08:31:30.000Z",
+        "offsetMs": 30000,
+        "from": "pretext",
+        "to": "payment_request",
+        "reason": "Caller demanded a prepaid card and a number read-back.",
+        "provenance": "inferred"
+      }
+    ],
+    "observations": [
+      {
+        "id": "call_h07_o1",
+        "at": "2026-09-22T08:31:08.000Z",
+        "offsetMs": 8000,
+        "category": "threat",
+        "raw": {
+          "text": "Caller said Peoples Energy will shut off service at 6 PM today.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Same-day shutoff is the pressure line. No campaign shares this opener.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h07_o2",
+        "at": "2026-09-22T08:31:30.000Z",
+        "offsetMs": 30000,
+        "category": "payment",
+        "raw": {
+          "text": "Caller asked for a $286 prepaid card purchased at a pharmacy.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Prepaid-card read-back is a cash-out, similar in method to gift cards but not the same script.",
+          "provenance": "inferred"
+        }
+      }
+    ],
+    "correlation": [
+      {
+        "id": "call_h07_c1",
+        "campaignId": null,
+        "campaignName": null,
+        "score": 0.22,
+        "summary": "No campaign cleared the match threshold.",
+        "explanation": "Shutoff threat and a prepaid card were observed. Phrases do not overlap IRS Warrant Wave, Microsoft Defender Refund, or Chase Fraud Desk. Left unlinked on purpose.",
+        "provenance": "inferred",
+        "matchedOn": []
+      }
+    ],
+    "technicalEvents": [
+      {
+        "id": "call_h07_e1",
+        "at": "2026-09-22T08:31:00.000Z",
+        "offsetMs": 0,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Inbound leg answered",
+        "attributes": [
+          {
+            "key": "codec",
+            "value": "PCMU"
+          },
+          {
+            "key": "leg",
+            "value": "honeypot"
+          }
+        ]
+      },
+      {
+        "id": "call_h07_e2",
+        "at": "2026-09-22T08:31:00.650Z",
+        "offsetMs": 650,
+        "source": "stt",
+        "severity": "info",
+        "message": "Streaming recognition started",
+        "attributes": [
+          {
+            "key": "locale",
+            "value": "en-US"
+          }
+        ]
+      },
+      {
+        "id": "call_h07_e3",
+        "at": "2026-09-22T08:31:02.400Z",
+        "offsetMs": 2400,
+        "source": "llm",
+        "severity": "info",
+        "message": "Stall persona reply committed",
+        "attributes": [
+          {
+            "key": "persona",
+            "value": "calm-stall"
+          }
+        ]
+      },
+      {
+        "id": "call_h07_e_end",
+        "at": "2026-09-22T08:42:05.000Z",
+        "offsetMs": 665000,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Caller ended the call after the honeypot refused a same-day prepaid card.",
+        "attributes": [
+          {
+            "key": "status",
+            "value": "completed"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "call_h08",
+    "startedAt": "2026-09-21T15:44:00.000Z",
+    "endedAt": "2026-09-21T16:00:22.000Z",
+    "durationMs": 982000,
+    "engagementDurationMs": 830000,
+    "status": "completed",
+    "callerNumberMasked": "+1 (202) 555-0104",
+    "conversationState": "urgency",
+    "stateProvenance": "inferred",
+    "classification": {
+      "label": "irs_impersonation",
+      "provenance": "inferred",
+      "confidence": 0.88
+    },
+    "campaignId": "camp_irs",
+    "campaignName": "IRS Warrant Wave",
+    "keyIndicators": [
+      {
+        "id": "call_h08_i1",
+        "kind": "script_phrase",
+        "label": "Criminal Investigation Division",
+        "value": "IRS Criminal Investigation Division",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h08_t2"
+        ]
+      },
+      {
+        "id": "call_h08_i2",
+        "kind": "entity",
+        "label": "Case number",
+        "value": "44-IRS-1880",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h08_t2",
+          "call_h08_t4"
+        ]
+      },
+      {
+        "id": "call_h08_i4",
+        "kind": "entity",
+        "label": "Officer name",
+        "value": "Dana Shah, spelled on the call, roster not checked",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h08_t4"
+        ]
+      }
+    ],
+    "intelligence": [
+      {
+        "id": "call_h08_i1",
+        "kind": "script_phrase",
+        "label": "Criminal Investigation Division",
+        "value": "IRS Criminal Investigation Division",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h08_t2"
+        ]
+      },
+      {
+        "id": "call_h08_i2",
+        "kind": "entity",
+        "label": "Case number",
+        "value": "44-IRS-1880",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h08_t2",
+          "call_h08_t4"
+        ]
+      },
+      {
+        "id": "call_h08_i3",
+        "kind": "amount",
+        "label": "Card demand",
+        "value": "$6,200 in payment cards",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h08_t4"
+        ]
+      },
+      {
+        "id": "call_h08_i4",
+        "kind": "entity",
+        "label": "Officer name",
+        "value": "Dana Shah, spelled on the call, roster not checked",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h08_t4"
+        ]
+      },
+      {
+        "id": "call_h08_i5",
+        "kind": "tactic",
+        "label": "Hang-up penalty",
+        "value": "Hanging up is described as executing the warrant",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.84,
+        "evidenceTurnIds": [
+          "call_h08_t6"
+        ]
+      }
+    ],
+    "pipeline": {
+      "sampledAt": "2026-09-21T16:00:22.000Z",
+      "sttMs": 410,
+      "llmMs": 850,
+      "ttsMs": 320,
+      "e2eMs": 1620
+    },
+    "timeline": [
+      {
+        "id": "call_h08_l0",
+        "at": "2026-09-21T15:44:00.000Z",
+        "offsetMs": 0,
+        "kind": "telephony",
+        "title": "Answered",
+        "detail": "Honeypot leg connected."
+      },
+      {
+        "id": "call_h08_l_call_h08_s1",
+        "at": "2026-09-21T15:44:00.200Z",
+        "offsetMs": 200,
+        "kind": "state",
+        "title": "Honeypot answered.",
+        "detail": "start → greeting"
+      },
+      {
+        "id": "call_h08_l_call_h08_s2",
+        "at": "2026-09-21T15:44:10.000Z",
+        "offsetMs": 10000,
+        "kind": "state",
+        "title": "Caller gave an officer name, division, and case number.",
+        "detail": "greeting → identity_probe"
+      },
+      {
+        "id": "call_h08_l_call_h08_s3",
+        "at": "2026-09-21T15:44:34.000Z",
+        "offsetMs": 34000,
+        "kind": "state",
+        "title": "Caller named a payment-card settlement amount.",
+        "detail": "identity_probe → payment_request"
+      },
+      {
+        "id": "call_h08_l_call_h08_s4",
+        "at": "2026-09-21T15:45:38.000Z",
+        "offsetMs": 98000,
+        "kind": "state",
+        "title": "Caller said hanging up executes the warrant.",
+        "detail": "payment_request → urgency"
+      },
+      {
+        "id": "call_h08_lend",
+        "at": "2026-09-21T16:00:22.000Z",
+        "offsetMs": 982000,
+        "kind": "telephony",
+        "title": "Caller released",
+        "detail": "Caller ended the call after restating the payment-card instructions."
+      }
+    ],
+    "transcript": [
+      {
+        "id": "call_h08_t1",
+        "speaker": "honeypot",
+        "text": "Hello?",
+        "offsetMs": 0,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h08_t2",
+        "speaker": "caller",
+        "text": "Officer Dana Shah, IRS Criminal Investigation Division. Case 44-IRS-1880 is in warrant status.",
+        "offsetMs": 10000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h08_t3",
+        "speaker": "honeypot",
+        "text": "Spell the officer name and repeat the case number.",
+        "offsetMs": 26000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h08_t4",
+        "speaker": "caller",
+        "text": "Shah, S-H-A-H. The case is 44-IRS-1880. Settlement today is six thousand two hundred in payment cards.",
+        "offsetMs": 34000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h08_t5",
+        "speaker": "honeypot",
+        "text": "I do not have those cards in the house.",
+        "offsetMs": 90000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h08_t6",
+        "speaker": "caller",
+        "text": "Then you go to the retailer we approve and you stay on this phone the entire time. Hanging up executes the warrant.",
+        "offsetMs": 98000,
+        "provenance": "observed"
+      }
+    ],
+    "stateTransitions": [
+      {
+        "id": "call_h08_s1",
+        "at": "2026-09-21T15:44:00.200Z",
+        "offsetMs": 200,
+        "from": null,
+        "to": "greeting",
+        "reason": "Honeypot answered.",
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h08_s2",
+        "at": "2026-09-21T15:44:10.000Z",
+        "offsetMs": 10000,
+        "from": "greeting",
+        "to": "identity_probe",
+        "reason": "Caller gave an officer name, division, and case number.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h08_s3",
+        "at": "2026-09-21T15:44:34.000Z",
+        "offsetMs": 34000,
+        "from": "identity_probe",
+        "to": "payment_request",
+        "reason": "Caller named a payment-card settlement amount.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_h08_s4",
+        "at": "2026-09-21T15:45:38.000Z",
+        "offsetMs": 98000,
+        "from": "payment_request",
+        "to": "urgency",
+        "reason": "Caller said hanging up executes the warrant.",
+        "provenance": "inferred"
+      }
+    ],
+    "observations": [
+      {
+        "id": "call_h08_o1",
+        "at": "2026-09-21T15:44:10.000Z",
+        "offsetMs": 10000,
+        "category": "script",
+        "raw": {
+          "text": "Caller said IRS Criminal Investigation Division and case 44-IRS-1880.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Same case-number pattern as IRS Warrant Wave with a different suffix.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h08_o2",
+        "at": "2026-09-21T15:44:34.000Z",
+        "offsetMs": 34000,
+        "category": "payment",
+        "raw": {
+          "text": "Settlement stated as $6,200 in payment cards.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Amount changed from other calls in the wave; the card path did not.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h08_o3",
+        "at": "2026-09-21T15:44:34.000Z",
+        "offsetMs": 34000,
+        "category": "identity",
+        "raw": {
+          "text": "Caller spelled the name Dana Shah.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "The spelled name is still only a claim. No roster check has been run.",
+          "provenance": "unverified"
+        }
+      }
+    ],
+    "correlation": [
+      {
+        "id": "call_h08_c1",
+        "campaignId": "camp_irs",
+        "campaignName": "IRS Warrant Wave",
+        "score": 0.9,
+        "summary": "IRS Warrant Wave match with a new case suffix.",
+        "explanation": "Observed 44-IRS-#### and the division line. The officer name is unverified raw speech and was not used as a required indicator.",
+        "provenance": "inferred",
+        "matchedOn": [
+          {
+            "label": "44-IRS-1880",
+            "provenance": "observed"
+          },
+          {
+            "label": "Criminal Investigation Division",
+            "provenance": "observed"
+          },
+          {
+            "label": "Payment cards",
+            "provenance": "observed"
+          }
+        ]
+      }
+    ],
+    "technicalEvents": [
+      {
+        "id": "call_h08_e1",
+        "at": "2026-09-21T15:44:00.000Z",
+        "offsetMs": 0,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Inbound leg answered",
+        "attributes": [
+          {
+            "key": "codec",
+            "value": "PCMU"
+          },
+          {
+            "key": "leg",
+            "value": "honeypot"
+          }
+        ]
+      },
+      {
+        "id": "call_h08_e2",
+        "at": "2026-09-21T15:44:00.650Z",
+        "offsetMs": 650,
+        "source": "stt",
+        "severity": "info",
+        "message": "Streaming recognition started",
+        "attributes": [
+          {
+            "key": "locale",
+            "value": "en-US"
+          }
+        ]
+      },
+      {
+        "id": "call_h08_e3",
+        "at": "2026-09-21T15:44:02.400Z",
+        "offsetMs": 2400,
+        "source": "llm",
+        "severity": "info",
+        "message": "Stall persona reply committed",
+        "attributes": [
+          {
+            "key": "persona",
+            "value": "calm-stall"
+          }
+        ]
+      },
+      {
+        "id": "call_h08_e_end",
+        "at": "2026-09-21T16:00:22.000Z",
+        "offsetMs": 982000,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Caller ended the call after restating the payment-card instructions.",
+        "attributes": [
+          {
+            "key": "status",
+            "value": "completed"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "call_h09",
+    "startedAt": "2026-09-20T21:06:00.000Z",
+    "endedAt": "2026-09-20T21:33:14.000Z",
+    "durationMs": 1634000,
+    "engagementDurationMs": 1440000,
+    "status": "completed",
+    "callerNumberMasked": "+1 (415) 555-0190",
+    "conversationState": "payment_request",
+    "stateProvenance": "inferred",
+    "classification": {
+      "label": "romance",
+      "provenance": "unverified",
+      "confidence": null
+    },
+    "campaignId": null,
+    "campaignName": null,
+    "keyIndicators": [
+      {
+        "id": "call_h09_i1",
+        "kind": "entity",
+        "label": "Spoken name",
+        "value": "David, no surname",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h09_t2"
+        ]
+      },
+      {
+        "id": "call_h09_i2",
+        "kind": "amount",
+        "label": "Wire ask",
+        "value": "$800 wire",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h09_t4"
+        ]
+      },
+      {
+        "id": "call_h09_i3",
+        "kind": "tactic",
+        "label": "Airport hold",
+        "value": "Customs-fee story used to force a same-night wire",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h09_t2",
+          "call_h09_t4"
+        ]
+      }
+    ],
+    "intelligence": [
+      {
+        "id": "call_h09_i1",
+        "kind": "entity",
+        "label": "Spoken name",
+        "value": "David, no surname",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h09_t2"
+        ]
+      },
+      {
+        "id": "call_h09_i2",
+        "kind": "amount",
+        "label": "Wire ask",
+        "value": "$800 wire",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h09_t4"
+        ]
+      },
+      {
+        "id": "call_h09_i3",
+        "kind": "tactic",
+        "label": "Airport hold",
+        "value": "Customs-fee story used to force a same-night wire",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h09_t2",
+          "call_h09_t4"
+        ]
+      },
+      {
+        "id": "call_h09_i4",
+        "kind": "indicator",
+        "label": "Possible wire desk",
+        "value": "Western Union fragments, not committed",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h09_t5"
+        ]
+      }
+    ],
+    "pipeline": {
+      "sampledAt": "2026-09-20T21:33:14.000Z",
+      "sttMs": 530,
+      "llmMs": 920,
+      "ttsMs": 350,
+      "e2eMs": 1840
+    },
+    "timeline": [
+      {
+        "id": "call_h09_l0",
+        "at": "2026-09-20T21:06:00.000Z",
+        "offsetMs": 0,
+        "kind": "telephony",
+        "title": "Answered",
+        "detail": "Honeypot leg connected."
+      },
+      {
+        "id": "call_h09_l_call_h09_s1",
+        "at": "2026-09-20T21:06:00.200Z",
+        "offsetMs": 200,
+        "kind": "state",
+        "title": "Honeypot answered.",
+        "detail": "start → greeting"
+      },
+      {
+        "id": "call_h09_l_call_h09_s2",
+        "at": "2026-09-20T21:06:12.000Z",
+        "offsetMs": 12000,
+        "kind": "state",
+        "title": "Caller used a first name and an airport-fee story.",
+        "detail": "greeting → pretext"
+      },
+      {
+        "id": "call_h09_l_call_h09_s3",
+        "at": "2026-09-20T21:06:36.000Z",
+        "offsetMs": 36000,
+        "kind": "state",
+        "title": "Caller asked for an $800 wire.",
+        "detail": "pretext → payment_request"
+      },
+      {
+        "id": "call_h09_lx1",
+        "at": "2026-09-20T21:06:50.000Z",
+        "offsetMs": 50000,
+        "kind": "transcript",
+        "title": "Low-confidence turn",
+        "detail": "A possible Western Union mention was not committed as observed text."
+      },
+      {
+        "id": "call_h09_lend",
+        "at": "2026-09-20T21:33:14.000Z",
+        "offsetMs": 1634000,
+        "kind": "telephony",
+        "title": "Caller released",
+        "detail": "Caller ended the call after the honeypot declined a wire."
+      }
+    ],
+    "transcript": [
+      {
+        "id": "call_h09_t1",
+        "speaker": "honeypot",
+        "text": "Hello?",
+        "offsetMs": 0,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h09_t2",
+        "speaker": "caller",
+        "text": "It is David. My flight is cancelled and customs will not release the bag unless I pay a fee tonight.",
+        "offsetMs": 12000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h09_t3",
+        "speaker": "honeypot",
+        "text": "David who? Where are you calling from?",
+        "offsetMs": 28000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h09_t4",
+        "speaker": "caller",
+        "text": "You know my voice. I am at the airport. I need you to wire eight hundred dollars to the officer here or they hold me overnight.",
+        "offsetMs": 36000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h09_t5",
+        "speaker": "caller",
+        "text": "[unclear] ... Western Union ... the name on the slip ...",
+        "offsetMs": 50000,
+        "provenance": "unverified"
+      },
+      {
+        "id": "call_h09_t6",
+        "speaker": "honeypot",
+        "text": "I am not sending a wire to someone I cannot place. Repeat the full name and the city.",
+        "offsetMs": 80000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h09_t7",
+        "speaker": "caller",
+        "text": "There is no time for a quiz. If you trusted me you would already be at the counter.",
+        "offsetMs": 90000,
+        "provenance": "observed"
+      }
+    ],
+    "stateTransitions": [
+      {
+        "id": "call_h09_s1",
+        "at": "2026-09-20T21:06:00.200Z",
+        "offsetMs": 200,
+        "from": null,
+        "to": "greeting",
+        "reason": "Honeypot answered.",
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h09_s2",
+        "at": "2026-09-20T21:06:12.000Z",
+        "offsetMs": 12000,
+        "from": "greeting",
+        "to": "pretext",
+        "reason": "Caller used a first name and an airport-fee story.",
+        "provenance": "unverified"
+      },
+      {
+        "id": "call_h09_s3",
+        "at": "2026-09-20T21:06:36.000Z",
+        "offsetMs": 36000,
+        "from": "pretext",
+        "to": "payment_request",
+        "reason": "Caller asked for an $800 wire.",
+        "provenance": "inferred"
+      }
+    ],
+    "observations": [
+      {
+        "id": "call_h09_o1",
+        "at": "2026-09-20T21:06:12.000Z",
+        "offsetMs": 12000,
+        "category": "script",
+        "raw": {
+          "text": "Caller said \"It is David\" and that customs needs a fee tonight.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Could be a romance or acquaintance wire script. No prior relationship is on file, so the framing is not confirmed.",
+          "provenance": "unverified"
+        }
+      },
+      {
+        "id": "call_h09_o2",
+        "at": "2026-09-20T21:06:36.000Z",
+        "offsetMs": 36000,
+        "category": "payment",
+        "raw": {
+          "text": "Caller asked for an $800 wire to an officer at the airport.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "The payment ask is clear even though the relationship claim is not.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h09_o3",
+        "at": "2026-09-20T21:06:50.000Z",
+        "offsetMs": 50000,
+        "category": "payment",
+        "raw": {
+          "text": "STT captured fragments that may include Western Union and a name on a slip.",
+          "provenance": "unverified"
+        },
+        "interpretation": null
+      }
+    ],
+    "correlation": [
+      {
+        "id": "call_h09_c1",
+        "campaignId": null,
+        "campaignName": null,
+        "score": 0.18,
+        "summary": "Left unlinked. Classification is unverified.",
+        "explanation": "The wire ask was observed. The personal relationship and the Western Union wording were not. Nothing in the open campaigns uses an airport-fee pretext, so no campaign id was attached.",
+        "provenance": "unverified",
+        "matchedOn": [
+          {
+            "label": "$800 wire",
+            "provenance": "observed"
+          }
+        ]
+      }
+    ],
+    "technicalEvents": [
+      {
+        "id": "call_h09_e1",
+        "at": "2026-09-20T21:06:00.000Z",
+        "offsetMs": 0,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Inbound leg answered",
+        "attributes": [
+          {
+            "key": "codec",
+            "value": "PCMU"
+          },
+          {
+            "key": "leg",
+            "value": "honeypot"
+          }
+        ]
+      },
+      {
+        "id": "call_h09_e2",
+        "at": "2026-09-20T21:06:00.650Z",
+        "offsetMs": 650,
+        "source": "stt",
+        "severity": "info",
+        "message": "Streaming recognition started",
+        "attributes": [
+          {
+            "key": "locale",
+            "value": "en-US"
+          }
+        ]
+      },
+      {
+        "id": "call_h09_e3",
+        "at": "2026-09-20T21:06:02.400Z",
+        "offsetMs": 2400,
+        "source": "llm",
+        "severity": "info",
+        "message": "Stall persona reply committed",
+        "attributes": [
+          {
+            "key": "persona",
+            "value": "calm-stall"
+          }
+        ]
+      },
+      {
+        "id": "call_h09_ex1",
+        "at": "2026-09-20T21:06:50.000Z",
+        "offsetMs": 50000,
+        "source": "stt",
+        "severity": "warn",
+        "message": "Caller turn held as unverified; confidence below the commit line",
+        "attributes": [
+          {
+            "key": "confidence",
+            "value": "0.38"
+          }
+        ]
+      },
+      {
+        "id": "call_h09_e_end",
+        "at": "2026-09-20T21:33:14.000Z",
+        "offsetMs": 1634000,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Caller ended the call after the honeypot declined a wire.",
+        "attributes": [
+          {
+            "key": "status",
+            "value": "completed"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "call_h10",
+    "startedAt": "2026-09-19T10:22:00.000Z",
+    "endedAt": "2026-09-19T10:30:02.000Z",
+    "durationMs": 482000,
+    "engagementDurationMs": 330000,
+    "status": "error",
+    "callerNumberMasked": "+1 (888) 555-0128",
+    "conversationState": "pretext",
+    "stateProvenance": "inferred",
+    "classification": {
+      "label": "tech_support",
+      "provenance": "inferred",
+      "confidence": 0.76
+    },
+    "campaignId": "camp_ms",
+    "campaignName": "Microsoft Defender Refund",
+    "keyIndicators": [
+      {
+        "id": "call_h10_i1",
+        "kind": "script_phrase",
+        "label": "Microsoft Support opener",
+        "value": "Microsoft Support",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h10_t2"
+        ]
+      },
+      {
+        "id": "call_h10_i2",
+        "kind": "tactic",
+        "label": "Do not shut down",
+        "value": "Caller said not to shut the computer down",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h10_t4"
+        ]
+      },
+      {
+        "id": "call_h10_i3",
+        "kind": "indicator",
+        "label": "Remote window pending",
+        "value": "Caller said they would instruct a remote window later",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h10_t4"
+        ]
+      }
+    ],
+    "intelligence": [
+      {
+        "id": "call_h10_i1",
+        "kind": "script_phrase",
+        "label": "Microsoft Support opener",
+        "value": "Microsoft Support",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h10_t2"
+        ]
+      },
+      {
+        "id": "call_h10_i2",
+        "kind": "tactic",
+        "label": "Do not shut down",
+        "value": "Caller said not to shut the computer down",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h10_t4"
+        ]
+      },
+      {
+        "id": "call_h10_i3",
+        "kind": "indicator",
+        "label": "Remote window pending",
+        "value": "Caller said they would instruct a remote window later",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h10_t4"
+        ]
+      },
+      {
+        "id": "call_h10_i4",
+        "kind": "amount",
+        "label": "Refund amount",
+        "value": "Amount was requested by the honeypot and never spoken",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_h10_t5"
+        ]
+      }
+    ],
+    "pipeline": {
+      "sampledAt": "2026-09-19T10:30:02.000Z",
+      "sttMs": 460,
+      "llmMs": 680,
+      "ttsMs": 1200,
+      "e2eMs": 2380
+    },
+    "timeline": [
+      {
+        "id": "call_h10_l0",
+        "at": "2026-09-19T10:22:00.000Z",
+        "offsetMs": 0,
+        "kind": "telephony",
+        "title": "Answered",
+        "detail": "Honeypot leg connected."
+      },
+      {
+        "id": "call_h10_l_call_h10_s1",
+        "at": "2026-09-19T10:22:00.200Z",
+        "offsetMs": 200,
+        "kind": "state",
+        "title": "Honeypot answered.",
+        "detail": "start → greeting"
+      },
+      {
+        "id": "call_h10_l_call_h10_s2",
+        "at": "2026-09-19T10:22:08.000Z",
+        "offsetMs": 8000,
+        "kind": "state",
+        "title": "Caller claimed Microsoft Support, a virus, and a refund.",
+        "detail": "greeting → pretext"
+      },
+      {
+        "id": "call_h10_lx1",
+        "at": "2026-09-19T10:27:10.000Z",
+        "offsetMs": 310000,
+        "kind": "error",
+        "title": "TTS underrun",
+        "detail": "Playback died mid prompt. The caller was still in the pretext."
+      },
+      {
+        "id": "call_h10_lend",
+        "at": "2026-09-19T10:30:02.000Z",
+        "offsetMs": 482000,
+        "kind": "error",
+        "title": "TTS fault ended the leg",
+        "detail": "Playback socket closed before the stall line finished. Telephony cleared the leg."
+      }
+    ],
+    "transcript": [
+      {
+        "id": "call_h10_t1",
+        "speaker": "honeypot",
+        "text": "Hello?",
+        "offsetMs": 0,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h10_t2",
+        "speaker": "caller",
+        "text": "Microsoft Support. We flagged a virus on the licensed PC and a refund is pending if you stay connected.",
+        "offsetMs": 8000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h10_t3",
+        "speaker": "honeypot",
+        "text": "Which refund, and which computer name?",
+        "offsetMs": 20000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h10_t4",
+        "speaker": "caller",
+        "text": "Defender issued it. Do not shut the computer down. I will tell you when to open the remote window.",
+        "offsetMs": 28000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h10_t5",
+        "speaker": "honeypot",
+        "text": "I am writing this down. Start again from the refund amount.",
+        "offsetMs": 300000,
+        "provenance": "observed"
+      }
+    ],
+    "stateTransitions": [
+      {
+        "id": "call_h10_s1",
+        "at": "2026-09-19T10:22:00.200Z",
+        "offsetMs": 200,
+        "from": null,
+        "to": "greeting",
+        "reason": "Honeypot answered.",
+        "provenance": "observed"
+      },
+      {
+        "id": "call_h10_s2",
+        "at": "2026-09-19T10:22:08.000Z",
+        "offsetMs": 8000,
+        "from": "greeting",
+        "to": "pretext",
+        "reason": "Caller claimed Microsoft Support, a virus, and a refund.",
+        "provenance": "inferred"
+      }
+    ],
+    "observations": [
+      {
+        "id": "call_h10_o1",
+        "at": "2026-09-19T10:22:08.000Z",
+        "offsetMs": 8000,
+        "category": "script",
+        "raw": {
+          "text": "Caller said Microsoft Support, a flagged virus, and a pending refund.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Matches the Microsoft Defender Refund opener. The call died before a tool name or amount.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_h10_o2",
+        "at": "2026-09-19T10:27:10.000Z",
+        "offsetMs": 310000,
+        "category": "other",
+        "raw": {
+          "text": "TTS playback socket closed with TTS_UNDERRUN.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "The leg ended because of the pipeline, not because the caller hung up.",
+          "provenance": "inferred"
+        }
+      }
+    ],
+    "correlation": [
+      {
+        "id": "call_h10_c1",
+        "campaignId": "camp_ms",
+        "campaignName": "Microsoft Defender Refund",
+        "score": 0.73,
+        "summary": "Microsoft Defender Refund match, cut short by a TTS fault.",
+        "explanation": "Observed Microsoft Support and the do-not-shut-down line. Remote tool and amount never arrived because playback failed.",
+        "provenance": "inferred",
+        "matchedOn": [
+          {
+            "label": "Microsoft Support opener",
+            "provenance": "observed"
+          },
+          {
+            "label": "Do not shut down",
+            "provenance": "observed"
+          }
+        ]
+      }
+    ],
+    "technicalEvents": [
+      {
+        "id": "call_h10_e1",
+        "at": "2026-09-19T10:22:00.000Z",
+        "offsetMs": 0,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Inbound leg answered",
+        "attributes": [
+          {
+            "key": "codec",
+            "value": "PCMU"
+          },
+          {
+            "key": "leg",
+            "value": "honeypot"
+          }
+        ]
+      },
+      {
+        "id": "call_h10_e2",
+        "at": "2026-09-19T10:22:00.650Z",
+        "offsetMs": 650,
+        "source": "stt",
+        "severity": "info",
+        "message": "Streaming recognition started",
+        "attributes": [
+          {
+            "key": "locale",
+            "value": "en-US"
+          }
+        ]
+      },
+      {
+        "id": "call_h10_e3",
+        "at": "2026-09-19T10:22:02.400Z",
+        "offsetMs": 2400,
+        "source": "llm",
+        "severity": "info",
+        "message": "Stall persona reply committed",
+        "attributes": [
+          {
+            "key": "persona",
+            "value": "calm-stall"
+          }
+        ]
+      },
+      {
+        "id": "call_h10_ex1",
+        "at": "2026-09-19T10:27:10.000Z",
+        "offsetMs": 310000,
+        "source": "tts",
+        "severity": "error",
+        "message": "Playback socket closed before the stall line finished",
+        "attributes": [
+          {
+            "key": "code",
+            "value": "TTS_UNDERRUN"
+          },
+          {
+            "key": "utterance",
+            "value": "refund-amount-replay"
+          }
+        ]
+      },
+      {
+        "id": "call_h10_e_end",
+        "at": "2026-09-19T10:30:02.000Z",
+        "offsetMs": 482000,
+        "source": "telephony",
+        "severity": "error",
+        "message": "Playback socket closed before the stall line finished. Telephony cleared the leg.",
+        "attributes": [
+          {
+            "key": "status",
+            "value": "error"
+          }
+        ]
+      }
+    ]
+  }
+]

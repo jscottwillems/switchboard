@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "name": "switchboard",
+  "scripts": {
+    "dev": "npm --prefix apps/dashboard run dev",
+    "build": "npm --prefix apps/dashboard run build",
+    "typecheck": "npm --prefix apps/dashboard run typecheck",
+    "check:fixtures": "npm --prefix apps/dashboard run check:fixtures"
+  }
+}

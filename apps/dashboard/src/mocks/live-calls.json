@@ -1,0 +1,398 @@
+[
+  {
+    "id": "call_live_irs",
+    "startedOffsetSec": -252,
+    "callerNumberMasked": "+1 (202) 555-0142",
+    "conversationState": "payment_request",
+    "stateProvenance": "unverified",
+    "classification": {
+      "label": "irs_impersonation",
+      "provenance": "inferred",
+      "confidence": 0.84
+    },
+    "campaignId": "camp_irs",
+    "campaignName": "IRS Warrant Wave",
+    "transcript": [
+      {
+        "id": "call_live_irs_t1",
+        "speaker": "honeypot",
+        "text": "Hello?",
+        "offsetMs": 0,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_irs_t2",
+        "speaker": "caller",
+        "text": "This is Officer Michael Brennan with the IRS Criminal Investigation Division. Am I speaking with the taxpayer of record?",
+        "offsetMs": 8000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_irs_t3",
+        "speaker": "honeypot",
+        "text": "Who is this regarding? I want a case number before we continue.",
+        "offsetMs": 20000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_irs_t4",
+        "speaker": "caller",
+        "text": "There is a federal warrant in your name. Notices were mailed. Stay on the line.",
+        "offsetMs": 28000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_irs_t5",
+        "speaker": "honeypot",
+        "text": "I have not seen a notice. What happens if I hang up?",
+        "offsetMs": 55000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_irs_t6",
+        "speaker": "caller",
+        "text": "Local law enforcement is already tasked. You settle this today or they arrive.",
+        "offsetMs": 64000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_irs_t7",
+        "speaker": "caller",
+        "text": "[unclear] ... payment cards ... read the codes before they expire.",
+        "offsetMs": 110000,
+        "provenance": "unverified"
+      },
+      {
+        "id": "call_live_irs_t8",
+        "speaker": "honeypot",
+        "text": "Repeat that last part. I did not catch the amount.",
+        "offsetMs": 140000,
+        "provenance": "observed"
+      }
+    ],
+    "intelligence": [
+      {
+        "id": "call_live_irs_i1",
+        "kind": "script_phrase",
+        "label": "Criminal Investigation Division",
+        "value": "IRS Criminal Investigation Division",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_irs_t2"
+        ]
+      },
+      {
+        "id": "call_live_irs_i2",
+        "kind": "entity",
+        "label": "Officer name",
+        "value": "Michael Brennan, same spoken name as call_h01",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_irs_t2"
+        ]
+      },
+      {
+        "id": "call_live_irs_i3",
+        "kind": "tactic",
+        "label": "Dispatch pressure",
+        "value": "Law enforcement described as already tasked",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.8,
+        "evidenceTurnIds": [
+          "call_live_irs_t6"
+        ]
+      },
+      {
+        "id": "call_live_irs_i4",
+        "kind": "entity",
+        "label": "Roster check",
+        "value": "Michael Brennan has not been checked against a roster",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_irs_t2"
+        ]
+      },
+      {
+        "id": "call_live_irs_i5",
+        "kind": "script_phrase",
+        "label": "Possible card read-back",
+        "value": "Payment-card wording not committed by STT",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_irs_t7"
+        ]
+      }
+    ],
+    "pipeline": {
+      "sttMs": 380,
+      "llmMs": 640,
+      "ttsMs": 290,
+      "e2eMs": 1350
+    }
+  },
+  {
+    "id": "call_live_ms",
+    "startedOffsetSec": -96,
+    "callerNumberMasked": "+1 (888) 555-0199",
+    "conversationState": "pretext",
+    "stateProvenance": "inferred",
+    "classification": {
+      "label": "tech_support",
+      "provenance": "inferred",
+      "confidence": 0.78
+    },
+    "campaignId": "camp_ms",
+    "campaignName": "Microsoft Defender Refund",
+    "transcript": [
+      {
+        "id": "call_live_ms_t1",
+        "speaker": "honeypot",
+        "text": "Hello?",
+        "offsetMs": 0,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_ms_t2",
+        "speaker": "caller",
+        "text": "Hello, this is Microsoft Support. Your computer reported a critical virus and a refund of three hundred ninety-nine dollars is pending.",
+        "offsetMs": 5000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_ms_t3",
+        "speaker": "honeypot",
+        "text": "Microsoft the company? How did you get this number?",
+        "offsetMs": 18000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_ms_t4",
+        "speaker": "caller",
+        "text": "We received an alert from your Windows license. Do not shut the computer down or you will lose the refund.",
+        "offsetMs": 26000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_ms_t5",
+        "speaker": "honeypot",
+        "text": "I am not in front of that computer. What alert?",
+        "offsetMs": 48000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_ms_t6",
+        "speaker": "caller",
+        "text": "The pop-up is from Microsoft Defender. We need to connect and confirm the refund before the window closes.",
+        "offsetMs": 56000,
+        "provenance": "observed"
+      }
+    ],
+    "intelligence": [
+      {
+        "id": "call_live_ms_i1",
+        "kind": "script_phrase",
+        "label": "Microsoft Support opener",
+        "value": "This is Microsoft Support",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_ms_t2"
+        ]
+      },
+      {
+        "id": "call_live_ms_i2",
+        "kind": "amount",
+        "label": "Refund lure",
+        "value": "$399 refund",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_ms_t2"
+        ]
+      },
+      {
+        "id": "call_live_ms_i3",
+        "kind": "tactic",
+        "label": "Do not shut down",
+        "value": "Shutdown would lose the refund",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.83,
+        "evidenceTurnIds": [
+          "call_live_ms_t4"
+        ]
+      },
+      {
+        "id": "call_live_ms_i4",
+        "kind": "indicator",
+        "label": "Remote tool not named",
+        "value": "Caller said \"connect\" without naming a product",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_ms_t6"
+        ]
+      }
+    ],
+    "pipeline": {
+      "sttMs": 410,
+      "llmMs": 560,
+      "ttsMs": 270,
+      "e2eMs": 1280
+    }
+  },
+  {
+    "id": "call_live_chase",
+    "startedOffsetSec": -680,
+    "callerNumberMasked": "+1 (800) 555-0174",
+    "conversationState": "payment_request",
+    "stateProvenance": "inferred",
+    "classification": {
+      "label": "bank_fraud",
+      "provenance": "inferred",
+      "confidence": 0.94
+    },
+    "campaignId": "camp_chase",
+    "campaignName": "Chase Fraud Desk",
+    "transcript": [
+      {
+        "id": "call_live_chase_t1",
+        "speaker": "honeypot",
+        "text": "Hello?",
+        "offsetMs": 0,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_chase_t2",
+        "speaker": "caller",
+        "text": "This is the Chase fraud department. We detected a Zelle transfer of two thousand four hundred dollars from your account.",
+        "offsetMs": 4000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_chase_t3",
+        "speaker": "honeypot",
+        "text": "I do not remember sending a Zelle transfer. Who am I speaking with?",
+        "offsetMs": 16000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_chase_t4",
+        "speaker": "caller",
+        "text": "Fraud desk, badge four four one. The payment is reversible if you verify the one-time code we texted.",
+        "offsetMs": 24000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_chase_t5",
+        "speaker": "honeypot",
+        "text": "I have not looked at my phone. What happens after the code?",
+        "offsetMs": 48000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_chase_t6",
+        "speaker": "caller",
+        "text": "We move the remaining balance into a safe account in your name and reverse the Zelle. I need the code and the last four of the debit card.",
+        "offsetMs": 56000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_chase_t7",
+        "speaker": "honeypot",
+        "text": "I am writing that down. Say the amount again, and do not ask me to read a code yet.",
+        "offsetMs": 300000,
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_chase_t8",
+        "speaker": "caller",
+        "text": "Two thousand four hundred dollars, Zelle, pending. The safe account is already open on our side. Do not call the branch.",
+        "offsetMs": 312000,
+        "provenance": "observed"
+      }
+    ],
+    "intelligence": [
+      {
+        "id": "call_live_chase_i1",
+        "kind": "script_phrase",
+        "label": "Chase fraud department",
+        "value": "This is the Chase fraud department",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_chase_t2"
+        ]
+      },
+      {
+        "id": "call_live_chase_i2",
+        "kind": "amount",
+        "label": "Zelle amount",
+        "value": "$2,400 Zelle transfer",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_chase_t2",
+          "call_live_chase_t8"
+        ]
+      },
+      {
+        "id": "call_live_chase_i3",
+        "kind": "indicator",
+        "label": "OTP read-back",
+        "value": "Caller asked the target to verify a one-time code",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_chase_t4"
+        ]
+      },
+      {
+        "id": "call_live_chase_i4",
+        "kind": "tactic",
+        "label": "Safe account",
+        "value": "Remaining balance moved to a safe account already open on their side",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.93,
+        "evidenceTurnIds": [
+          "call_live_chase_t6",
+          "call_live_chase_t8"
+        ]
+      },
+      {
+        "id": "call_live_chase_i5",
+        "kind": "entity",
+        "label": "Badge 441",
+        "value": "Spoken badge 441, not checked",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_chase_t4"
+        ]
+      }
+    ],
+    "pipeline": {
+      "sttMs": 350,
+      "llmMs": 710,
+      "ttsMs": 305,
+      "e2eMs": 1405
+    }
+  }
+]

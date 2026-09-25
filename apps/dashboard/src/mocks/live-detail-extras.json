@@ -1,0 +1,680 @@
+[
+  {
+    "id": "call_live_irs",
+    "engagementDelayMs": 11000,
+    "keyIndicators": [
+      {
+        "id": "call_live_irs_i1",
+        "kind": "script_phrase",
+        "label": "Criminal Investigation Division",
+        "value": "IRS Criminal Investigation Division",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_irs_t2"
+        ]
+      },
+      {
+        "id": "call_live_irs_i3",
+        "kind": "tactic",
+        "label": "Dispatch pressure",
+        "value": "Law enforcement described as already tasked",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.8,
+        "evidenceTurnIds": [
+          "call_live_irs_t6"
+        ]
+      },
+      {
+        "id": "call_live_irs_i5",
+        "kind": "script_phrase",
+        "label": "Possible card read-back",
+        "value": "Payment-card wording not committed by STT",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_irs_t7"
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "id": "call_live_irs_l0",
+        "offsetMs": 0,
+        "kind": "telephony",
+        "title": "Answered",
+        "detail": "Honeypot leg connected. Call is still up."
+      },
+      {
+        "id": "call_live_irs_l_s1",
+        "offsetMs": 200,
+        "kind": "state",
+        "title": "Honeypot answered.",
+        "detail": "start → greeting"
+      },
+      {
+        "id": "call_live_irs_l_s2",
+        "offsetMs": 8000,
+        "kind": "state",
+        "title": "Caller claimed an IRS officer role.",
+        "detail": "greeting → identity_probe"
+      },
+      {
+        "id": "call_live_irs_l_s3",
+        "offsetMs": 28000,
+        "kind": "state",
+        "title": "Caller introduced a warrant without a case number.",
+        "detail": "identity_probe → pretext"
+      },
+      {
+        "id": "call_live_irs_l_s4",
+        "offsetMs": 64000,
+        "kind": "state",
+        "title": "Caller said law enforcement is already tasked.",
+        "detail": "pretext → urgency"
+      },
+      {
+        "id": "call_live_irs_l_s5",
+        "offsetMs": 110000,
+        "kind": "state",
+        "title": "A payment-card instruction was only partly recognized.",
+        "detail": "urgency → payment_request"
+      },
+      {
+        "id": "call_live_irs_lx1",
+        "offsetMs": 110000,
+        "kind": "transcript",
+        "title": "Unverified payment line",
+        "detail": "STT did not commit the card wording. State moved anyway and is marked unverified."
+      }
+    ],
+    "stateTransitions": [
+      {
+        "id": "call_live_irs_s1",
+        "offsetMs": 200,
+        "from": null,
+        "to": "greeting",
+        "reason": "Honeypot answered.",
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_irs_s2",
+        "offsetMs": 8000,
+        "from": "greeting",
+        "to": "identity_probe",
+        "reason": "Caller claimed an IRS officer role.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_live_irs_s3",
+        "offsetMs": 28000,
+        "from": "identity_probe",
+        "to": "pretext",
+        "reason": "Caller introduced a warrant without a case number.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_live_irs_s4",
+        "offsetMs": 64000,
+        "from": "pretext",
+        "to": "urgency",
+        "reason": "Caller said law enforcement is already tasked.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_live_irs_s5",
+        "offsetMs": 110000,
+        "from": "urgency",
+        "to": "payment_request",
+        "reason": "A payment-card instruction was only partly recognized.",
+        "provenance": "unverified"
+      }
+    ],
+    "observations": [
+      {
+        "id": "call_live_irs_o1",
+        "offsetMs": 8000,
+        "category": "script",
+        "raw": {
+          "text": "Caller said Officer Michael Brennan and IRS Criminal Investigation Division.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Division line matches IRS Warrant Wave. The officer name is a repeat of call_h01 and still unchecked.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_live_irs_o2",
+        "offsetMs": 64000,
+        "category": "threat",
+        "raw": {
+          "text": "Caller said local law enforcement is already tasked.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Dispatch pressure is the wave's hang-up deterrent.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_live_irs_o3",
+        "offsetMs": 110000,
+        "category": "payment",
+        "raw": {
+          "text": "Fragments sound like payment cards and reading codes before they expire.",
+          "provenance": "unverified"
+        },
+        "interpretation": {
+          "text": "If the fragments are right, this is the gift-card ask. It is not strong enough to treat as observed.",
+          "provenance": "unverified"
+        }
+      }
+    ],
+    "correlation": [
+      {
+        "id": "call_live_irs_c1",
+        "campaignId": "camp_irs",
+        "campaignName": "IRS Warrant Wave",
+        "score": 0.86,
+        "summary": "Live match to IRS Warrant Wave.",
+        "explanation": "Observed division line and the same officer name as a linked call. The payment-card turn is unverified, so the score is below the completed-call matches that captured an amount.",
+        "provenance": "inferred",
+        "matchedOn": [
+          {
+            "label": "Criminal Investigation Division",
+            "provenance": "observed"
+          },
+          {
+            "label": "Officer name repeat",
+            "provenance": "observed"
+          },
+          {
+            "label": "Possible card read-back",
+            "provenance": "unverified"
+          }
+        ]
+      }
+    ],
+    "technicalEvents": [
+      {
+        "id": "call_live_irs_e1",
+        "offsetMs": 0,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Inbound leg answered",
+        "attributes": [
+          {
+            "key": "codec",
+            "value": "PCMU"
+          },
+          {
+            "key": "leg",
+            "value": "honeypot"
+          }
+        ]
+      },
+      {
+        "id": "call_live_irs_e2",
+        "offsetMs": 650,
+        "source": "stt",
+        "severity": "info",
+        "message": "Streaming recognition started",
+        "attributes": [
+          {
+            "key": "locale",
+            "value": "en-US"
+          }
+        ]
+      },
+      {
+        "id": "call_live_irs_e3",
+        "offsetMs": 2400,
+        "source": "llm",
+        "severity": "info",
+        "message": "Stall persona reply committed",
+        "attributes": [
+          {
+            "key": "persona",
+            "value": "calm-stall"
+          }
+        ]
+      },
+      {
+        "id": "call_live_irs_ex1",
+        "offsetMs": 110000,
+        "source": "stt",
+        "severity": "warn",
+        "message": "Partial transcript below the commit threshold",
+        "attributes": [
+          {
+            "key": "confidence",
+            "value": "0.41"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "call_live_ms",
+    "engagementDelayMs": 5000,
+    "keyIndicators": [
+      {
+        "id": "call_live_ms_i1",
+        "kind": "script_phrase",
+        "label": "Microsoft Support opener",
+        "value": "This is Microsoft Support",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_ms_t2"
+        ]
+      },
+      {
+        "id": "call_live_ms_i3",
+        "kind": "tactic",
+        "label": "Do not shut down",
+        "value": "Shutdown would lose the refund",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.83,
+        "evidenceTurnIds": [
+          "call_live_ms_t4"
+        ]
+      },
+      {
+        "id": "call_live_ms_i4",
+        "kind": "indicator",
+        "label": "Remote tool not named",
+        "value": "Caller said \"connect\" without naming a product",
+        "provenance": "unverified",
+        "basis": "derived",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_ms_t6"
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "id": "call_live_ms_l0",
+        "offsetMs": 0,
+        "kind": "telephony",
+        "title": "Answered",
+        "detail": "Honeypot leg connected. Call is still up."
+      },
+      {
+        "id": "call_live_ms_l_s1",
+        "offsetMs": 200,
+        "kind": "state",
+        "title": "Honeypot answered.",
+        "detail": "start → greeting"
+      },
+      {
+        "id": "call_live_ms_l_s2",
+        "offsetMs": 5000,
+        "kind": "state",
+        "title": "Caller claimed Microsoft Support and a $399 refund.",
+        "detail": "greeting → pretext"
+      },
+      {
+        "id": "call_live_ms_lx1",
+        "offsetMs": 56000,
+        "kind": "intel",
+        "title": "Defender named, tool not named",
+        "detail": "Caller mentioned a connection and did not name AnyDesk or another tool yet."
+      }
+    ],
+    "stateTransitions": [
+      {
+        "id": "call_live_ms_s1",
+        "offsetMs": 200,
+        "from": null,
+        "to": "greeting",
+        "reason": "Honeypot answered.",
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_ms_s2",
+        "offsetMs": 5000,
+        "from": "greeting",
+        "to": "pretext",
+        "reason": "Caller claimed Microsoft Support and a $399 refund.",
+        "provenance": "inferred"
+      }
+    ],
+    "observations": [
+      {
+        "id": "call_live_ms_o1",
+        "offsetMs": 5000,
+        "category": "script",
+        "raw": {
+          "text": "Caller said \"this is Microsoft Support\" and a $399 refund is pending.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Opener matches Microsoft Defender Refund.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_live_ms_o2",
+        "offsetMs": 56000,
+        "category": "tooling",
+        "raw": {
+          "text": "Caller said the pop-up is from Microsoft Defender and that they need to connect.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "A remote tool is likely next. None has been named on this call.",
+          "provenance": "unverified"
+        }
+      }
+    ],
+    "correlation": [
+      {
+        "id": "call_live_ms_c1",
+        "campaignId": "camp_ms",
+        "campaignName": "Microsoft Defender Refund",
+        "score": 0.8,
+        "summary": "Live Microsoft Defender Refund match, still in the opener.",
+        "explanation": "Observed Microsoft Support, the $399 figure, and Defender. The remote-tool step has not happened, so the score trails call_h03.",
+        "provenance": "inferred",
+        "matchedOn": [
+          {
+            "label": "Microsoft Support opener",
+            "provenance": "observed"
+          },
+          {
+            "label": "$399 refund",
+            "provenance": "observed"
+          },
+          {
+            "label": "Microsoft Defender",
+            "provenance": "observed"
+          }
+        ]
+      }
+    ],
+    "technicalEvents": [
+      {
+        "id": "call_live_ms_e1",
+        "offsetMs": 0,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Inbound leg answered",
+        "attributes": [
+          {
+            "key": "codec",
+            "value": "PCMU"
+          },
+          {
+            "key": "leg",
+            "value": "honeypot"
+          }
+        ]
+      },
+      {
+        "id": "call_live_ms_e2",
+        "offsetMs": 650,
+        "source": "stt",
+        "severity": "info",
+        "message": "Streaming recognition started",
+        "attributes": [
+          {
+            "key": "locale",
+            "value": "en-US"
+          }
+        ]
+      },
+      {
+        "id": "call_live_ms_e3",
+        "offsetMs": 2400,
+        "source": "llm",
+        "severity": "info",
+        "message": "Stall persona reply committed",
+        "attributes": [
+          {
+            "key": "persona",
+            "value": "calm-stall"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "call_live_chase",
+    "engagementDelayMs": 6000,
+    "keyIndicators": [
+      {
+        "id": "call_live_chase_i1",
+        "kind": "script_phrase",
+        "label": "Chase fraud department",
+        "value": "This is the Chase fraud department",
+        "provenance": "observed",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_chase_t2"
+        ]
+      },
+      {
+        "id": "call_live_chase_i4",
+        "kind": "tactic",
+        "label": "Safe account",
+        "value": "Remaining balance moved to a safe account already open on their side",
+        "provenance": "inferred",
+        "basis": "derived",
+        "confidence": 0.93,
+        "evidenceTurnIds": [
+          "call_live_chase_t6",
+          "call_live_chase_t8"
+        ]
+      },
+      {
+        "id": "call_live_chase_i5",
+        "kind": "entity",
+        "label": "Badge 441",
+        "value": "Spoken badge 441, not checked",
+        "provenance": "unverified",
+        "basis": "raw",
+        "confidence": null,
+        "evidenceTurnIds": [
+          "call_live_chase_t4"
+        ]
+      }
+    ],
+    "timeline": [
+      {
+        "id": "call_live_chase_l0",
+        "offsetMs": 0,
+        "kind": "telephony",
+        "title": "Answered",
+        "detail": "Honeypot leg connected. Call is still up."
+      },
+      {
+        "id": "call_live_chase_l_s1",
+        "offsetMs": 200,
+        "kind": "state",
+        "title": "Honeypot answered.",
+        "detail": "start → greeting"
+      },
+      {
+        "id": "call_live_chase_l_s2",
+        "offsetMs": 4000,
+        "kind": "state",
+        "title": "Caller claimed Chase fraud and a $2,400 Zelle debit.",
+        "detail": "greeting → pretext"
+      },
+      {
+        "id": "call_live_chase_l_s3",
+        "offsetMs": 24000,
+        "kind": "state",
+        "title": "Caller asked the target to verify a one-time code.",
+        "detail": "pretext → payment_request"
+      },
+      {
+        "id": "call_live_chase_lx1",
+        "offsetMs": 56000,
+        "kind": "intel",
+        "title": "Safe account and last four",
+        "detail": "Caller tied the reversal to a safe account plus the debit last four."
+      }
+    ],
+    "stateTransitions": [
+      {
+        "id": "call_live_chase_s1",
+        "offsetMs": 200,
+        "from": null,
+        "to": "greeting",
+        "reason": "Honeypot answered.",
+        "provenance": "observed"
+      },
+      {
+        "id": "call_live_chase_s2",
+        "offsetMs": 4000,
+        "from": "greeting",
+        "to": "pretext",
+        "reason": "Caller claimed Chase fraud and a $2,400 Zelle debit.",
+        "provenance": "inferred"
+      },
+      {
+        "id": "call_live_chase_s3",
+        "offsetMs": 24000,
+        "from": "pretext",
+        "to": "payment_request",
+        "reason": "Caller asked the target to verify a one-time code.",
+        "provenance": "inferred"
+      }
+    ],
+    "observations": [
+      {
+        "id": "call_live_chase_o1",
+        "offsetMs": 4000,
+        "category": "script",
+        "raw": {
+          "text": "Caller said \"Chase fraud department\" and a Zelle transfer of $2,400.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Full opener for Chase Fraud Desk.",
+          "provenance": "inferred"
+        }
+      },
+      {
+        "id": "call_live_chase_o2",
+        "offsetMs": 24000,
+        "category": "identity",
+        "raw": {
+          "text": "Caller said badge four four one. The digits were clear enough to record and have not been checked.",
+          "provenance": "unverified"
+        },
+        "interpretation": null
+      },
+      {
+        "id": "call_live_chase_o3",
+        "offsetMs": 56000,
+        "category": "payment",
+        "raw": {
+          "text": "Caller asked for a one-time code and the last four, and described a safe account.",
+          "provenance": "observed"
+        },
+        "interpretation": {
+          "text": "Safe-account language is the mule handoff used on call_h05.",
+          "provenance": "inferred"
+        }
+      }
+    ],
+    "correlation": [
+      {
+        "id": "call_live_chase_c1",
+        "campaignId": "camp_chase",
+        "campaignName": "Chase Fraud Desk",
+        "score": 0.95,
+        "summary": "Live Chase Fraud Desk match.",
+        "explanation": "Observed Chase opener, $2,400 Zelle, and an OTP ask. Safe-account wording matches call_h05. Badge 441 is unverified and was not required for the score.",
+        "provenance": "inferred",
+        "matchedOn": [
+          {
+            "label": "Chase fraud department",
+            "provenance": "observed"
+          },
+          {
+            "label": "$2,400 Zelle",
+            "provenance": "observed"
+          },
+          {
+            "label": "Safe account",
+            "provenance": "inferred"
+          },
+          {
+            "label": "Badge 441",
+            "provenance": "unverified"
+          }
+        ]
+      }
+    ],
+    "technicalEvents": [
+      {
+        "id": "call_live_chase_e1",
+        "offsetMs": 0,
+        "source": "telephony",
+        "severity": "info",
+        "message": "Inbound leg answered",
+        "attributes": [
+          {
+            "key": "codec",
+            "value": "PCMU"
+          },
+          {
+            "key": "leg",
+            "value": "honeypot"
+          }
+        ]
+      },
+      {
+        "id": "call_live_chase_e2",
+        "offsetMs": 650,
+        "source": "stt",
+        "severity": "info",
+        "message": "Streaming recognition started",
+        "attributes": [
+          {
+            "key": "locale",
+            "value": "en-US"
+          }
+        ]
+      },
+      {
+        "id": "call_live_chase_e3",
+        "offsetMs": 2400,
+        "source": "llm",
+        "severity": "info",
+        "message": "Stall persona reply committed",
+        "attributes": [
+          {
+            "key": "persona",
+            "value": "calm-stall"
+          }
+        ]
+      },
+      {
+        "id": "call_live_chase_ex1",
+        "offsetMs": 24000,
+        "source": "orchestrator",
+        "severity": "warn",
+        "message": "One-time-code request detected; persona instructed to stall",
+        "attributes": [
+          {
+            "key": "policy",
+            "value": "no-otp-readback"
+          }
+        ]
+      }
+    ]
+  }
+]
