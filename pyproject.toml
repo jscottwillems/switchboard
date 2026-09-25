@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "switchboard"
+version = "0.0.1"
+description = "Project Switchboard — CLERK evidence packaging and reporting"
+requires-python = ">=3.11"
+dependencies = ["pydantic==2.13.5"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+switchboard = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

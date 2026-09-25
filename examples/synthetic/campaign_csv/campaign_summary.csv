@@ -1,0 +1,2 @@
+package_id,synthetic,associated,campaign_id,label,fact_class,epistemic,confidence_level,confidence_score,confidence_basis,packaged_call_ids,member_call_ids,reason_codes
+syn-pkg-campaign-001,true,true,syn-campaign-001,Synthetic card-issuer impersonation,derived_association,campaign_attribution,high,0.80,Confidence supplied with synthetic record syn-campaign-001.,syn-call-001|syn-call-002,syn-call-001|syn-call-002,shared_spoken_callback|shared_displayed_cnam

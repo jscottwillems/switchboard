@@ -1,0 +1,235 @@
+{
+  "$defs": {
+    "EpistemicLayer": {
+      "enum": [
+        "raw_observation",
+        "derived_interpretation",
+        "campaign_attribution"
+      ],
+      "title": "EpistemicLayer",
+      "type": "string"
+    },
+    "FactClass": {
+      "enum": [
+        "reported_caller_metadata",
+        "spoken_identifier",
+        "raw_observation",
+        "confirmed_observation",
+        "derived_interpretation",
+        "derived_association"
+      ],
+      "title": "FactClass",
+      "type": "string"
+    },
+    "PackageScope": {
+      "enum": [
+        "single_call",
+        "campaign",
+        "technical_incident"
+      ],
+      "title": "PackageScope",
+      "type": "string"
+    },
+    "ReportEntry": {
+      "additionalProperties": false,
+      "properties": {
+        "confirmed": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Confirmed"
+        },
+        "entry_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entry Id"
+        },
+        "epistemic": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/EpistemicLayer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "fact_class": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FactClass"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "fields": {
+          "items": {
+            "$ref": "#/$defs/ReportField"
+          },
+          "title": "Fields",
+          "type": "array"
+        }
+      },
+      "title": "ReportEntry",
+      "type": "object"
+    },
+    "ReportField": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "title": "ReportField",
+      "type": "object"
+    },
+    "ReportKind": {
+      "enum": [
+        "single_call",
+        "multi_call_campaign",
+        "technical_incident",
+        "machine_readable_json"
+      ],
+      "title": "ReportKind",
+      "type": "string"
+    },
+    "ReportSection": {
+      "additionalProperties": false,
+      "properties": {
+        "empty": {
+          "title": "Empty",
+          "type": "boolean"
+        },
+        "entries": {
+          "items": {
+            "$ref": "#/$defs/ReportEntry"
+          },
+          "title": "Entries",
+          "type": "array"
+        },
+        "section_id": {
+          "$ref": "#/$defs/ReportSectionId"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "section_id",
+        "title",
+        "empty"
+      ],
+      "title": "ReportSection",
+      "type": "object"
+    },
+    "ReportSectionId": {
+      "enum": [
+        "provenance_legend",
+        "incident_record",
+        "call_identity",
+        "timestamp",
+        "displayed_caller_metadata",
+        "call_duration",
+        "transcript_excerpts",
+        "spoken_identifiers",
+        "structured_observations",
+        "campaign_association",
+        "association_reasons",
+        "supporting_timestamps",
+        "relevant_artifacts",
+        "confidence_levels"
+      ],
+      "title": "ReportSectionId",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Structured report. Renderers copy these fields and do not add call facts.",
+  "properties": {
+    "banner": {
+      "title": "Banner",
+      "type": "string"
+    },
+    "kind": {
+      "$ref": "#/$defs/ReportKind"
+    },
+    "package_id": {
+      "title": "Package Id",
+      "type": "string"
+    },
+    "report_id": {
+      "title": "Report Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scope": {
+      "$ref": "#/$defs/PackageScope"
+    },
+    "sections": {
+      "items": {
+        "$ref": "#/$defs/ReportSection"
+      },
+      "minItems": 1,
+      "title": "Sections",
+      "type": "array"
+    },
+    "synthetic": {
+      "title": "Synthetic",
+      "type": "boolean"
+    },
+    "title": {
+      "title": "Title",
+      "type": "string"
+    },
+    "upstream_input_schema": {
+      "const": "clerk.provisional_upstream.v0",
+      "title": "Upstream Input Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "report_id",
+    "kind",
+    "scope",
+    "package_id",
+    "synthetic",
+    "title",
+    "banner",
+    "upstream_input_schema",
+    "sections"
+  ],
+  "title": "ReportDocument",
+  "type": "object"
+}

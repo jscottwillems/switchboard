@@ -1,0 +1,786 @@
+{
+  "$defs": {
+    "Artifact": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "epistemic": {
+          "const": "raw_observation",
+          "default": "raw_observation",
+          "title": "Epistemic",
+          "type": "string"
+        },
+        "fact_class": {
+          "const": "raw_observation",
+          "default": "raw_observation",
+          "title": "Fact Class",
+          "type": "string"
+        },
+        "inline_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Inline Text"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "media_type": {
+          "title": "Media Type",
+          "type": "string"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        },
+        "uri": {
+          "title": "Uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "artifact_id",
+        "call_id",
+        "kind",
+        "label",
+        "uri",
+        "media_type"
+      ],
+      "title": "Artifact",
+      "type": "object"
+    },
+    "AssociationReason": {
+      "additionalProperties": false,
+      "properties": {
+        "call_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Call Ids",
+          "type": "array"
+        },
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/Confidence"
+        },
+        "epistemic": {
+          "const": "campaign_attribution",
+          "default": "campaign_attribution",
+          "title": "Epistemic",
+          "type": "string"
+        },
+        "fact_class": {
+          "const": "derived_association",
+          "default": "derived_association",
+          "title": "Fact Class",
+          "type": "string"
+        },
+        "reason_id": {
+          "title": "Reason Id",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "supporting_timestamps": {
+          "items": {
+            "$ref": "#/$defs/SupportingTimestamp"
+          },
+          "title": "Supporting Timestamps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "reason_id",
+        "code",
+        "statement",
+        "call_ids",
+        "confidence"
+      ],
+      "title": "AssociationReason",
+      "type": "object"
+    },
+    "CallEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "duration_seconds": {
+          "minimum": 0,
+          "title": "Duration Seconds",
+          "type": "integer"
+        },
+        "ended_at": {
+          "format": "date-time",
+          "title": "Ended At",
+          "type": "string"
+        },
+        "identity": {
+          "$ref": "#/$defs/CallIdentity"
+        },
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/Observation"
+          },
+          "title": "Observations",
+          "type": "array"
+        },
+        "reported_caller_metadata": {
+          "$ref": "#/$defs/ReportedCallerMetadata"
+        },
+        "spoken_identifiers": {
+          "items": {
+            "$ref": "#/$defs/SpokenIdentifier"
+          },
+          "title": "Spoken Identifiers",
+          "type": "array"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "transcript_excerpts": {
+          "items": {
+            "$ref": "#/$defs/TranscriptExcerpt"
+          },
+          "title": "Transcript Excerpts",
+          "type": "array"
+        }
+      },
+      "required": [
+        "identity",
+        "started_at",
+        "ended_at",
+        "duration_seconds",
+        "reported_caller_metadata"
+      ],
+      "title": "CallEvidence",
+      "type": "object"
+    },
+    "CallIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "session_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Session Id"
+        }
+      },
+      "required": [
+        "call_id"
+      ],
+      "title": "CallIdentity",
+      "type": "object"
+    },
+    "CampaignAssociation": {
+      "additionalProperties": false,
+      "description": "Campaign attribution copied from a campaign record.\n\n`member_call_ids` is the membership list as supplied. `packaged_call_ids`\nis that list filtered to calls that are actually in this package, in\nmembership order. Absence of a call from this package is not a finding\nthat the call is outside the campaign.",
+      "properties": {
+        "campaign_id": {
+          "title": "Campaign Id",
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/Confidence"
+        },
+        "epistemic": {
+          "const": "campaign_attribution",
+          "default": "campaign_attribution",
+          "title": "Epistemic",
+          "type": "string"
+        },
+        "fact_class": {
+          "const": "derived_association",
+          "default": "derived_association",
+          "title": "Fact Class",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "member_call_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Member Call Ids",
+          "type": "array"
+        },
+        "packaged_call_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Packaged Call Ids",
+          "type": "array"
+        },
+        "reasons": {
+          "items": {
+            "$ref": "#/$defs/AssociationReason"
+          },
+          "title": "Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "campaign_id",
+        "label",
+        "member_call_ids",
+        "packaged_call_ids",
+        "confidence"
+      ],
+      "title": "CampaignAssociation",
+      "type": "object"
+    },
+    "Confidence": {
+      "additionalProperties": false,
+      "description": "Confidence copied from a source record.\n\nCLERK stores the supplied level, score, and basis. It does not derive the\nlevel from the score.",
+      "properties": {
+        "basis": {
+          "title": "Basis",
+          "type": "string"
+        },
+        "level": {
+          "$ref": "#/$defs/ConfidenceLevel"
+        },
+        "score": {
+          "title": "Score",
+          "type": "number"
+        }
+      },
+      "required": [
+        "level",
+        "score",
+        "basis"
+      ],
+      "title": "Confidence",
+      "type": "object"
+    },
+    "ConfidenceLevel": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "title": "ConfidenceLevel",
+      "type": "string"
+    },
+    "EpistemicLayer": {
+      "enum": [
+        "raw_observation",
+        "derived_interpretation",
+        "campaign_attribution"
+      ],
+      "title": "EpistemicLayer",
+      "type": "string"
+    },
+    "FactClass": {
+      "enum": [
+        "reported_caller_metadata",
+        "spoken_identifier",
+        "raw_observation",
+        "confirmed_observation",
+        "derived_interpretation",
+        "derived_association"
+      ],
+      "title": "FactClass",
+      "type": "string"
+    },
+    "IncidentRecord": {
+      "additionalProperties": false,
+      "description": "Technical incident record supplied with the package.\n\nThe record is a derived interpretation. Raw signaling lines stay on\nartifacts and observations.",
+      "properties": {
+        "call_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Call Ids",
+          "type": "array"
+        },
+        "epistemic": {
+          "const": "derived_interpretation",
+          "default": "derived_interpretation",
+          "title": "Epistemic",
+          "type": "string"
+        },
+        "fact_class": {
+          "const": "derived_interpretation",
+          "default": "derived_interpretation",
+          "title": "Fact Class",
+          "type": "string"
+        },
+        "incident_id": {
+          "title": "Incident Id",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "technical_notes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Technical Notes",
+          "type": "array"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "incident_id",
+        "title",
+        "summary",
+        "call_ids"
+      ],
+      "title": "IncidentRecord",
+      "type": "object"
+    },
+    "Observation": {
+      "additionalProperties": false,
+      "description": "A structured observation or derived interpretation supplied with the call.\n\n`confirmed` is true only for fact class confirmed_observation. Derived\ninterpretations stay unconfirmed and stay off the campaign-attribution layer.",
+      "properties": {
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/Confidence"
+        },
+        "confirmed": {
+          "title": "Confirmed",
+          "type": "boolean"
+        },
+        "epistemic": {
+          "$ref": "#/$defs/EpistemicLayer"
+        },
+        "fact_class": {
+          "$ref": "#/$defs/FactClass"
+        },
+        "observation_id": {
+          "title": "Observation Id",
+          "type": "string"
+        },
+        "recorded_at": {
+          "format": "date-time",
+          "title": "Recorded At",
+          "type": "string"
+        },
+        "statement": {
+          "title": "Statement",
+          "type": "string"
+        },
+        "supporting_artifact_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Artifact Ids",
+          "type": "array"
+        },
+        "supporting_excerpt_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supporting Excerpt Ids",
+          "type": "array"
+        },
+        "supporting_timestamps": {
+          "items": {
+            "$ref": "#/$defs/SupportingTimestamp"
+          },
+          "title": "Supporting Timestamps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "observation_id",
+        "call_id",
+        "category",
+        "statement",
+        "confirmed",
+        "fact_class",
+        "epistemic",
+        "confidence",
+        "recorded_at"
+      ],
+      "title": "Observation",
+      "type": "object"
+    },
+    "PackageScope": {
+      "enum": [
+        "single_call",
+        "campaign",
+        "technical_incident"
+      ],
+      "title": "PackageScope",
+      "type": "string"
+    },
+    "ReportedCallerMetadata": {
+      "additionalProperties": false,
+      "description": "Caller-ID and signaling display fields copied from the call record.",
+      "properties": {
+        "displayed_callee_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Displayed Callee Number"
+        },
+        "displayed_caller_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Displayed Caller Name"
+        },
+        "displayed_caller_number": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Displayed Caller Number"
+        },
+        "epistemic": {
+          "const": "raw_observation",
+          "default": "raw_observation",
+          "title": "Epistemic",
+          "type": "string"
+        },
+        "fact_class": {
+          "const": "reported_caller_metadata",
+          "default": "reported_caller_metadata",
+          "title": "Fact Class",
+          "type": "string"
+        }
+      },
+      "title": "ReportedCallerMetadata",
+      "type": "object"
+    },
+    "SpokenIdentifier": {
+      "additionalProperties": false,
+      "description": "An identifier copied from a transcript excerpt, separate from caller-ID.",
+      "properties": {
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "confidence": {
+          "$ref": "#/$defs/Confidence"
+        },
+        "epistemic": {
+          "const": "raw_observation",
+          "default": "raw_observation",
+          "title": "Epistemic",
+          "type": "string"
+        },
+        "excerpt_id": {
+          "title": "Excerpt Id",
+          "type": "string"
+        },
+        "fact_class": {
+          "const": "spoken_identifier",
+          "default": "spoken_identifier",
+          "title": "Fact Class",
+          "type": "string"
+        },
+        "identifier_id": {
+          "title": "Identifier Id",
+          "type": "string"
+        },
+        "kind": {
+          "title": "Kind",
+          "type": "string"
+        },
+        "recorded_at": {
+          "format": "date-time",
+          "title": "Recorded At",
+          "type": "string"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "identifier_id",
+        "call_id",
+        "kind",
+        "value",
+        "excerpt_id",
+        "recorded_at",
+        "confidence"
+      ],
+      "title": "SpokenIdentifier",
+      "type": "object"
+    },
+    "SupportingTimestamp": {
+      "additionalProperties": false,
+      "properties": {
+        "artifact_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Artifact Id"
+        },
+        "at": {
+          "format": "date-time",
+          "title": "At",
+          "type": "string"
+        },
+        "call_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Call Id"
+        },
+        "excerpt_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Excerpt Id"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "label",
+        "at"
+      ],
+      "title": "SupportingTimestamp",
+      "type": "object"
+    },
+    "TranscriptExcerpt": {
+      "additionalProperties": false,
+      "properties": {
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "ended_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ended At"
+        },
+        "epistemic": {
+          "const": "raw_observation",
+          "default": "raw_observation",
+          "title": "Epistemic",
+          "type": "string"
+        },
+        "excerpt_id": {
+          "title": "Excerpt Id",
+          "type": "string"
+        },
+        "fact_class": {
+          "const": "raw_observation",
+          "default": "raw_observation",
+          "title": "Fact Class",
+          "type": "string"
+        },
+        "speaker": {
+          "title": "Speaker",
+          "type": "string"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "text": {
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "excerpt_id",
+        "call_id",
+        "speaker",
+        "started_at",
+        "text"
+      ],
+      "title": "TranscriptExcerpt",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Portable evidence package produced by CLERK.",
+  "properties": {
+    "artifacts": {
+      "items": {
+        "$ref": "#/$defs/Artifact"
+      },
+      "title": "Artifacts",
+      "type": "array"
+    },
+    "calls": {
+      "items": {
+        "$ref": "#/$defs/CallEvidence"
+      },
+      "minItems": 1,
+      "title": "Calls",
+      "type": "array"
+    },
+    "campaign": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CampaignAssociation"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "generator": {
+      "const": "clerk",
+      "default": "clerk",
+      "title": "Generator",
+      "type": "string"
+    },
+    "incident": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/IncidentRecord"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "package_id": {
+      "title": "Package Id",
+      "type": "string"
+    },
+    "schema_version": {
+      "const": "1.0.0",
+      "default": "1.0.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "scope": {
+      "$ref": "#/$defs/PackageScope"
+    },
+    "synthetic": {
+      "title": "Synthetic",
+      "type": "boolean"
+    },
+    "upstream_input_schema": {
+      "const": "clerk.provisional_upstream.v0",
+      "default": "clerk.provisional_upstream.v0",
+      "title": "Upstream Input Schema",
+      "type": "string"
+    }
+  },
+  "required": [
+    "package_id",
+    "synthetic",
+    "generated_at",
+    "scope",
+    "calls"
+  ],
+  "title": "EvidencePackage",
+  "type": "object"
+}

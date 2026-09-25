@@ -1,0 +1,34 @@
+{
+  "$defs": {
+    "ReportFormat": {
+      "enum": [
+        "json",
+        "markdown",
+        "pdf_ready",
+        "csv",
+        "campaign_summary"
+      ],
+      "title": "ReportFormat",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Body of POST /clerk/reports/open.",
+  "properties": {
+    "format": {
+      "$ref": "#/$defs/ReportFormat",
+      "description": "Rendering to open."
+    },
+    "report_id": {
+      "description": "Report id returned by GET /clerk/reports.",
+      "title": "Report Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "report_id",
+    "format"
+  ],
+  "title": "OpenReportRequest",
+  "type": "object"
+}
