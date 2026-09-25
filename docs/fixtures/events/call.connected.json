@@ -1,0 +1,12 @@
+{
+  "record_type": "interpretation",
+  "event_id": "ev_example_connected",
+  "name": "call.connected",
+  "occurred_at": "2026-09-25T20:00:00.010000Z",
+  "call_id": "sb_example",
+  "provider": "mock",
+  "elapsed_ms": 10,
+  "data": {
+    "provider_call_id": "mock-call-1"
+  }
+}

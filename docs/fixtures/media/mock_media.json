@@ -1,0 +1,9 @@
+{
+  "type": "media",
+  "sequence": 1,
+  "timestamp_ms": 0,
+  "encoding": "audio/x-mulaw",
+  "sample_rate": 8000,
+  "track": "inbound",
+  "payload_b64": "AQIDBA=="
+}

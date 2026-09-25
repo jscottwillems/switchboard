@@ -1,0 +1,15 @@
+{
+  "record_type": "interpretation",
+  "event_id": "ev_example_received",
+  "name": "call.received",
+  "occurred_at": "2026-09-25T20:00:00Z",
+  "call_id": "sb_example",
+  "provider": "mock",
+  "elapsed_ms": 0,
+  "data": {
+    "provider_call_id": "mock-call-1",
+    "from_number": "+15551110000",
+    "to_number": "+15552220000",
+    "direction": "inbound"
+  }
+}

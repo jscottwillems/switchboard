@@ -1,0 +1,14 @@
+{
+  "record_type": "interpretation",
+  "event_id": "ev_example_media_ended",
+  "name": "call.media.ended",
+  "occurred_at": "2026-09-25T20:00:01Z",
+  "call_id": "sb_example",
+  "provider": "mock",
+  "elapsed_ms": 1000,
+  "data": {
+    "stream_id": "ms_example",
+    "packets_observed": 1,
+    "packets_sent": 1
+  }
+}

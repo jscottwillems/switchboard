@@ -1,0 +1,12 @@
+{
+  "record_type": "interpretation",
+  "event_id": "ev_example_completed",
+  "name": "call.completed",
+  "occurred_at": "2026-09-25T20:00:03Z",
+  "call_id": "sb_example",
+  "provider": "mock",
+  "elapsed_ms": 3000,
+  "data": {
+    "reason": "caller_hangup"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "record_type": "interpretation",
+  "event_id": "ev_example_forwarded",
+  "name": "call.forwarded",
+  "occurred_at": "2026-09-25T20:00:02Z",
+  "call_id": "sb_example",
+  "provider": "mock",
+  "elapsed_ms": 2000,
+  "data": {
+    "destination": "+15558675309"
+  }
+}

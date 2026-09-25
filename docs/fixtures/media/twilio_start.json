@@ -1,0 +1,16 @@
+{
+  "event": "start",
+  "sequenceNumber": "1",
+  "streamSid": "MZ123",
+  "start": {
+    "streamSid": "MZ123",
+    "accountSid": "AC123",
+    "callSid": "CA123",
+    "tracks": ["inbound"],
+    "mediaFormat": {
+      "encoding": "audio/x-mulaw",
+      "sampleRate": 8000,
+      "channels": 1
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "record_type": "interpretation",
+  "event_id": "ev_example_media_started",
+  "name": "call.media.started",
+  "occurred_at": "2026-09-25T20:00:00.200000Z",
+  "call_id": "sb_example",
+  "provider": "mock",
+  "elapsed_ms": 200,
+  "data": {
+    "stream_id": "ms_example",
+    "protocol": "switchboard.media.v1"
+  }
+}
