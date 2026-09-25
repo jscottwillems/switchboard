@@ -1,27 +1,34 @@
 """Media WebSocket. Parses switchboard.media.v1 and checks stream tokens.
 
-Inbound audio is counted against the call budget, passed to mock STT, and
-dropped. A fixture final is published as speech.segment.final.
-respond_to_audio is not called from this socket yet (SB-008).
+Inbound audio is counted against the call budget and passed to mock STT.
+A non-empty final is published as speech.segment.final, then the socket calls
+respond_to_audio and publishes the conversation events (SB-008).
 """
 
+import base64
 import time
+from collections.abc import Sequence
 
 from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect
 
 from switchboard_observability import log_info
 from switchboard_schemas.api import HealthResponse
 from switchboard_schemas.common import CONTRACT_VERSION
-from switchboard_schemas.media import MEDIA_PROTOCOL, StreamReady
+from switchboard_schemas.hotpath import ResponseDecision
+from switchboard_schemas.media import MEDIA_PROTOCOL, StreamMedia, StreamReady
 
 from switchboard_media.budgets import admit_frame, new_budget
+from switchboard_media.hotpath import respond_to_audio
+from switchboard_media.ports import MOCK_TTS_FRAME_BYTES, MOCK_TTS_FRAME_MS
 from switchboard_media.protocol import (
     CLOSE_NORMAL,
     CLOSE_POLICY_VIOLATION,
     MediaSession,
     frame_from_websocket_message,
+    outbound_chunks,
 )
-from switchboard_media.recognition import recognize_frame
+from switchboard_media.recognition import RecognizedFinal, recognize_frame
+from switchboard_media.reply import record_exchange
 from switchboard_media.settings import get_settings
 from switchboard_media.tokens import ApiStreamTokenValidator, StreamTokenValidator
 
@@ -46,6 +53,64 @@ def health() -> HealthResponse:
 async def _reject(websocket: WebSocket, reason: str, code: int = CLOSE_POLICY_VIOLATION) -> None:
     log_info("media_socket_rejected", reason=reason)
     await websocket.close(code=code)
+
+
+async def _flush_outbound(websocket: WebSocket, session: MediaSession, sequence: int) -> int:
+    while True:
+        chunk = session.pop_outbound()
+        if chunk is None:
+            return sequence
+        message = StreamMedia(
+            sequence=sequence,
+            timestamp_ms=sequence * MOCK_TTS_FRAME_MS,
+            payload_b64=base64.b64encode(chunk).decode("ascii"),
+        )
+        await websocket.send_json(message.model_dump())
+        session.mark_outbound_playing()
+        sequence += 1
+
+
+async def _speak_back(
+    websocket: WebSocket,
+    session: MediaSession,
+    *,
+    payload: bytes,
+    finals: Sequence[RecognizedFinal],
+    turn_index: int,
+    outbound_sequence: int,
+) -> tuple[int, int]:
+    """Select, synthesize, publish, and write audio. Redis failures stay here."""
+
+    if session.outbound_in_progress():
+        await websocket.send_json(session.clear_outbound().model_dump())
+    decisions: list[ResponseDecision] = []
+    try:
+        audio = respond_to_audio(
+            session.call_session_id,
+            turn_index + 1,
+            payload,
+            recognized=[final.event for final in finals],
+            decisions=decisions,
+        )
+    except Exception:
+        log_info(
+            "hotpath_reply_failed",
+            call_session_id=str(session.call_session_id),
+            reason="reply_failed",
+        )
+        return turn_index, outbound_sequence
+    if not decisions:
+        return turn_index, outbound_sequence
+    next_turn = record_exchange(
+        session.call_session_id,
+        turn_index,
+        finals,
+        decisions[0],
+    )
+    for chunk in outbound_chunks(audio, MOCK_TTS_FRAME_BYTES):
+        session.enqueue_outbound(chunk)
+    outbound_sequence = await _flush_outbound(websocket, session, outbound_sequence)
+    return next_turn, outbound_sequence
 
 
 @app.websocket("/v1/streams")
@@ -75,6 +140,8 @@ async def streams(
     session = MediaSession(result.call_session_id)
     budget = new_budget()
     transcript_sequence = 0
+    turn_index = 0
+    outbound_sequence = 0
     try:
         while True:
             message = await websocket.receive()
@@ -99,6 +166,15 @@ async def streams(
                     sequence=transcript_sequence,
                 )
                 transcript_sequence = recognized.next_sequence
+                if recognized.finals:
+                    turn_index, outbound_sequence = await _speak_back(
+                        websocket,
+                        session,
+                        payload=outcome.audio.payload,
+                        finals=recognized.finals,
+                        turn_index=turn_index,
+                        outbound_sequence=outbound_sequence,
+                    )
             if outcome.close_code is not None:
                 await _reject(
                     websocket,

@@ -1,29 +1,37 @@
 """Turn one audio frame into finals and publish speech.segment.final.
 
-Owner: ECHO. The socket calls this. It does not select a reply or synthesize.
-That remains SB-008, which should use these finals instead of calling STT again.
+Owner: ECHO. The socket calls this once per frame. SB-008 speaks from `finals`
+and does not call `push_audio` again.
 """
 
 from dataclasses import dataclass
 from uuid import UUID, uuid4
 
-from pydantic import ValidationError
-
-from switchboard_events import EventBus, PublishResult, build_envelope
-from switchboard_observability import log_info
+from switchboard_events import EventBus, build_envelope
 from switchboard_schemas.enums import EventType, Producer, Speaker
 from switchboard_schemas.events import EventEnvelope, SpeechSegmentPayload
 
-from switchboard_media.events import event_bus
+from switchboard_media.events import event_bus, publish_validated
 from switchboard_media.ports import MockStt, SttEvent, SttPort
 
 _stt: SttPort = MockStt()
 
 
 @dataclass(frozen=True)
+class RecognizedFinal:
+    """One non-empty final from this frame, whether or not the publish landed."""
+
+    event: SttEvent
+    transcript_segment_id: UUID
+    speech_event_id: UUID
+    published: bool
+
+
+@dataclass(frozen=True)
 class RecognitionResult:
     events: list[SttEvent]
     next_sequence: int
+    finals: tuple[RecognizedFinal, ...] = ()
 
 
 def recognize_frame(
@@ -44,22 +52,31 @@ def recognize_frame(
     events = port.push_audio(payload)
     next_sequence = sequence
     publisher = bus
+    finals: list[RecognizedFinal] = []
     for event in events:
         if not event.is_final or event.text == "":
             continue
         if publisher is None:
             publisher = event_bus()
-        result = _publish(
-            publisher,
-            _final_envelope(
-                call_session_id=call_session_id,
-                event=event,
-                sequence=next_sequence,
-            ),
+        segment_id = uuid4()
+        envelope = _final_envelope(
+            call_session_id=call_session_id,
+            event=event,
+            sequence=next_sequence,
+            transcript_segment_id=segment_id,
         )
+        result = publish_validated(publisher, envelope)
         if not result.failed:
             next_sequence += 1
-    return RecognitionResult(events=events, next_sequence=next_sequence)
+        finals.append(
+            RecognizedFinal(
+                event=event,
+                transcript_segment_id=segment_id,
+                speech_event_id=envelope.event_id,
+                published=not result.failed,
+            )
+        )
+    return RecognitionResult(events=events, next_sequence=next_sequence, finals=tuple(finals))
 
 
 def _final_envelope(
@@ -67,13 +84,14 @@ def _final_envelope(
     call_session_id: UUID,
     event: SttEvent,
     sequence: int,
+    transcript_segment_id: UUID,
 ) -> EventEnvelope:
     return build_envelope(
         event_type=EventType.SPEECH_SEGMENT_FINAL,
         producer=Producer.MEDIA_GATEWAY,
         call_session_id=call_session_id,
         payload=SpeechSegmentPayload(
-            transcript_segment_id=uuid4(),
+            transcript_segment_id=transcript_segment_id,
             speaker=Speaker.CALLER,
             text=event.text,
             is_final=True,
@@ -83,21 +101,3 @@ def _final_envelope(
             sequence=sequence,
         ),
     )
-
-
-def _publish(bus: EventBus, envelope: EventEnvelope) -> PublishResult:
-    """Publish a validated envelope. A down Redis leaves the socket up."""
-
-    try:
-        return bus.publish(envelope)
-    except ValidationError:
-        raise
-    except (OSError, ValueError):
-        log_info(
-            "event_publish_failed",
-            event_type=envelope.event_type.value,
-            event_id=str(envelope.event_id),
-            call_session_id=str(envelope.call_session_id),
-            reason="redis_unavailable",
-        )
-        return PublishResult(stream_id=None, failed=True)

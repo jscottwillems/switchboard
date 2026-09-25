@@ -1,13 +1,14 @@
-"""Hot-path seam. The WebSocket handler does not call this yet (SB-008)."""
+"""Hot-path seam. The WebSocket calls this after `recognize_frame` (SB-008)."""
 
 import time
+from collections.abc import Sequence
 from uuid import UUID
 
 from switchboard_conversation import FixedResponseSelector, ResponseSelector
 from switchboard_observability import log_info
-from switchboard_schemas.hotpath import ResponseRequest
+from switchboard_schemas.hotpath import ResponseDecision, ResponseRequest
 
-from switchboard_media.ports import MockStt, MockTts, SttPort, TtsPort
+from switchboard_media.ports import MockStt, MockTts, SttEvent, SttPort, TtsPort
 
 _stt: SttPort = MockStt()
 _tts: TtsPort = MockTts()
@@ -59,23 +60,34 @@ def respond_to_audio(
     stt: SttPort | None = None,
     tts: TtsPort | None = None,
     selector: ResponseSelector | None = None,
+    recognized: Sequence[SttEvent] | None = None,
+    decisions: list[ResponseDecision] | None = None,
 ) -> bytes:
     """Run STT, then LOKI's selector, then TTS. Return the synthesized bytes.
 
+    Pass `recognized` when `recognize_frame` already called `push_audio` for
+    this payload. STT is not called again. `stt_ms` is then 0.
+
     `MockStt` returns no text for any payload other than the fixture frame, so
-    that default call stops after STT and returns `b""`. The fixture frame is
-    one final, so the call continues through the selector and TTS.
+    a default call with no `recognized` stops after STT and returns `b""`.
     Durations are emitted after the audio bytes exist. If that emit raises, the
     bytes are still returned. This function does not publish events.
+
+    When the selector runs, the decision is appended to `decisions` so the
+    socket can publish that same decision.
     """
 
     stt_port = _stt if stt is None else stt
     tts_port = _tts if tts is None else tts
     selector_port = _selector if selector is None else selector
 
-    started = time.perf_counter()
-    events = stt_port.push_audio(payload)
-    stt_ms = _elapsed_ms(started)
+    if recognized is None:
+        started = time.perf_counter()
+        events = stt_port.push_audio(payload)
+        stt_ms = _elapsed_ms(started)
+    else:
+        events = list(recognized)
+        stt_ms = 0
     finals = [event for event in events if event.is_final and event.text]
     if not finals:
         _emit_timing(stt_ms=stt_ms)
@@ -90,6 +102,8 @@ def respond_to_audio(
         )
     )
     select_ms = _elapsed_ms(started)
+    if decisions is not None:
+        decisions.append(decision)
 
     started = time.perf_counter()
     audio = tts_port.synthesize(decision.text)
