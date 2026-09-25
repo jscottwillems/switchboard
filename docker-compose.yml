@@ -67,10 +67,15 @@ services:
       dockerfile: apps/media_gateway/Dockerfile
     environment:
       REDIS_URL: redis://redis:6379/0
+      API_BASE_URL: http://api:8000
+      SWITCHBOARD_INTERNAL_TOKEN: dev-internal-token
+      STREAM_TOKEN_VALIDATE_TIMEOUT_S: "2"
     ports:
       - "8001:8001"
     depends_on:
       redis:
+        condition: service_healthy
+      api:
         condition: service_healthy
     healthcheck:
       test:
