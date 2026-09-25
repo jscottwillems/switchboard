@@ -311,7 +311,7 @@ These are not HTTP APIs.
 | `SttPort.push_audio(payload) -> list[SttEvent]` | `apps/media_gateway` | ECHO | `MockStt` returns one final for the fixture frame and `[]` otherwise |
 | `TtsPort.synthesize(text) -> bytes` | `apps/media_gateway` | ECHO | `MockTts` returns one deterministic `audio/pcmu` frame for non-empty text |
 | `FindingExtractor.extract(segments)` | `packages/classification` | SHERLOCK | `E164FindingExtractor` proposes `callback_number`. `NullFindingExtractor` returns `[]` |
-| `CampaignCorrelator.propose(CorrelationInput)` | `packages/classification` | WATSON | `NullCampaignCorrelator` returns `[]` |
+| `CampaignCorrelator.propose(CorrelationInput)` | `packages/classification` | WATSON | `ExactCallbackCorrelator` opens one `hypothesized` campaign when two calls share a `callback_number` E.164, with one attribution per call citing that call's finding ids. A number no other call shares stays unlinked. Distinct values do not merge. The match is in-memory. `NullCampaignCorrelator` returns `[]`. The Redis consumer that writes `attr.*` is SB-012 |
 
 `respond_to_audio` in `apps/media_gateway/switchboard_media/hotpath.py` is the hot-path order: STT, then selector, then TTS. It emits stage durations through `log_info`. The WebSocket calls it after a final, passing the finals from `recognize_frame`.
 

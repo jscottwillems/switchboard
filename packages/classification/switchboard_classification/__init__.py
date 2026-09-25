@@ -1,6 +1,7 @@
 from switchboard_classification.correlator import (
     CampaignCorrelator,
     CorrelationInput,
+    ExactCallbackCorrelator,
     NullCampaignCorrelator,
 )
 from switchboard_classification.extractor import (
@@ -13,6 +14,7 @@ __all__ = [
     "CampaignCorrelator",
     "CorrelationInput",
     "E164FindingExtractor",
+    "ExactCallbackCorrelator",
     "FindingExtractor",
     "NullCampaignCorrelator",
     "NullFindingExtractor",

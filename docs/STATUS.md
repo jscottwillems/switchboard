@@ -732,6 +732,53 @@ SB-010. `speech.segment.final` is consumed by `intelligence.extractor`. A litera
 - ECHO: SB-005 publishes `speech.segment.final` from the media gateway. This consumer is ready for that event.
 - SENTINEL: update the extractor row in the `docs/SECURITY.md` failure-mode matrix.
 
+## HANDOFF — WATSON — 2026-09-25T23:53:30Z
+
+SB-011. Attributions are `attr.campaign_attribution` rows (`CampaignAttribution`, `record_layer: attribution`). Campaigns are `attr.campaign` rows with status `hypothesized`. This change does not write findings, does not add a campaign column, and does not consume the bus.
+
+### Completed
+
+- `ExactCallbackCorrelator` in `packages/classification/switchboard_classification/correlator.py`. It implements `CampaignCorrelator.propose(CorrelationInput) -> list[CampaignAttribution]`.
+- Primary rule: `FindingKind.callback_number` values that are the same E.164 (`packages/schemas` `E164` pattern) associate calls. The rationale names that kind and that value. `confidence` is `1.0` because the strings were identical, not because the cluster is corroborated. `method` is `exact_callback_number`, `method_version` is `0.1.0`.
+- A callback that only one call session has stays unmatched: no campaign and no attribution. When a second session shares that E.164 and no campaign exists yet, the correlator opens one `hypothesized` campaign and one attribution per session. Each attribution cites that session's finding ids. A later session with the same number joins that campaign.
+- Distinct E.164 values do not merge. Two shared numbers become two campaigns. A call can carry one attribution per number.
+- Rejected findings, non-callback kinds, values that are not E.164, and findings whose `call_session_id` is not the input's session do not match. Proposing the same session twice does not open a campaign by itself.
+- Campaign id is UUIDv5 of `campaign|exact_callback_number|{e164}` in `SWITCHBOARD_ID_NAMESPACE`. Attribution id is UUIDv5 of `campaign_attribution|{campaign_id}|{call_session_id}|exact_callback_number`. `supporting_finding_ids` are the matching findings known on that call when the attribution is first proposed. A later propose of an already attributed call returns `[]` and does not mint a second row.
+- `NullCampaignCorrelator` still returns `[]`. The objects are the existing `Campaign` and `CampaignAttribution` models. `PostgresCampaigns.insert` and `PostgresAttributions.insert` can persist them. This change does not call them.
+- SB-012 is not started. No Redis consumer, no `campaign.opened` publish, no `campaign.attribution.proposed` publish.
+
+### Files changed
+
+- `packages/classification/switchboard_classification/correlator.py`
+- `packages/classification/switchboard_classification/__init__.py`
+- `tests/test_exact_callback_correlator.py`
+- `docs/API_CONTRACTS.md` (correlator port row)
+- `docs/STATUS.md`
+
+### Interfaces added-changed
+
+- `ExactCallbackCorrelator.propose` returns the attributions created by that call. When the call opens a campaign, the list includes an attribution for every session that was waiting on that number. `campaigns()` and `attributions()` are the in-memory `attr.campaign` and `attr.campaign_attribution` sets.
+- No schema change. No new `FindingKind`. No repository method. `apps/intelligence` does not construct this correlator yet.
+
+### Tests
+
+- `tests/test_exact_callback_correlator.py`. Shared `+15551234567` yields one `hypothesized` campaign and two attributions that cite the two finding ids. Distinct numbers yield no campaign. A third session joins the existing campaign. Two shared numbers stay two campaigns. Rejected, non-E.164, pretext, and mismatched session ids do not merge. An accepted finding matches a proposed one. Replay keeps one campaign and the same ids.
+- `make test`: 136 passed, 2 skipped. The skips are the existing SB-014 and operator-auth tripwires. The previous suite on main was 128 passed, 2 skipped.
+
+### Dependencies
+
+- Canonical models from `packages/schemas` (`IntelligenceFinding`, `Campaign`, `CampaignAttribution`, `FindingKind`, `CampaignStatus`, `E164`).
+- SB-012 still needs SB-010 (open as PR #19) before `intelligence.finding.proposed` can feed this rule. SB-016 is already on main. This correlator's memory is process-local, so the consumer must not assume the dict survives a restart.
+
+### Blocking issues
+
+- None for SB-011. Nothing is written to `attr.*` until SB-012. A second intelligence process would not see this process's unmatched callbacks.
+
+### Recommended next work
+
+- WATSON SB-012, after SB-010: consume `intelligence.finding.proposed` on `ConsumerGroup.INTELLIGENCE_CORRELATOR`, load prior `callback_number` findings for the same E.164, and insert through `attribution_writer` (`campaigns().insert`, `attributions().insert`). Publish `campaign.opened` when the campaign row is new and `campaign.attribution.proposed` for each new attribution. Keep the UUIDv5 ids so those inserts stay idempotent. Do not move a campaign to `corroborated` from this rule.
+- Leave the extractor and `FindingKind` alone.
+
 ## HANDOFF — ECHO — 2026-09-25T23:58:07Z
 
 ### Completed
