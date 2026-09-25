@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "jsx": "preserve",
+    "noEmit": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM"],
+    "types": ["vite/client"],
+    "paths": {
+      "@switchboard/schemas": ["../../packages/schemas/ts/index.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.vue", "../../packages/schemas/ts/**/*.ts"]
+}

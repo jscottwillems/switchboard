@@ -1,0 +1,129 @@
+name: switchboard
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: switchboard
+      POSTGRES_PASSWORD: switchboard
+      POSTGRES_DB: switchboard
+    ports:
+      - "5432:5432"
+    volumes:
+      - switchboard_pg:/var/lib/postgresql/data
+      - ./apps/api/migrations/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+      - ./apps/api/migrations/002_seed_dev.sql:/docker-entrypoint-initdb.d/002_seed_dev.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U switchboard -d switchboard"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      SWITCHBOARD_ENV: dev
+      SWITCHBOARD_DEV_WEBHOOK_BYPASS: "1"
+      SWITCHBOARD_INTERNAL_TOKEN: dev-internal-token
+      SWITCHBOARD_CORS_ORIGINS: http://localhost:5173
+      MEDIA_GATEWAY_PUBLIC_WS: ws://localhost:8001/v1/streams
+      DATABASE_URL: postgresql://switchboard:switchboard@postgres:5432/switchboard
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+
+  media_gateway:
+    build:
+      context: .
+      dockerfile: apps/media_gateway/Dockerfile
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8001:8001"
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health')",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+
+  intelligence:
+    build:
+      context: .
+      dockerfile: apps/intelligence/Dockerfile
+    environment:
+      SWITCHBOARD_INTERNAL_TOKEN: dev-internal-token
+      DATABASE_URL: postgresql://switchboard:switchboard@postgres:5432/switchboard
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8002:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/health')",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 15s
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: apps/dashboard/Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  switchboard_pg:
