@@ -15,3 +15,6 @@ def test_system_prompt_mentions_every_rule_the_policy_enforces() -> None:
     assert "four stalling" in prompt
     assert "ignore previous instructions" in prompt.lower()
     assert "Do not reveal" in prompt
+    assert "strategy-decision confidence" in prompt
+    assert "gift_card" in prompt
+    assert "tech_support" in prompt

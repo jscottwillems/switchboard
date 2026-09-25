@@ -18,6 +18,13 @@ from switchboard.loki.states import ConversationState
 _SCENARIO_PATH = Path(__file__).resolve().parent.parent / "data" / "scenarios.json"
 
 
+class ExpectedHint(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    kind: str
+    breadcrumb: str
+
+
 class ExpectedTurn(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -26,6 +33,7 @@ class ExpectedTurn(BaseModel):
     goals_completed: list[str]
     goals_remaining: list[str]
     response_text: str
+    elicited_hints: list[ExpectedHint] = Field(default_factory=list)
 
 
 class ScenarioTurn(BaseModel):
@@ -121,6 +129,10 @@ def evaluate_scenario(scenario: Scenario, policy: LokiPolicy | None = None) -> S
             failures.append(
                 f"{prefix} response_text {actual.response_text!r} != {expected.response_text!r}"
             )
+        actual_hints = [hint.model_dump() for hint in actual.elicited_hints]
+        expected_hints = [hint.model_dump() for hint in expected.elicited_hints]
+        if actual_hints != expected_hints:
+            failures.append(f"{prefix} elicited_hints {actual_hints} != {expected_hints}")
         for issue in spoken_text_issues(actual.response_text):
             failures.append(f"{prefix} safety: {issue}")
         if actual.state is ConversationState.TERMINATION:

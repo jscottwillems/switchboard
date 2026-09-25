@@ -1,8 +1,8 @@
 """Canonical structured turn output.
 
-The JSON object emitted for every turn uses exactly these fields. `reason`
-is an operator-facing derived interpretation. Only `response_text` may be
-spoken.
+`confidence` is strategy-decision confidence only. Sherlock owns extraction
+confidence. `elicited_hints` are unverified breadcrumbs, not Observations.
+Only `response_text` may be spoken.
 """
 
 from typing import Self
@@ -20,7 +20,24 @@ CANONICAL_TURN_FIELDS: tuple[str, ...] = (
     "goals_remaining",
     "confidence",
     "reason",
+    "elicited_hints",
 )
+
+
+class ElicitedHint(BaseModel):
+    """Unverified breadcrumb. Not a Sherlock Observation."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    kind: str
+    breadcrumb: str = Field(min_length=1)
+
+    @field_validator("kind")
+    @classmethod
+    def _known_kind(cls, value: str) -> str:
+        if value not in GOAL_ORDER:
+            raise ValueError(f"unknown hint kind: {value}")
+        return value
 
 
 class TurnOutput(BaseModel):
@@ -33,8 +50,13 @@ class TurnOutput(BaseModel):
     state_transition: str
     goals_completed: list[str]
     goals_remaining: list[str]
-    confidence: float = Field(ge=0.0, le=1.0)
+    confidence: float = Field(
+        ge=0.0,
+        le=1.0,
+        description="Strategy-decision confidence. Not an extraction confidence.",
+    )
     reason: str = Field(min_length=1)
+    elicited_hints: list[ElicitedHint] = Field(default_factory=list)
 
     @field_validator("goals_completed", "goals_remaining")
     @classmethod

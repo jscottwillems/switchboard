@@ -12,12 +12,32 @@
           "state_transition": "OPENING -> PURPOSE_DISCOVERY",
           "goals_completed": [],
           "goals_remaining": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. What's this call about?"
+          "response_text": "Hi. What's this call about?",
+          "elicited_hints": []
         }
       },
       {
@@ -26,14 +46,39 @@
           "state": "ORGANIZATION_DISCOVERY",
           "state_transition": "PURPOSE_DISCOVERY -> ORGANIZATION_DISCOVERY",
           "goals_completed": [
-            "purpose"
+            "pretext_category"
           ],
           "goals_remaining": [
-            "organization",
-            "offer",
-            "stable_identifier"
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "About a tax problem. Who are you with?"
+          "response_text": "About a tax problem. Who are you with?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "tax"
+            }
+          ]
         }
       },
       {
@@ -42,14 +87,43 @@
           "state": "OFFER_DISCOVERY",
           "state_transition": "ORGANIZATION_DISCOVERY -> OFFER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization"
+            "pretext_category",
+            "claimed_company",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "offer",
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "IRS. What do you need me to do?"
+          "response_text": "IRS. What do you need me to do?",
+          "elicited_hints": [
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "IRS"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "IRS"
+            }
+          ]
         }
       },
       {
@@ -58,14 +132,34 @@
           "state": "CLARIFICATION",
           "state_transition": "OFFER_DISCOVERY -> CLARIFICATION",
           "goals_completed": [
-            "purpose",
-            "organization"
+            "pretext_category",
+            "claimed_company",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "offer",
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Sorry, I missed that. What do you need me to do?"
+          "response_text": "Sorry, I missed that. What do you need me to do?",
+          "elicited_hints": []
         }
       },
       {
@@ -74,14 +168,47 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "CLARIFICATION -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_company",
+            "payment_methods",
+            "script_phrases",
+            "urgency_language",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "What's the case number and a number I can call you back on?"
+          "response_text": "What's the case number and a number I can call you back on?",
+          "elicited_hints": [
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "gift_card"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "gift card"
+            },
+            {
+              "kind": "urgency_language",
+              "breadcrumb": "today"
+            }
+          ]
         }
       },
       {
@@ -90,13 +217,47 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "payment_methods",
+            "script_phrases",
+            "urgency_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "202-555-0148"
+            },
+            {
+              "kind": "spoken_numbers",
+              "breadcrumb": "8821"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "IRS-44921"
+            }
+          ]
         }
       },
       {
@@ -105,13 +266,34 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "payment_methods",
+            "script_phrases",
+            "urgency_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": []
         }
       }
     ]
@@ -128,13 +310,75 @@
           "state": "STALLING",
           "state_transition": "OPENING -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "payment_methods",
+            "script_phrases",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Hi. Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Hi. Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "government"
+            },
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "IRS"
+            },
+            {
+              "kind": "claimed_agent",
+              "breadcrumb": "Officer Blake"
+            },
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "202-555-0148"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "IRS-44921"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "gift_card"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "gift card"
+            },
+            {
+              "kind": "threat_or_consequence_language",
+              "breadcrumb": "warrant"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "IRS"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "Officer Blake"
+            }
+          ]
         }
       },
       {
@@ -143,13 +387,34 @@
           "state": "RECOVERY",
           "state_transition": "STALLING -> RECOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "payment_methods",
+            "script_phrases",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "I don't know what you mean by that. Who is this, and why are you calling?"
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "I don't know what you mean by that. Who is this, and why are you calling?",
+          "elicited_hints": []
         }
       },
       {
@@ -158,13 +423,43 @@
           "state": "TERMINATION",
           "state_transition": "RECOVERY -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "payment_methods",
+            "script_phrases",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": [
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "IRS"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "IRS"
+            }
+          ]
         }
       }
     ]
@@ -181,14 +476,43 @@
           "state": "ORGANIZATION_DISCOVERY",
           "state_transition": "OPENING -> ORGANIZATION_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "offer"
+            "pretext_category",
+            "payment_methods"
           ],
           "goals_remaining": [
-            "organization",
-            "stable_identifier"
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. About a refund. Who are you with?"
+          "response_text": "Hi. About a refund. Who are you with?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "tech_support"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "other"
+            }
+          ]
         }
       },
       {
@@ -197,14 +521,63 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "ORGANIZATION_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_company",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "What's the case number and a number I can call you back on?"
+          "response_text": "What's the case number and a number I can call you back on?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "tech_support"
+            },
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "Microsoft"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "remote_access"
+            },
+            {
+              "kind": "remote_access_tools",
+              "breadcrumb": "AnyDesk"
+            },
+            {
+              "kind": "remote_access_tools",
+              "breadcrumb": "remote access"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "remote access"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "anydesk"
+            }
+          ]
         }
       },
       {
@@ -213,13 +586,47 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "claimed_agent",
+              "breadcrumb": "Agent Cole"
+            },
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "800-555-0199"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "MS-55210"
+            }
+          ]
         }
       },
       {
@@ -228,13 +635,47 @@
           "state": "STALLING",
           "state_transition": "STALLING -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "email_addresses",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language"
           ],
-          "goals_remaining": [],
-          "response_text": "I'm walking to the other room. What's the callback or website again?"
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "I'm walking to the other room. What's the callback or website again?",
+          "elicited_hints": [
+            {
+              "kind": "email_addresses",
+              "breadcrumb": "cole@support-desk.test"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "do not hang up"
+            },
+            {
+              "kind": "urgency_language",
+              "breadcrumb": "do not hang up"
+            }
+          ]
         }
       },
       {
@@ -243,13 +684,34 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "email_addresses",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": []
         }
       }
     ]
@@ -266,14 +728,47 @@
           "state": "OFFER_DISCOVERY",
           "state_transition": "OPENING -> OFFER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent"
           ],
           "goals_remaining": [
-            "offer",
-            "stable_identifier"
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. Chase Bank. What do you need me to do?"
+          "response_text": "Hi. Chase Bank. What do you need me to do?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "bank"
+            },
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "Chase Bank"
+            },
+            {
+              "kind": "claimed_agent",
+              "breadcrumb": "Dana"
+            }
+          ]
         }
       },
       {
@@ -282,14 +777,47 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "OFFER_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "requested_information",
+            "payment_methods",
+            "script_phrases"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "I'm not reading personal numbers or codes out loud. What's the case number and a callback?"
+          "response_text": "I'm not reading personal numbers or codes out loud. What's the case number and a callback?",
+          "elicited_hints": [
+            {
+              "kind": "requested_information",
+              "breadcrumb": "one-time code"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "bank_verify"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "one-time code"
+            }
+          ]
         }
       },
       {
@@ -298,13 +826,43 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "requested_information",
+            "payment_methods",
+            "script_phrases"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "312-555-0174"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "CH-88341"
+            }
+          ]
         }
       },
       {
@@ -313,13 +871,39 @@
           "state": "STALLING",
           "state_transition": "STALLING -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "requested_information",
+            "payment_methods",
+            "script_phrases"
           ],
-          "goals_remaining": [],
-          "response_text": "I'm walking to the other room. What's the callback or website again?"
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "I'm walking to the other room. What's the callback or website again?",
+          "elicited_hints": [
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "do not tell anyone"
+            }
+          ]
         }
       },
       {
@@ -328,13 +912,34 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "requested_information",
+            "payment_methods",
+            "script_phrases"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": []
         }
       }
     ]
@@ -351,14 +956,51 @@
           "state": "ORGANIZATION_DISCOVERY",
           "state_transition": "OPENING -> ORGANIZATION_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "offer"
+            "pretext_category",
+            "payment_methods",
+            "urgency_language",
+            "threat_or_consequence_language"
           ],
           "goals_remaining": [
-            "organization",
-            "stable_identifier"
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. About a family emergency. Who are you with?"
+          "response_text": "Hi. About a family emergency. Who are you with?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "urgency_language",
+              "breadcrumb": "tonight"
+            },
+            {
+              "kind": "threat_or_consequence_language",
+              "breadcrumb": "jail"
+            }
+          ]
         }
       },
       {
@@ -367,14 +1009,51 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "ORGANIZATION_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_agent",
+            "claimed_department",
+            "payment_methods",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_company",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "What's the case number and a number I can call you back on?"
+          "response_text": "What's the case number and a number I can call you back on?",
+          "elicited_hints": [
+            {
+              "kind": "claimed_agent",
+              "breadcrumb": "Deputy Harris"
+            },
+            {
+              "kind": "claimed_department",
+              "breadcrumb": "County Sheriff's Office"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "County Sheriff's Office"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "Deputy Harris"
+            }
+          ]
         }
       },
       {
@@ -383,13 +1062,51 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "payment_methods",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_company",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "702-555-0118"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "wire"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "western union"
+            }
+          ]
         }
       },
       {
@@ -398,13 +1115,43 @@
           "state": "STALLING",
           "state_transition": "STALLING -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "payment_methods",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "I'm walking to the other room. What's the callback or website again?"
+          "goals_remaining": [
+            "claimed_company",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "I'm walking to the other room. What's the callback or website again?",
+          "elicited_hints": [
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "BL-22018"
+            },
+            {
+              "kind": "urgency_language",
+              "breadcrumb": "hurry"
+            }
+          ]
         }
       },
       {
@@ -413,13 +1160,34 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "payment_methods",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_company",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": []
         }
       }
     ]
@@ -436,14 +1204,51 @@
           "state": "OFFER_DISCOVERY",
           "state_transition": "OPENING -> OFFER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization"
+            "pretext_category",
+            "claimed_company",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "offer",
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. Social Security Administration. What do you need me to do?"
+          "response_text": "Hi. Social Security Administration. What do you need me to do?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "government"
+            },
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "Social Security Administration"
+            },
+            {
+              "kind": "threat_or_consequence_language",
+              "breadcrumb": "suspended"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "Social Security Administration"
+            }
+          ]
         }
       },
       {
@@ -452,14 +1257,55 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "OFFER_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_company",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "I'm not reading personal numbers or codes out loud. What's the case number and a callback?"
+          "response_text": "I'm not reading personal numbers or codes out loud. What's the case number and a callback?",
+          "elicited_hints": [
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "Social Security Administration"
+            },
+            {
+              "kind": "fees",
+              "breadcrumb": "fee"
+            },
+            {
+              "kind": "requested_information",
+              "breadcrumb": "social security number"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "Social Security Administration"
+            }
+          ]
         }
       },
       {
@@ -468,13 +1314,43 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "866-555-0133"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "SSA-19002"
+            }
+          ]
         }
       },
       {
@@ -483,13 +1359,34 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": []
         }
       }
     ]
@@ -506,14 +1403,43 @@
           "state": "OFFER_DISCOVERY",
           "state_transition": "OPENING -> OFFER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization"
+            "pretext_category",
+            "claimed_company"
           ],
           "goals_remaining": [
-            "offer",
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. Amazon. What do you need me to do?"
+          "response_text": "Hi. Amazon. What do you need me to do?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "Amazon"
+            }
+          ]
         }
       },
       {
@@ -522,14 +1448,51 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "OFFER_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_company",
+            "requested_information",
+            "payment_methods",
+            "script_phrases"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "I'm not reading personal numbers or codes out loud. What's the case number and a callback?"
+          "response_text": "I'm not reading personal numbers or codes out loud. What's the case number and a callback?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "tech_support"
+            },
+            {
+              "kind": "requested_information",
+              "breadcrumb": "personal information"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "gift_card"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "gift card"
+            }
+          ]
         }
       },
       {
@@ -538,13 +1501,47 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "requested_information",
+            "payment_methods",
+            "script_phrases"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "claimed_agent",
+              "breadcrumb": "Kevin"
+            },
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "206-555-0188"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "AMZ-44190"
+            }
+          ]
         }
       },
       {
@@ -553,13 +1550,43 @@
           "state": "STALLING",
           "state_transition": "STALLING -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "requested_information",
+            "payment_methods",
+            "script_phrases"
           ],
-          "goals_remaining": [],
-          "response_text": "I'm walking to the other room. What's the callback or website again?"
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "I'm walking to the other room. What's the callback or website again?",
+          "elicited_hints": [
+            {
+              "kind": "domains",
+              "breadcrumb": "amazon-refund.test"
+            },
+            {
+              "kind": "urls",
+              "breadcrumb": "www.amazon-refund.test/claim"
+            }
+          ]
         }
       },
       {
@@ -568,13 +1595,34 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "requested_information",
+            "payment_methods",
+            "script_phrases"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": []
         }
       }
     ]
@@ -591,14 +1639,51 @@
           "state": "OFFER_DISCOVERY",
           "state_transition": "OPENING -> OFFER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization"
+            "pretext_category",
+            "claimed_company",
+            "urgency_language",
+            "threat_or_consequence_language"
           ],
           "goals_remaining": [
-            "offer",
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. The power company. What do you need me to do?"
+          "response_text": "Hi. The power company. What do you need me to do?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "utility"
+            },
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "the power company"
+            },
+            {
+              "kind": "urgency_language",
+              "breadcrumb": "today"
+            },
+            {
+              "kind": "threat_or_consequence_language",
+              "breadcrumb": "shut off"
+            }
+          ]
         }
       },
       {
@@ -607,14 +1692,43 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "OFFER_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_company",
+            "payment_methods",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "What's the case number and a number I can call you back on?"
+          "response_text": "What's the case number and a number I can call you back on?",
+          "elicited_hints": [
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "gift_card"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "prepaid card"
+            }
+          ]
         }
       },
       {
@@ -623,13 +1737,47 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "payment_methods",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "503-555-0160"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "UTL-77810"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "other"
+            }
+          ]
         }
       },
       {
@@ -638,13 +1786,34 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "payment_methods",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": []
         }
       }
     ]
@@ -662,12 +1831,32 @@
           "state_transition": "OPENING -> PURPOSE_DISCOVERY",
           "goals_completed": [],
           "goals_remaining": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. What's this call about?"
+          "response_text": "Hi. What's this call about?",
+          "elicited_hints": []
         }
       },
       {
@@ -677,12 +1866,32 @@
           "state_transition": "PURPOSE_DISCOVERY -> CLARIFICATION",
           "goals_completed": [],
           "goals_remaining": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Sorry, I didn't catch that. What's this call about?"
+          "response_text": "Sorry, I didn't catch that. What's this call about?",
+          "elicited_hints": []
         }
       },
       {
@@ -692,12 +1901,32 @@
           "state_transition": "CLARIFICATION -> RECOVERY",
           "goals_completed": [],
           "goals_remaining": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "I don't know what you mean by that. Who is this, and why are you calling?"
+          "response_text": "I don't know what you mean by that. Who is this, and why are you calling?",
+          "elicited_hints": []
         }
       },
       {
@@ -706,14 +1935,47 @@
           "state": "OFFER_DISCOVERY",
           "state_transition": "RECOVERY -> OFFER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization"
+            "pretext_category",
+            "claimed_company",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "offer",
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Medicare. What do you need me to do?"
+          "response_text": "Medicare. What do you need me to do?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "government"
+            },
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "Medicare"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "Medicare"
+            }
+          ]
         }
       },
       {
@@ -722,14 +1984,59 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "OFFER_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_company",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "I'm not reading personal numbers or codes out loud. What's the case number and a callback?"
+          "response_text": "I'm not reading personal numbers or codes out loud. What's the case number and a callback?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "government"
+            },
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "Medicare"
+            },
+            {
+              "kind": "fees",
+              "breadcrumb": "fee"
+            },
+            {
+              "kind": "requested_information",
+              "breadcrumb": "medicare number"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "Medicare"
+            }
+          ]
         }
       },
       {
@@ -738,13 +2045,43 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "877-555-0104"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "MD-30011"
+            }
+          ]
         }
       },
       {
@@ -753,13 +2090,34 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": []
         }
       }
     ]
@@ -776,14 +2134,59 @@
           "state": "OFFER_DISCOVERY",
           "state_transition": "OPENING -> OFFER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization"
+            "pretext_category",
+            "claimed_agent",
+            "claimed_department",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "offer",
-            "stable_identifier"
+            "claimed_company",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. County Court. What do you need me to do?"
+          "response_text": "Hi. County Court. What do you need me to do?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "government"
+            },
+            {
+              "kind": "claimed_agent",
+              "breadcrumb": "Officer Grant"
+            },
+            {
+              "kind": "claimed_department",
+              "breadcrumb": "County Court"
+            },
+            {
+              "kind": "threat_or_consequence_language",
+              "breadcrumb": "failure to appear"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "County Court"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "Officer Grant"
+            }
+          ]
         }
       },
       {
@@ -792,14 +2195,55 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "OFFER_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_agent",
+            "claimed_department",
+            "fees",
+            "payment_methods",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_company",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "What's the case number and a number I can call you back on?"
+          "response_text": "What's the case number and a number I can call you back on?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "government"
+            },
+            {
+              "kind": "fees",
+              "breadcrumb": "fine"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "urgency_language",
+              "breadcrumb": "today"
+            },
+            {
+              "kind": "threat_or_consequence_language",
+              "breadcrumb": "warrant"
+            }
+          ]
         }
       },
       {
@@ -808,13 +2252,47 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "fees",
+            "payment_methods",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_company",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "214-555-0190"
+            },
+            {
+              "kind": "spoken_numbers",
+              "breadcrumb": "4412"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "JD-10077"
+            }
+          ]
         }
       },
       {
@@ -823,13 +2301,43 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "fees",
+            "payment_methods",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_company",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": [
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "do not tell anyone"
+            },
+            {
+              "kind": "threat_or_consequence_language",
+              "breadcrumb": "arrest"
+            }
+          ]
         }
       }
     ]
@@ -846,14 +2354,51 @@
           "state": "ORGANIZATION_DISCOVERY",
           "state_transition": "OPENING -> ORGANIZATION_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "offer"
+            "pretext_category",
+            "rates",
+            "payment_methods",
+            "script_phrases"
           ],
           "goals_remaining": [
-            "organization",
-            "stable_identifier"
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. About an investment. Who are you with?"
+          "response_text": "Hi. About an investment. Who are you with?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "rates",
+              "breadcrumb": "guaranteed returns"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "crypto"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "guaranteed returns"
+            }
+          ]
         }
       },
       {
@@ -862,13 +2407,51 @@
           "state": "STALLING",
           "state_transition": "ORGANIZATION_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "domains",
+            "urls",
+            "rates",
+            "payment_methods",
+            "script_phrases"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "email_addresses",
+            "loan_amounts",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "Apex Yield Partners"
+            },
+            {
+              "kind": "domains",
+              "breadcrumb": "apex-yield.test"
+            },
+            {
+              "kind": "urls",
+              "breadcrumb": "www.apex-yield.test"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "crypto"
+            }
+          ]
         }
       },
       {
@@ -877,13 +2460,43 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "domains",
+            "urls",
+            "email_addresses",
+            "rates",
+            "payment_methods",
+            "script_phrases"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "loan_amounts",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": [
+            {
+              "kind": "claimed_agent",
+              "breadcrumb": "Elena"
+            },
+            {
+              "kind": "email_addresses",
+              "breadcrumb": "elena@apex-yield.test"
+            }
+          ]
         }
       }
     ]
@@ -900,14 +2513,43 @@
           "state": "OFFER_DISCOVERY",
           "state_transition": "OPENING -> OFFER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization"
+            "pretext_category",
+            "claimed_company"
           ],
           "goals_remaining": [
-            "offer",
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. National Loan Relief. What do you need me to do?"
+          "response_text": "Hi. National Loan Relief. What do you need me to do?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "debt"
+            },
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "National Loan Relief"
+            }
+          ]
         }
       },
       {
@@ -916,14 +2558,47 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "OFFER_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_company",
+            "fees",
+            "payment_methods",
+            "script_phrases"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "What's the case number and a number I can call you back on?"
+          "response_text": "What's the case number and a number I can call you back on?",
+          "elicited_hints": [
+            {
+              "kind": "fees",
+              "breadcrumb": "fee"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "gift_card"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "gift card"
+            }
+          ]
         }
       },
       {
@@ -932,13 +2607,43 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "fees",
+            "payment_methods",
+            "script_phrases"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "888-555-0122"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "NL-61500"
+            }
+          ]
         }
       },
       {
@@ -947,13 +2652,34 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "fees",
+            "payment_methods",
+            "script_phrases"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": []
         }
       }
     ]
@@ -970,14 +2696,55 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "OPENING -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_department",
+            "fees",
+            "payment_methods",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. What's the case number and a number I can call you back on?"
+          "response_text": "Hi. What's the case number and a number I can call you back on?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "claimed_department",
+              "breadcrumb": "United States Postal Service"
+            },
+            {
+              "kind": "fees",
+              "breadcrumb": "fee"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "United States Postal Service"
+            }
+          ]
         }
       },
       {
@@ -986,13 +2753,59 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_department",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "fees",
+            "payment_methods",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_company",
+            "claimed_agent",
+            "spoken_numbers",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "800-555-0144"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "PK-90931"
+            },
+            {
+              "kind": "domains",
+              "breadcrumb": "usps-hold.test"
+            },
+            {
+              "kind": "urls",
+              "breadcrumb": "www.usps-hold.test"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "other"
+            }
+          ]
         }
       },
       {
@@ -1001,13 +2814,34 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_department",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "fees",
+            "payment_methods",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_company",
+            "claimed_agent",
+            "spoken_numbers",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": []
         }
       }
     ]
@@ -1024,14 +2858,43 @@
           "state": "ORGANIZATION_DISCOVERY",
           "state_transition": "OPENING -> ORGANIZATION_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "offer"
+            "pretext_category",
+            "payment_methods"
           ],
           "goals_remaining": [
-            "organization",
-            "stable_identifier"
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. About a donation. Who are you with?"
+          "response_text": "Hi. About a donation. Who are you with?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "other"
+            }
+          ]
         }
       },
       {
@@ -1040,14 +2903,39 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "ORGANIZATION_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_company",
+            "payment_methods"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "What's the case number and a number I can call you back on?"
+          "response_text": "What's the case number and a number I can call you back on?",
+          "elicited_hints": [
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "Relief Hearts Foundation"
+            }
+          ]
         }
       },
       {
@@ -1056,13 +2944,47 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "payment_methods"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "RH-22210"
+            },
+            {
+              "kind": "domains",
+              "breadcrumb": "relief-hearts.test"
+            },
+            {
+              "kind": "urls",
+              "breadcrumb": "www.relief-hearts.test"
+            }
+          ]
         }
       },
       {
@@ -1071,13 +2993,39 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "payment_methods"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": [
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "415-555-0108"
+            }
+          ]
         }
       }
     ]
@@ -1094,14 +3042,51 @@
           "state": "OFFER_DISCOVERY",
           "state_transition": "OPENING -> OFFER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "offer",
-            "stable_identifier"
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. USCIS. What do you need me to do?"
+          "response_text": "Hi. USCIS. What do you need me to do?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "government"
+            },
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "USCIS"
+            },
+            {
+              "kind": "claimed_agent",
+              "breadcrumb": "Agent Morales"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "USCIS"
+            }
+          ]
         }
       },
       {
@@ -1110,14 +3095,51 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "OFFER_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "fees",
+            "payment_methods",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "What's the case number and a number I can call you back on?"
+          "response_text": "What's the case number and a number I can call you back on?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "government"
+            },
+            {
+              "kind": "fees",
+              "breadcrumb": "fee"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "threat_or_consequence_language",
+              "breadcrumb": "deportation"
+            }
+          ]
         }
       },
       {
@@ -1126,13 +3148,47 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "fees",
+            "payment_methods",
+            "script_phrases",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "202-555-0180"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "IM-70012"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "do not tell anyone"
+            }
+          ]
         }
       },
       {
@@ -1141,13 +3197,34 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "fees",
+            "payment_methods",
+            "script_phrases",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": []
         }
       }
     ]
@@ -1164,14 +3241,47 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "OPENING -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_company",
+            "payment_methods"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. What's the case number and a number I can call you back on?"
+          "response_text": "Hi. What's the case number and a number I can call you back on?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "Brightline Staffing"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "other"
+            }
+          ]
         }
       },
       {
@@ -1180,13 +3290,47 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "payment_methods"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "646-555-0177"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "JS-81440"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "wire"
+            }
+          ]
         }
       },
       {
@@ -1195,13 +3339,43 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "email_addresses",
+            "payment_methods"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "email_addresses",
+              "breadcrumb": "payroll@brightline-staffing.test"
+            }
+          ]
         }
       }
     ]
@@ -1219,12 +3393,32 @@
           "state_transition": "OPENING -> PURPOSE_DISCOVERY",
           "goals_completed": [],
           "goals_remaining": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. What's this call about?"
+          "response_text": "Hi. What's this call about?",
+          "elicited_hints": []
         }
       },
       {
@@ -1233,14 +3427,43 @@
           "state": "ORGANIZATION_DISCOVERY",
           "state_transition": "PURPOSE_DISCOVERY -> ORGANIZATION_DISCOVERY",
           "goals_completed": [
-            "purpose"
+            "pretext_category",
+            "threat_or_consequence_language"
           ],
           "goals_remaining": [
-            "organization",
-            "offer",
-            "stable_identifier"
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "About a car warranty. Who are you with?"
+          "response_text": "About a car warranty. Who are you with?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "warranty"
+            },
+            {
+              "kind": "threat_or_consequence_language",
+              "breadcrumb": "warrant"
+            }
+          ]
         }
       },
       {
@@ -1249,14 +3472,39 @@
           "state": "OFFER_DISCOVERY",
           "state_transition": "ORGANIZATION_DISCOVERY -> OFFER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization"
+            "pretext_category",
+            "claimed_company",
+            "threat_or_consequence_language"
           ],
           "goals_remaining": [
-            "offer",
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "National Auto Shield. What do you need me to do?"
+          "response_text": "National Auto Shield. What do you need me to do?",
+          "elicited_hints": [
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "National Auto Shield"
+            }
+          ]
         }
       },
       {
@@ -1265,14 +3513,47 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "OFFER_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_company",
+            "fees",
+            "payment_methods",
+            "urgency_language",
+            "threat_or_consequence_language"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "What's the case number and a number I can call you back on?"
+          "response_text": "What's the case number and a number I can call you back on?",
+          "elicited_hints": [
+            {
+              "kind": "fees",
+              "breadcrumb": "fee"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "urgency_language",
+              "breadcrumb": "today"
+            }
+          ]
         }
       },
       {
@@ -1281,13 +3562,43 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "fees",
+            "payment_methods",
+            "urgency_language",
+            "threat_or_consequence_language"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "480-555-0194"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "CW-15002"
+            }
+          ]
         }
       },
       {
@@ -1296,13 +3607,34 @@
           "state": "RECOVERY",
           "state_transition": "STALLING -> RECOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "fees",
+            "payment_methods",
+            "urgency_language",
+            "threat_or_consequence_language"
           ],
-          "goals_remaining": [],
-          "response_text": "I don't know what you mean by that. Who is this, and why are you calling?"
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "I don't know what you mean by that. Who is this, and why are you calling?",
+          "elicited_hints": []
         }
       },
       {
@@ -1311,13 +3643,43 @@
           "state": "TERMINATION",
           "state_transition": "RECOVERY -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "fees",
+            "payment_methods",
+            "urgency_language",
+            "threat_or_consequence_language"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "requested_information",
+            "remote_access_tools",
+            "script_phrases",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": [
+            {
+              "kind": "fees",
+              "breadcrumb": "fine"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "other"
+            }
+          ]
         }
       }
     ]
@@ -1334,14 +3696,39 @@
           "state": "ORGANIZATION_DISCOVERY",
           "state_transition": "OPENING -> ORGANIZATION_DISCOVERY",
           "goals_completed": [
-            "purpose"
+            "pretext_category"
           ],
           "goals_remaining": [
-            "organization",
-            "offer",
-            "stable_identifier"
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. About a prize. Who are you with?"
+          "response_text": "Hi. About a prize. Who are you with?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "prize"
+            }
+          ]
         }
       },
       {
@@ -1350,14 +3737,39 @@
           "state": "OFFER_DISCOVERY",
           "state_transition": "ORGANIZATION_DISCOVERY -> OFFER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization"
+            "pretext_category",
+            "claimed_department"
           ],
           "goals_remaining": [
-            "offer",
-            "stable_identifier"
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Awards Claim Department. What do you need me to do?"
+          "response_text": "Awards Claim Department. What do you need me to do?",
+          "elicited_hints": [
+            {
+              "kind": "claimed_department",
+              "breadcrumb": "Awards Claim Department"
+            }
+          ]
         }
       },
       {
@@ -1366,14 +3778,47 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "OFFER_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_department",
+            "payment_methods",
+            "script_phrases"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "What's the case number and a number I can call you back on?"
+          "response_text": "What's the case number and a number I can call you back on?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "prize"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "wire"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "wire transfer"
+            }
+          ]
         }
       },
       {
@@ -1382,13 +3827,51 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_department",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "payment_methods",
+            "script_phrases"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_company",
+            "claimed_agent",
+            "spoken_numbers",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "305-555-0112"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "PZ-33308"
+            },
+            {
+              "kind": "domains",
+              "breadcrumb": "awards-claim.test"
+            },
+            {
+              "kind": "urls",
+              "breadcrumb": "www.awards-claim.test"
+            }
+          ]
         }
       },
       {
@@ -1397,13 +3880,34 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_department",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "payment_methods",
+            "script_phrases"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_company",
+            "claimed_agent",
+            "spoken_numbers",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": []
         }
       }
     ]
@@ -1420,14 +3924,55 @@
           "state": "ORGANIZATION_DISCOVERY",
           "state_transition": "OPENING -> ORGANIZATION_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "payment_methods",
+            "script_phrases",
+            "threat_or_consequence_language",
+            "other_identifiers"
           ],
           "goals_remaining": [
-            "organization"
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises"
           ],
-          "response_text": "Hi. About a threat. Who are you with?"
+          "response_text": "Hi. About a threat. Who are you with?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "other"
+            },
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "crypto"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "embarrassing video"
+            },
+            {
+              "kind": "threat_or_consequence_language",
+              "breadcrumb": "embarrassing video"
+            },
+            {
+              "kind": "other_identifiers",
+              "breadcrumb": "bc1qfakecallerwallet000000"
+            }
+          ]
         }
       },
       {
@@ -1436,14 +3981,34 @@
           "state": "RECOVERY",
           "state_transition": "ORGANIZATION_DISCOVERY -> RECOVERY",
           "goals_completed": [
-            "purpose",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "payment_methods",
+            "script_phrases",
+            "threat_or_consequence_language",
+            "other_identifiers"
           ],
           "goals_remaining": [
-            "organization"
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises"
           ],
-          "response_text": "I don't know what you mean by that. Who is this, and why are you calling?"
+          "response_text": "I don't know what you mean by that. Who is this, and why are you calling?",
+          "elicited_hints": []
         }
       },
       {
@@ -1452,14 +4017,34 @@
           "state": "RECOVERY",
           "state_transition": "RECOVERY -> RECOVERY",
           "goals_completed": [
-            "purpose",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "payment_methods",
+            "script_phrases",
+            "threat_or_consequence_language",
+            "other_identifiers"
           ],
           "goals_remaining": [
-            "organization"
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises"
           ],
-          "response_text": "Let's stay on the call itself. Who do you work for?"
+          "response_text": "Let's stay on the call itself. Who do you work for?",
+          "elicited_hints": []
         }
       },
       {
@@ -1468,13 +4053,43 @@
           "state": "TERMINATION",
           "state_transition": "RECOVERY -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "case_or_reference_ids",
+            "payment_methods",
+            "script_phrases",
+            "threat_or_consequence_language",
+            "other_identifiers"
           ],
-          "goals_remaining": [],
-          "response_text": "Alright. Goodbye."
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises"
+          ],
+          "response_text": "Alright. Goodbye.",
+          "elicited_hints": [
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "Northline Collections"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "BLK-1900"
+            }
+          ]
         }
       }
     ]
@@ -1492,12 +4107,32 @@
           "state_transition": "OPENING -> OPENING",
           "goals_completed": [],
           "goals_remaining": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hello?"
+          "response_text": "Hello?",
+          "elicited_hints": []
         }
       },
       {
@@ -1507,12 +4142,32 @@
           "state_transition": "OPENING -> PURPOSE_DISCOVERY",
           "goals_completed": [],
           "goals_remaining": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "Hi. What's this call about?"
+          "response_text": "Hi. What's this call about?",
+          "elicited_hints": []
         }
       },
       {
@@ -1521,14 +4176,39 @@
           "state": "ORGANIZATION_DISCOVERY",
           "state_transition": "PURPOSE_DISCOVERY -> ORGANIZATION_DISCOVERY",
           "goals_completed": [
-            "purpose"
+            "pretext_category"
           ],
           "goals_remaining": [
-            "organization",
-            "offer",
-            "stable_identifier"
+            "claimed_company",
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "spoofed_authority_claims",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "About a tax problem. Who are you with?"
+          "response_text": "About a tax problem. Who are you with?",
+          "elicited_hints": [
+            {
+              "kind": "pretext_category",
+              "breadcrumb": "tax"
+            }
+          ]
         }
       },
       {
@@ -1537,14 +4217,43 @@
           "state": "OFFER_DISCOVERY",
           "state_transition": "ORGANIZATION_DISCOVERY -> OFFER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization"
+            "pretext_category",
+            "claimed_company",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "offer",
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "payment_methods",
+            "remote_access_tools",
+            "script_phrases",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "IRS. What do you need me to do?"
+          "response_text": "IRS. What do you need me to do?",
+          "elicited_hints": [
+            {
+              "kind": "claimed_company",
+              "breadcrumb": "IRS"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "IRS"
+            }
+          ]
         }
       },
       {
@@ -1553,14 +4262,43 @@
           "state": "IDENTIFIER_DISCOVERY",
           "state_transition": "OFFER_DISCOVERY -> IDENTIFIER_DISCOVERY",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer"
+            "pretext_category",
+            "claimed_company",
+            "payment_methods",
+            "script_phrases",
+            "spoofed_authority_claims"
           ],
           "goals_remaining": [
-            "stable_identifier"
+            "claimed_agent",
+            "claimed_department",
+            "callback_numbers",
+            "spoken_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
           ],
-          "response_text": "What's the case number and a number I can call you back on?"
+          "response_text": "What's the case number and a number I can call you back on?",
+          "elicited_hints": [
+            {
+              "kind": "payment_methods",
+              "breadcrumb": "gift_card"
+            },
+            {
+              "kind": "script_phrases",
+              "breadcrumb": "gift card"
+            }
+          ]
         }
       },
       {
@@ -1569,13 +4307,43 @@
           "state": "STALLING",
           "state_transition": "IDENTIFIER_DISCOVERY -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "payment_methods",
+            "script_phrases",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?"
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Give me a second, I need a pen. Can you repeat that number slowly?",
+          "elicited_hints": [
+            {
+              "kind": "callback_numbers",
+              "breadcrumb": "202-555-0100"
+            },
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "IRS-10001"
+            }
+          ]
         }
       },
       {
@@ -1584,13 +4352,39 @@
           "state": "STALLING",
           "state_transition": "STALLING -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "payment_methods",
+            "script_phrases",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "I'm walking to the other room. What's the callback or website again?"
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "domains",
+            "urls",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "I'm walking to the other room. What's the callback or website again?",
+          "elicited_hints": [
+            {
+              "kind": "case_or_reference_ids",
+              "breadcrumb": "IRS-10001"
+            }
+          ]
         }
       },
       {
@@ -1599,13 +4393,43 @@
           "state": "STALLING",
           "state_transition": "STALLING -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "payment_methods",
+            "script_phrases",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "Sorry, someone was at the door. What name is on the account?"
+          "goals_remaining": [
+            "claimed_agent",
+            "claimed_department",
+            "spoken_numbers",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "Sorry, someone was at the door. What name is on the account?",
+          "elicited_hints": [
+            {
+              "kind": "domains",
+              "breadcrumb": "irs-pay.test"
+            },
+            {
+              "kind": "urls",
+              "breadcrumb": "www.irs-pay.test"
+            }
+          ]
         }
       },
       {
@@ -1614,13 +4438,43 @@
           "state": "STALLING",
           "state_transition": "STALLING -> STALLING",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "payment_methods",
+            "script_phrases",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "The line cut out for a second. Can you repeat the company name?"
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "The line cut out for a second. Can you repeat the company name?",
+          "elicited_hints": [
+            {
+              "kind": "claimed_agent",
+              "breadcrumb": "Officer Blake"
+            },
+            {
+              "kind": "spoofed_authority_claims",
+              "breadcrumb": "Officer Blake"
+            }
+          ]
         }
       },
       {
@@ -1629,13 +4483,34 @@
           "state": "TERMINATION",
           "state_transition": "STALLING -> TERMINATION",
           "goals_completed": [
-            "purpose",
-            "organization",
-            "offer",
-            "stable_identifier"
+            "pretext_category",
+            "claimed_company",
+            "claimed_agent",
+            "callback_numbers",
+            "case_or_reference_ids",
+            "domains",
+            "urls",
+            "payment_methods",
+            "script_phrases",
+            "spoofed_authority_claims"
           ],
-          "goals_remaining": [],
-          "response_text": "I've got what I need for now. Goodbye."
+          "goals_remaining": [
+            "claimed_department",
+            "spoken_numbers",
+            "email_addresses",
+            "loan_amounts",
+            "rates",
+            "fees",
+            "requested_information",
+            "remote_access_tools",
+            "urgency_language",
+            "threat_or_consequence_language",
+            "transfer_events",
+            "follow_up_promises",
+            "other_identifiers"
+          ],
+          "response_text": "I've got what I need for now. Goodbye.",
+          "elicited_hints": []
         }
       }
     ]

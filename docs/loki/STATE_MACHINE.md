@@ -14,7 +14,7 @@ The reference implementation is `switchboard.loki.policy.LokiPolicy`. The model-
 | `OFFER_DISCOVERY` | Ask what they want done. |
 | `IDENTIFIER_DISCOVERY` | Ask for a case number and a callback. |
 | `CLARIFICATION` | The last utterance had no usable evidence. Ask for the missing piece once. |
-| `STALLING` | All four goals are complete. Buy time and ask them to repeat a stable detail. |
+| `STALLING` | The four dialogue gates are open. Buy time and ask them to repeat a stable detail. |
 | `RECOVERY` | The caller is probing or demanding hidden instructions. Refuse and redirect. |
 | `TERMINATION` | Say goodbye. Do not ask another question. |
 
@@ -22,16 +22,25 @@ A session starts in `OPENING` before any assistant turn.
 
 ## Goals
 
-Completed goals are explicit state, not a hidden score.
+Goal ids are Sherlock Observation kind names, in Sherlock's order:
 
-1. `purpose` — why they say they called.
-2. `organization` — who they claim to represent.
-3. `offer` — the payment, access, or disclosure they want.
-4. `stable_identifier` — one hard identifier (phone, case-style id, URL, email, or wallet).
+`pretext_category`, `claimed_company`, `claimed_agent`, `claimed_department`, `callback_numbers`, `spoken_numbers`, `case_or_reference_ids`, `domains`, `urls`, `email_addresses`, `loan_amounts`, `rates`, `fees`, `requested_information`, `payment_methods`, `remote_access_tools`, `script_phrases`, `urgency_language`, `threat_or_consequence_language`, `spoofed_authority_claims`, `transfer_events`, `follow_up_promises`, `other_identifiers`.
 
-A personal name is recorded for Sherlock and does not complete `stable_identifier`.
+`goals_completed` and `goals_remaining` use those strings and no others. Together they list each kind once.
 
-Discovery states are skipped when that goal is already evidenced in the caller's words. The transition string shows the real hop, including `OPENING -> STALLING` when the first sentence contains everything.
+Hint breadcrumbs for two kinds use closed enums:
+
+- `pretext_category`: `tax`, `bank`, `warranty`, `debt`, `prize`, `tech_support`, `government`, `utility`, `other`
+- `payment_methods`: `gift_card`, `wire`, `crypto`, `remote_access`, `bank_verify`, `other`
+
+A personal name completes `claimed_agent` only. The call moves to stalling when four gates are open:
+
+- `pretext_category`
+- one of `claimed_company`, `claimed_department`, `spoofed_authority_claims`
+- one of `payment_methods`, `requested_information`, `remote_access_tools`, `fees`
+- one of `callback_numbers`, `spoken_numbers`, `case_or_reference_ids`, `domains`, `urls`, `email_addresses`, `other_identifiers`
+
+Other kinds stay in `goals_remaining` until the caller says something that fits them. Discovery states are skipped when that stage's gate is already open. The transition string shows the real hop, including `OPENING -> STALLING` when the first sentence opens every gate.
 
 ## Priority
 
@@ -41,11 +50,11 @@ For each new caller utterance, apply the first matching rule:
 2. Goodbye (`goodbye`, `bye`, `I have to go`, `have a nice day`) → `TERMINATION`.
 3. Empty audio while still in `OPENING` → stay in `OPENING` once, then `CLARIFICATION`.
 4. Adversarial probe (jailbreak, honeypot accusation, demand for the system prompt or owned phone numbers) → `RECOVERY`. After two recovery turns in a row, the next probe → `TERMINATION`. Evidence from a probe is still stored.
-5. All four goals complete → `STALLING`. After four stalling turns, the next non-goodbye line → `TERMINATION`.
+5. The four dialogue gates are open → `STALLING`. After four stalling turns, the next non-goodbye line → `TERMINATION`.
 6. No usable evidence (filler or a very short non-greeting) → `CLARIFICATION`. A second thin line in a row → `RECOVERY`.
-7. Otherwise the next missing goal's discovery state.
+7. Otherwise the next closed gate's discovery state.
 
-Goodbye wins over a probe in the same sentence. Probes win over stalling, so a jailbreak after the goals are full still gets a refusal instead of another stall line. Thin replies do not interrupt stalling once every goal is complete; the stall budget is what ends that call.
+Goodbye wins over a probe in the same sentence. Probes win over stalling, so a jailbreak after the gates are open still gets a refusal instead of another stall line. Thin replies do not interrupt stalling once the gates are open; the stall budget is what ends that call.
 
 ## Spoken lines
 
@@ -60,12 +69,12 @@ Scenario `irs_slow_reveal`:
 | Caller | Transition | Goals completed |
 | --- | --- | --- |
 | Hello? | `OPENING -> PURPOSE_DISCOVERY` | none |
-| Calling about a tax problem | `PURPOSE_DISCOVERY -> ORGANIZATION_DISCOVERY` | purpose |
-| Internal Revenue Service | `ORGANIZATION_DISCOVERY -> OFFER_DISCOVERY` | purpose, organization |
+| Calling about a tax problem | `PURPOSE_DISCOVERY -> ORGANIZATION_DISCOVERY` | `pretext_category` |
+| Internal Revenue Service | `ORGANIZATION_DISCOVERY -> OFFER_DISCOVERY` | plus `claimed_company`, `spoofed_authority_claims` |
 | huh? | `OFFER_DISCOVERY -> CLARIFICATION` | unchanged |
-| Pay with a gift card | `CLARIFICATION -> IDENTIFIER_DISCOVERY` | purpose, organization, offer |
-| Case id, badge, callback | `IDENTIFIER_DISCOVERY -> STALLING` | all four |
-| Goodbye | `STALLING -> TERMINATION` | all four |
+| Pay with a gift card | `CLARIFICATION -> IDENTIFIER_DISCOVERY` | plus `payment_methods`, `script_phrases`, `urgency_language` |
+| Case id, badge, callback | `IDENTIFIER_DISCOVERY -> STALLING` | plus `case_or_reference_ids`, `spoken_numbers`, `callback_numbers` |
+| Goodbye | `STALLING -> TERMINATION` | unchanged |
 
 The other 19 calls, including probes, a double clarification, and a stall budget, are the committed trajectories in `switchboard/loki/data/scenarios.json`.
 

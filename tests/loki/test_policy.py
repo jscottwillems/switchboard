@@ -39,13 +39,16 @@ def test_two_thin_replies_move_from_clarification_to_recovery() -> None:
     assert recover.goals_completed == []
 
 
-def test_a_name_alone_does_not_finish_the_identifier_goal() -> None:
+def test_a_name_alone_does_not_finish_an_identifier_goal() -> None:
     policy, session = _policy()
     turn = policy.step(session, "My name is Kevin.")
     assert turn.state is ConversationState.PURPOSE_DISCOVERY
-    assert "stable_identifier" not in turn.goals_completed
-    assert session.slot_observations[0].agent_name == "Kevin"
-    assert session.slot_observations[0].identifiers == []
+    assert turn.goals_completed == ["claimed_agent"]
+    assert "callback_numbers" in turn.goals_remaining
+    assert "pretext_category" in turn.goals_remaining
+    assert session.elicited_hints[0].kind == "claimed_agent"
+    assert session.elicited_hints[0].breadcrumb == "Kevin"
+    assert "confidence" not in session.elicited_hints[0].model_dump()
 
 
 def test_goodbye_ends_even_when_the_same_line_is_a_probe() -> None:

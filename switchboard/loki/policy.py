@@ -9,10 +9,18 @@ from typing import assert_never
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from switchboard.loki.goals import all_goals_complete, ordered_goals, remaining_goals
+from switchboard.loki.goals import (
+    IDENTIFIER_GATE,
+    OFFER_GATE,
+    ORG_GATE,
+    dialogue_gates_open,
+    missing_stage,
+    ordered_goals,
+    remaining_goals,
+)
 from switchboard.loki.observe import CallerObservation, observe
 from switchboard.loki.safety import safe_slot_text
-from switchboard.loki.schema import TurnOutput
+from switchboard.loki.schema import ElicitedHint, TurnOutput
 from switchboard.loki.states import ConversationState
 
 MAX_CONSECUTIVE_RECOVERY = 2
@@ -26,27 +34,14 @@ _STALL_LINES = (
 )
 
 
-class IdentifierRecord(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    kind: str
-    value: str
-
-
-class SlotObservation(BaseModel):
-    """Candidate slots from one caller utterance. Sherlock reconciles these."""
+class RecordedHint(BaseModel):
+    """Breadcrumb tied to a raw turn. No confidence and no character offsets."""
 
     model_config = ConfigDict(extra="forbid")
 
     turn_index: int
-    purpose: str | None
-    organization: str | None
-    offer: str | None
-    agent_name: str | None
-    identifiers: list[IdentifierRecord]
-    script_markers: list[str]
-    adversarial: bool
-    pii_request: bool
+    kind: str
+    breadcrumb: str
 
 
 class RawCallerUtterance(BaseModel):
@@ -70,7 +65,7 @@ class ConversationSession(BaseModel):
     stall_turns: int = 0
     opening_empty_turns: int = 0
     raw_observations: list[RawCallerUtterance] = Field(default_factory=list)
-    slot_observations: list[SlotObservation] = Field(default_factory=list)
+    elicited_hints: list[RecordedHint] = Field(default_factory=list)
     turns: list[TurnOutput] = Field(default_factory=list)
 
 
@@ -89,6 +84,7 @@ class LokiPolicy:
         goals_after = _apply_goals(goals_before, observation)
         new_state = _select_state(session, observation, goals_after)
         response = _render(new_state, observation, session)
+        hints = _turn_hints(observation)
         turn = TurnOutput(
             response_text=response,
             state=new_state,
@@ -97,12 +93,13 @@ class LokiPolicy:
             goals_remaining=remaining_goals(goals_after),
             confidence=_confidence(observation, new_state, goals_before, goals_after),
             reason=_reason(observation, session.state, new_state, goals_before, goals_after),
+            elicited_hints=hints,
         )
         turn_index = len(session.turns)
         session.raw_observations.append(
             RawCallerUtterance(turn_index=turn_index, text=caller_text)
         )
-        session.slot_observations.append(_slot(turn_index, observation))
+        session.elicited_hints.extend(_recorded(turn_index, hints))
         session.turns.append(turn)
         session.goals_completed = ordered_goals(goals_after)
         session.state = new_state
@@ -118,26 +115,21 @@ class LokiPolicy:
             goals_remaining=remaining_goals(session.goals_completed),
             confidence=0.9,
             reason="The call is already over.",
+            elicited_hints=[],
         )
         turn_index = len(session.turns)
         session.raw_observations.append(
             RawCallerUtterance(turn_index=turn_index, text=caller_text)
         )
-        session.slot_observations.append(_slot(turn_index, observe(caller_text)))
         session.turns.append(turn)
         return turn
 
 
 def _apply_goals(completed: list[str], observation: CallerObservation) -> list[str]:
     done = list(completed)
-    if observation.purpose and "purpose" not in done:
-        done.append("purpose")
-    if observation.organization and "organization" not in done:
-        done.append("organization")
-    if observation.offer and "offer" not in done:
-        done.append("offer")
-    if observation.identifiers and "stable_identifier" not in done:
-        done.append("stable_identifier")
+    for kind, _breadcrumb in observation.hints:
+        if kind not in done:
+            done.append(kind)
     return done
 
 
@@ -156,7 +148,7 @@ def _select_state(
         if session.recovery_streak >= MAX_CONSECUTIVE_RECOVERY:
             return ConversationState.TERMINATION
         return ConversationState.RECOVERY
-    if all_goals_complete(goals_after):
+    if dialogue_gates_open(goals_after):
         if session.stall_turns >= MAX_STALL_TURNS:
             return ConversationState.TERMINATION
         return ConversationState.STALLING
@@ -168,13 +160,18 @@ def _select_state(
 
 
 def _next_discovery(goals_after: list[str]) -> ConversationState:
-    if "purpose" not in goals_after:
-        return ConversationState.PURPOSE_DISCOVERY
-    if "organization" not in goals_after:
-        return ConversationState.ORGANIZATION_DISCOVERY
-    if "offer" not in goals_after:
-        return ConversationState.OFFER_DISCOVERY
-    return ConversationState.IDENTIFIER_DISCOVERY
+    stage = missing_stage(goals_after)
+    match stage:
+        case "pretext":
+            return ConversationState.PURPOSE_DISCOVERY
+        case "organization":
+            return ConversationState.ORGANIZATION_DISCOVERY
+        case "offer":
+            return ConversationState.OFFER_DISCOVERY
+        case "identifier":
+            return ConversationState.IDENTIFIER_DISCOVERY
+        case _:
+            assert_never(stage)
 
 
 def _update_counters(session: ConversationSession, new_state: ConversationState) -> None:
@@ -244,7 +241,7 @@ def _line_for(
                 )
             return "What's the case number and a number I can call you back on?"
         case ConversationState.CLARIFICATION:
-            return _clarification(remaining_goals(session.goals_completed))
+            return _clarification(session.goals_completed)
         case ConversationState.STALLING:
             index = min(session.stall_turns, len(_STALL_LINES) - 1)
             return _STALL_LINES[index]
@@ -264,14 +261,19 @@ def _line_for(
             assert_never(state)
 
 
-def _clarification(still_open: list[str]) -> str:
-    if "purpose" in still_open:
-        return "Sorry, I didn't catch that. What's this call about?"
-    if "organization" in still_open:
-        return "Sorry, I didn't catch that. Who are you with?"
-    if "offer" in still_open:
-        return "Sorry, I missed that. What do you need me to do?"
-    return "Sorry, I missed that. What's the case number?"
+def _clarification(completed: list[str]) -> str:
+    stage = missing_stage(completed)
+    match stage:
+        case "pretext":
+            return "Sorry, I didn't catch that. What's this call about?"
+        case "organization":
+            return "Sorry, I didn't catch that. Who are you with?"
+        case "offer":
+            return "Sorry, I missed that. What do you need me to do?"
+        case "identifier":
+            return "Sorry, I missed that. What's the case number?"
+        case _:
+            assert_never(stage)
 
 
 def _confidence(
@@ -292,13 +294,14 @@ def _confidence(
         base = 0.5
     else:
         base = 0.55
-        if observation.purpose:
+        kinds = {kind for kind, _breadcrumb in observation.hints}
+        if "pretext_category" in kinds:
             base += 0.1
-        if observation.organization:
+        if kinds.intersection(ORG_GATE):
             base += 0.1
-        if observation.offer:
+        if kinds.intersection(OFFER_GATE):
             base += 0.08
-        if observation.identifiers:
+        if kinds.intersection(IDENTIFIER_GATE):
             base += 0.12
     if len(goals_after) > len(goals_before) and new_state not in {
         ConversationState.CLARIFICATION,
@@ -320,17 +323,9 @@ def _reason(
         parts.append("No caller speech yet.")
     if observation.greeting_only:
         parts.append("Caller greeted without a request.")
-    if observation.purpose:
-        parts.append(f"Purpose evidenced ({observation.purpose}).")
-    if observation.organization:
-        parts.append(f"Organization evidenced ({observation.organization}).")
-    if observation.offer:
-        parts.append(f"Offer evidenced ({observation.offer}).")
-    if observation.identifiers:
-        kinds = ", ".join(observation.hard_identifier_kinds)
-        parts.append(f"Hard identifier evidenced ({kinds}).")
-    if observation.agent_name:
-        parts.append("Caller gave a personal name; it is not a hard identifier.")
+    if observation.hints:
+        noted = ", ".join(kind for kind, _breadcrumb in observation.hints)
+        parts.append(f"Unverified breadcrumbs for {noted}.")
     if observation.adversarial:
         parts.append("Adversarial probe; response refuses disclosure.")
     if observation.pii_request:
@@ -340,7 +335,7 @@ def _reason(
     if observation.goodbye:
         parts.append("Caller closed the call.")
     if new_state is ConversationState.STALLING:
-        parts.append("Core goals are complete; stalling for more stable detail.")
+        parts.append("Dialogue gates are open; stalling for more kinds.")
     if new_state is ConversationState.TERMINATION and not observation.goodbye:
         parts.append("Ending because the stall or recovery budget is exhausted.")
     newly = [goal for goal in goals_after if goal not in goals_before]
@@ -350,17 +345,12 @@ def _reason(
     return " ".join(parts)
 
 
-def _slot(turn_index: int, observation: CallerObservation) -> SlotObservation:
-    return SlotObservation(
-        turn_index=turn_index,
-        purpose=observation.purpose,
-        organization=observation.organization,
-        offer=observation.offer,
-        agent_name=observation.agent_name,
-        identifiers=[
-            IdentifierRecord(kind=hit.kind, value=hit.value) for hit in observation.identifiers
-        ],
-        script_markers=list(observation.script_markers),
-        adversarial=observation.adversarial,
-        pii_request=observation.pii_request,
-    )
+def _turn_hints(observation: CallerObservation) -> list[ElicitedHint]:
+    return [ElicitedHint(kind=kind, breadcrumb=breadcrumb) for kind, breadcrumb in observation.hints]
+
+
+def _recorded(turn_index: int, hints: list[ElicitedHint]) -> list[RecordedHint]:
+    return [
+        RecordedHint(turn_index=turn_index, kind=hint.kind, breadcrumb=hint.breadcrumb)
+        for hint in hints
+    ]

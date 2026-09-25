@@ -17,11 +17,14 @@ Emitted after each policy step. Model: `switchboard.loki.handoff.TurnCompletedEv
     "state": "PURPOSE_DISCOVERY",
     "state_transition": "OPENING -> PURPOSE_DISCOVERY",
     "goals_completed": [],
-    "goals_remaining": ["purpose", "organization", "offer", "stable_identifier"],
+    "goals_remaining": ["pretext_category", "claimed_company"],
     "confidence": 0.55,
-    "reason": "Caller greeted without a request."
+    "reason": "Caller greeted without a request.",
+    "elicited_hints": []
   }
 }
 ```
 
-`raw_caller_utterance` is the observation. `turn` is the derived decision. Consumers that synthesize speech use `turn.response_text` only. Consumers that extract intelligence keep the raw string and may read `turn.goals_*` as LOKI's goal state, not as Sherlock's final record.
+`goals_remaining` in a real event lists every Sherlock kind not yet completed. The sample is abbreviated.
+
+`raw_caller_utterance` is the verbatim caller text. `turn` is the strategy decision. `turn.confidence` is strategy-decision confidence, not extraction confidence. `turn.elicited_hints` are unverified breadcrumbs, not Observations. Consumers that synthesize speech use `turn.response_text` only. Sherlock grounds the raw string itself.

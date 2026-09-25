@@ -18,11 +18,12 @@ def test_sherlock_handoff_does_not_mix_raw_text_with_derived_slots() -> None:
     assert handoff.contract == "loki.sherlock.handoff.v1"
     assert handoff.raw_observations[0].text == caller
     assert set(handoff.raw_observations[0].model_dump()) == {"turn_index", "speaker", "text"}
-    slot = handoff.slot_observations[0]
-    assert slot.purpose == "tax issue"
-    assert slot.organization is None
-    assert "purpose" in handoff.goals_completed
-    assert handoff.goals_remaining[0] == "organization"
+    hint = handoff.elicited_hints[0]
+    assert hint.kind == "pretext_category"
+    assert hint.breadcrumb == "tax"
+    assert set(hint.model_dump()) == {"turn_index", "kind", "breadcrumb"}
+    assert "pretext_category" in handoff.goals_completed
+    assert handoff.goals_remaining[0] == "claimed_company"
 
     event = build_turn_event(session, 0, caller, turn)
     assert event.event == "loki.turn.completed"

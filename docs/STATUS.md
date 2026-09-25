@@ -74,3 +74,57 @@ Recommended next work:
 - Watson: cluster on the hard identifiers and `script_markers` the policy is trying to elicit.
 - Sentinel: red-team the system prompt with a real model. The offline policy already refuses disclosure, and that is not a substitute for a model jailbreak run.
 - Orchestrator: feed caller transcripts into `LokiPolicy.step` and publish `loki.turn.completed`.
+
+## HANDOFF — LOKI — 2026-09-25T20:47:41Z
+
+Completed:
+- Goal ids in `goals_completed` and `goals_remaining` are synced to SHERLOCK's Observation kinds.
+- Dialogue gates still decide when the call moves from purpose, organization, offer, and identifier questions into stalling. Kinds that never appear stay remaining.
+- `elicited_hints` are optional unverified breadcrumbs. They are not Observations and they have no extraction confidence.
+- Turn `confidence` remains strategy-decision confidence only.
+- System prompt, schema, 20 trajectories, eval harness, and contract docs use the same kind strings.
+
+Files changed:
+- switchboard/loki/goals.py
+- switchboard/loki/observe.py
+- switchboard/loki/policy.py
+- switchboard/loki/schema.py
+- switchboard/loki/handoff.py
+- switchboard/loki/prompt.py
+- switchboard/loki/prompts/system_prompt.md
+- switchboard/loki/data/scenarios.json
+- switchboard/loki/eval/harness.py
+- tests/loki/test_observe.py
+- tests/loki/test_policy.py
+- tests/loki/test_schema.py
+- tests/loki/test_handoff.py
+- tests/loki/test_prompt_contract.py
+- docs/API_CONTRACTS.md
+- docs/ARCHITECTURE.md
+- docs/DATA_MODEL.md
+- docs/DECISIONS.md
+- docs/EVENTS.md
+- docs/STATUS.md
+- docs/loki/STATE_MACHINE.md
+
+Interfaces added/changed:
+- Goal ids, in order: `pretext_category`, `claimed_company`, `claimed_agent`, `claimed_department`, `callback_numbers`, `spoken_numbers`, `case_or_reference_ids`, `domains`, `urls`, `email_addresses`, `loan_amounts`, `rates`, `fees`, `requested_information`, `payment_methods`, `remote_access_tools`, `script_phrases`, `urgency_language`, `threat_or_consequence_language`, `spoofed_authority_claims`, `transfer_events`, `follow_up_promises`, `other_identifiers`.
+- Hint enums: `pretext_category` is `tax | bank | warranty | debt | prize | tech_support | government | utility | other`. `payment_methods` is `gift_card | wire | crypto | remote_access | bank_verify | other`.
+- Turn JSON gains optional `elicited_hints` (`kind`, `breadcrumb` only).
+- `loki.sherlock.handoff.v1` now carries `elicited_hints` instead of slot observations.
+- ADR-006 records the alignment.
+
+Tests:
+- `pytest`: 29 passed.
+- `python -m switchboard.loki.eval`: prompt contract PASS, 20/20 scenarios passed, all nine states covered.
+
+Dependencies:
+- Unchanged. pydantic >= 2, pytest >= 8, Python >= 3.11.
+
+Blocking issues:
+- Sherlock still owns typed Observation, Inference, Attribution, transcript grounding, and extraction confidence. LOKI does not produce those.
+- No telephony path and no live model adapter.
+
+Recommended next work:
+- Sherlock: ground raw caller text into Observations using these kind names, and ignore LOKI hints as evidence of confidence.
+- Echo: keep speaking `response_text` only.

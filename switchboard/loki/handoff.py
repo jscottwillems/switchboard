@@ -9,7 +9,7 @@ from switchboard.loki.policy import (
     ConversationSession,
     LokiPolicy,
     RawCallerUtterance,
-    SlotObservation,
+    RecordedHint,
 )
 from switchboard.loki.schema import TurnOutput
 
@@ -17,9 +17,10 @@ from switchboard.loki.schema import TurnOutput
 class SherlockHandoff(BaseModel):
     """Provisional LOKI → Sherlock payload.
 
-    Sherlock does not have a schema in this repo yet. Slot fields are
-    candidate observations. Sherlock owns canonical extraction, entity
-    resolution, and the confidence of stored intelligence.
+    Goal ids are Sherlock Observation kind names. `elicited_hints` are
+    unverified breadcrumbs only. Sherlock owns typed Observation,
+    Inference, Attribution, transcript grounding, and extraction confidence.
+    LOKI turn confidence is strategy-decision confidence and is not copied here.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -29,10 +30,10 @@ class SherlockHandoff(BaseModel):
     goals_completed: list[str]
     goals_remaining: list[str]
     raw_observations: list[RawCallerUtterance]
-    slot_observations: list[SlotObservation]
+    elicited_hints: list[RecordedHint]
     note: str = (
         "raw_observations are verbatim caller turns. "
-        "slot_observations are LOKI candidates, not Sherlock canonical intelligence."
+        "elicited_hints are unverified breadcrumbs, not Observations."
     )
 
 
@@ -77,7 +78,7 @@ def build_sherlock_handoff(session: ConversationSession) -> SherlockHandoff:
         goals_completed=list(session.goals_completed),
         goals_remaining=remaining_goals(session.goals_completed),
         raw_observations=list(session.raw_observations),
-        slot_observations=list(session.slot_observations),
+        elicited_hints=list(session.elicited_hints),
     )
 
 

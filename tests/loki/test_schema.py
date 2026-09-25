@@ -3,7 +3,8 @@
 import pytest
 from pydantic import ValidationError
 
-from switchboard.loki.schema import TurnOutput
+from switchboard.loki.goals import GOAL_ORDER
+from switchboard.loki.schema import ElicitedHint, TurnOutput
 from switchboard.loki.states import ConversationState
 
 
@@ -13,9 +14,10 @@ def _turn(**overrides: object) -> dict[str, object]:
         "state": ConversationState.PURPOSE_DISCOVERY,
         "state_transition": "OPENING -> PURPOSE_DISCOVERY",
         "goals_completed": [],
-        "goals_remaining": ["purpose", "organization", "offer", "stable_identifier"],
+        "goals_remaining": list(GOAL_ORDER),
         "confidence": 0.55,
         "reason": "Caller greeted without a request.",
+        "elicited_hints": [],
     }
     payload.update(overrides)
     return payload
@@ -31,6 +33,7 @@ def test_round_trip_keeps_field_order() -> None:
         "goals_remaining",
         "confidence",
         "reason",
+        "elicited_hints",
     ]
 
 
@@ -43,9 +46,16 @@ def test_goals_must_follow_canonical_order() -> None:
     with pytest.raises(ValidationError):
         TurnOutput.model_validate(
             _turn(
-                goals_completed=["offer", "purpose"],
-                goals_remaining=["organization", "stable_identifier"],
+                goals_completed=["claimed_company", "pretext_category"],
+                goals_remaining=[goal for goal in GOAL_ORDER if goal not in {"claimed_company", "pretext_category"}],
             )
+        )
+
+
+def test_hint_rejects_an_extraction_confidence() -> None:
+    with pytest.raises(ValidationError):
+        ElicitedHint.model_validate(
+            {"kind": "pretext_category", "breadcrumb": "tax", "confidence": 0.99}
         )
 
 
