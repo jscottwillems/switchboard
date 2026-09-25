@@ -113,13 +113,17 @@ function reload(): void {
               <tr v-for="related in campaign.related_calls" :key="related.session.id">
                 <td>
                   <router-link :to="`/dashboard/calls/${related.session.id}`">{{ formatTimestamp(related.session.started_at) }}</router-link>
-                  <div class="mono muted">{{ related.session.external_call_id }}</div>
+                  <div v-if="related.session.external_call_id" class="mono muted">{{ related.session.external_call_id }}</div>
                 </td>
                 <td class="mono">{{ formatDuration(related.gaps.duration_ms) }}</td>
                 <td class="mono">{{ formatDuration(related.gaps.engagement_duration_ms) }}</td>
                 <td><StatusPill :status="related.session.state" /></td>
                 <td>
-                  <StateTag :state="related.gaps.conversation_state" :layer="related.gaps.conversation_state_record_layer" />
+                  <StateTag
+                    v-if="related.gaps.conversation_state"
+                    :state="related.gaps.conversation_state"
+                    :layer="related.gaps.conversation_state_record_layer ?? undefined"
+                  />
                 </td>
                 <td><ClassificationTag :classification="related.gaps.classification" /></td>
                 <td><IndicatorChips :items="related.key_findings" /></td>

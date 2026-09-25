@@ -11,10 +11,10 @@ export const useCallHistoryStore = defineStore('callHistory', () => {
 
   async function load(): Promise<void> {
     if (!loaded.value) loading.value = true
-    error.value = null
     try {
       calls.value = await opsData.fetchCallHistory()
       loaded.value = true
+      error.value = null
     } catch (caught) {
       error.value = caught instanceof Error ? caught.message : 'Failed to load call history'
     } finally {

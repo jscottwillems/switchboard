@@ -66,13 +66,15 @@ The API returns a `connect_stream` instruction and stores the session when `to_e
 
 ## Dashboard
 
-The operator UI is `apps/dashboard`. It is a Vue app on mock fixtures, aligned to the contracts in `packages/schemas`. It does not call the API yet.
+The operator UI is `apps/dashboard`. Live, call history, and call detail read `GET /v1/calls` and `GET /v1/calls/{id}`. Campaigns, system, and reports stay on mock fixtures. Set `VITE_OPS_DATA=mock` to keep every screen on fixtures when the API is down.
 
 ```sh
 cd apps/dashboard
 npm install
 npm run dev
 ```
+
+`npm run dev` proxies `/v1` to `http://127.0.0.1:8000` when `VITE_API_BASE_URL` is unset. Set `VITE_API_BASE_URL=http://localhost:8000` to call the API directly. The production build defaults that base to `http://localhost:8000`. The live board polls every 5 seconds (`VITE_LIVE_POLL_MS`).
 
 Open `http://localhost:5173`. Routes: `/dashboard/live`, `/dashboard/calls`, `/dashboard/calls/:id`, `/dashboard/campaigns`, `/dashboard/campaigns/:id`, `/dashboard/system`, `/dashboard/reports`, `/dashboard/reports/:reportId`.
 

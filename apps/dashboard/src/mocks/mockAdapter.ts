@@ -30,11 +30,17 @@ function shiftNullable(value: string | null, deltaMs: number): string | null {
   return shiftIso(value, deltaMs)
 }
 
+function requirePipeline(pipeline: CallDetail['gaps']['pipeline']): NonNullable<CallDetail['gaps']['pipeline']> {
+  if (!pipeline) throw new Error('live fixture is missing pipeline')
+  return pipeline
+}
+
 function materializeLive(fixture: LiveFixture, nowMs: number): CallDetail {
   const targetStart = nowMs + fixture.started_offset_sec * 1000
   const delta = targetStart - Date.parse(fixture.call.session.started_at)
   const durationMs = Math.max(0, nowMs - targetStart)
   const call = fixture.call
+  const pipeline = requirePipeline(call.gaps.pipeline)
   return {
     session: {
       ...call.session,
@@ -75,7 +81,7 @@ function materializeLive(fixture: LiveFixture, nowMs: number): CallDetail {
       duration_ms: durationMs,
       engagement_duration_ms: Math.max(0, durationMs - fixture.engagement_delay_ms),
       pipeline: {
-        ...call.gaps.pipeline,
+        ...pipeline,
         sampled_at: new Date(nowMs).toISOString(),
       },
       timeline: call.gaps.timeline.map((entry) => ({ ...entry, at: shiftIso(entry.at, delta) })),

@@ -2,7 +2,7 @@
 
 Contract version **0.1.0**. Updated by ATLAS on 2026-09-25.
 
-The authoritative docs exist, the repository layout exists, and the shared schemas exist. The first-milestone phone call is not implemented. ECHO has landed media parsing, token checks, mock STT finals, deterministic mock TTS, hot-path timing, and speak-back on the socket (SB-004, SB-005, SB-006, SB-008, SB-020). Call list and detail read stored rows (SB-018). Status callbacks update session state and publish telephony events (SB-003). The extractor consumes `speech.segment.final` into a finding and `intelligence.finding.proposed` (SB-010). Campaign reads still advertise the contracts and stop there.
+The authoritative docs exist, the repository layout exists, and the shared schemas exist. The first-milestone phone call is not implemented. ECHO has landed media parsing, token checks, mock STT finals, deterministic mock TTS, hot-path timing, and speak-back on the socket (SB-004, SB-005, SB-006, SB-008, SB-020). Call list and detail read stored rows (SB-018). Status callbacks update session state and publish telephony events (SB-003). The extractor consumes `speech.segment.final` into a finding and `intelligence.finding.proposed` (SB-010). The ops dashboard polls those call routes unless `VITE_OPS_DATA=mock` (SB-013). Campaign reads still advertise the contracts and stop there.
 
 ## What runs today
 
@@ -16,9 +16,9 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | TTS and audio to caller | The socket sends `MockTts` audio as `media`. Inbound speech during outbound sends `clear` |
 | Transcript stored | No projector |
 | Intelligence extracted | `intelligence.extractor` writes `interp.intelligence_finding` and publishes `intelligence.finding.proposed` for an E.164 in `speech.segment.final`. `POST /v1/internal/extract` still proposes the same finding without the bus |
-| Call on the dashboard | `GET /v1/calls` and `GET /v1/calls/{id}` return stored rows. The Vue app still uses mock fixtures until SB-013 |
+| Call on the dashboard | The Vue app polls `GET /v1/calls` and loads `GET /v1/calls/{id}` unless `VITE_OPS_DATA=mock` |
 
-`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. Campaign routes still return an empty list and `404`. The media gateway publishes `speech.segment.final`, `conversation.response.selected`, and `conversation.turn.recorded` for the mock STT fixture and does not open Postgres. The intelligence extractor consumes `speech.segment.final`, writes `interp.intelligence_finding`, and publishes `intelligence.finding.proposed`. The dashboard does not open either client.
+`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. Campaign routes still return an empty list and `404`. The media gateway publishes `speech.segment.final`, `conversation.response.selected`, and `conversation.turn.recorded` for the mock STT fixture and does not open Postgres. The intelligence extractor consumes `speech.segment.final`, writes `interp.intelligence_finding`, and publishes `intelligence.finding.proposed`. The dashboard polls the read API and does not open Postgres or Redis. `VITE_OPS_DATA=mock` keeps the fixture adapter.
 
 ## Ownership map
 
@@ -776,3 +776,53 @@ SB-010. `speech.segment.final` is consumed by `intelligence.extractor`. A litera
 
 - ATLAS: project `conversation.turn.recorded` into `interp.conversation_turn` and `speech.segment.final` into `obs.transcript_segment`.
 - WATSON SB-012 can consume `intelligence.finding.proposed`. The fixture transcript has no E.164, so SB-008 does not by itself open a finding.
+
+## HANDOFF — RADAR — 2026-09-25T23:56:16Z
+
+SB-013. The ops dashboard reads stored calls from the API. Campaigns, system, and reports stay on fixtures.
+
+### Completed
+
+- `VITE_OPS_DATA=mock` keeps `mockOpsDataPort`. Any other value, including unset, binds call list, live board, and call detail to the read API. Campaign, system, and report methods still delegate to the mock port. No campaign endpoint was added.
+- Live board polls `GET /v1/calls` (default every 5 seconds, `VITE_LIVE_POLL_MS`) and keeps rows whose `state` is `in_progress`. Each of those ids is loaded with `GET /v1/calls/{id}` so the rail can show transcript segments and `IntelligenceFinding` rows. `ringing` stays off the live board and remains on the history list.
+- History is the same list, newest `started_at` first, following `next_cursor` at `limit=200` for at most 20 pages. `CallSessionSummary` does not include `external_call_id`, so the history row leaves the carrier id blank.
+- Detail maps `CallDetailResponse` onto the existing screen: media streams and transcript stay observations, turns and findings stay interpretations, attributions stay attribution. `events` is empty. `404` with `call_not_found` is the empty state. A refused connection surfaces as `calls_unreachable`. An empty list renders "No calls yet" and "No in-progress calls".
+- Gap columns are not written onto the wire. Duration is derived from `started_at` and `ended_at`. Engagement is derived only when `answered_at` is present, so every list row shows an em dash. `classification` is `unknown`. Dialogue beats and the latency strip stay hidden. `campaign_id` on detail is the first attribution's id. `campaign_label` stays null.
+- `npm run dev` with `VITE_API_BASE_URL` unset proxies `/v1` to `http://127.0.0.1:8000`. A set base, and the production default `http://localhost:8000`, is called directly.
+
+### Files changed
+
+- `apps/dashboard/src/data/` (`apiConfig.ts`, `readApi.ts`, `mapCall.ts`, `httpPort.ts`, `client.ts`, `port.ts`)
+- `apps/dashboard/src/stores/live.ts`, `callHistory.ts`
+- `apps/dashboard/src/views/LiveView.vue`, `CallsView.vue`, `CallDetailView.vue`, `CampaignDetailView.vue`
+- `apps/dashboard/src/components/AppShell.vue`, `MediaStreamTable.vue`, `TurnList.vue`
+- `apps/dashboard/src/types/models.ts`, `apps/dashboard/src/lib/format.ts`, `apps/dashboard/src/mocks/mockAdapter.ts`
+- `apps/dashboard/vite.config.ts`, `env.d.ts`, `.env.example`, `package.json`, `scripts/check-read-map.mts`
+- `docs/FRONTEND_DATA_REQUIREMENTS.md`, `docs/API_CONTRACTS.md` (dashboard paragraph), `docs/STATUS.md`, `README.md`, `.env.example`
+
+### Interfaces added-changed
+
+- No `packages/schemas` fields. The dashboard imports `CallListResponse`, `CallDetailResponse`, `CallSession`, `IntelligenceFinding`, and `CampaignAttribution` from `@switchboard/schemas`.
+- `OpsDataPort` method names are unchanged. `fetchLiveCalls`, `fetchCallHistory`, and `fetchCallDetail` now speak HTTP unless `VITE_OPS_DATA=mock`.
+- `CallGaps.conversation_state`, `conversation_state_record_layer`, and `pipeline` may be null. `engagement_duration_ms` may be null. Mock fixtures still populate them.
+
+### Tests
+
+- `apps/dashboard`: `npm run check:fixtures`, `npm run typecheck`, `npm run build`, `npm run check:read-map`.
+- Browser, API mode, against a local stub of `GET /v1/calls` and `GET /v1/calls/{id}`: live board shows only the `in_progress` caller; history is newest-first across cursor pages and omits carrier ids; detail keeps transcript text out of the findings block and shows the attribution rationale and campaign id; unknown UUID renders `call_not_found`; a non-UUID renders `invalid_request`; campaigns still show the fixture "IRS Warrant Wave"; a dropped socket renders `calls_unreachable`; an empty list renders the empty states.
+- Browser, `VITE_OPS_DATA=mock`, with that stub refusing connections: the pill says "Mock data", the fixture caller `+12025550142` is on the live board, and call detail still shows transcript and findings.
+
+### Dependencies
+
+- Dashboard runtime is unchanged: `vue`, `vue-router`, `pinia`. No new npm dependency.
+- The read API is the SB-018 routes on `http://127.0.0.1:8000` in dev, or `VITE_API_BASE_URL`. Operator authentication is still open. Do not treat the dashboard as access control.
+
+### Blocking issues
+
+- None for SB-013. List rows still cannot show carrier id, findings, or campaign links. Those are on the detail route only. `GET /v1/campaigns` is still an empty stub, so a real `campaign_id` link opens the mock campaign page and can miss. Dialogue beats, classification, latency, events, and the report catalog remain gaps.
+
+### Recommended next work
+
+- ATLAS: campaign list and detail reads before the dashboard can label an attribution with anything but the campaign id.
+- A list field for `external_call_id`, or a history column that stops expecting it, if operators need the carrier id without opening the call.
+- SENTINEL: operator authentication before any shared deployment of port 8000 or the dashboard.

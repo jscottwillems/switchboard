@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useNow } from '@/composables/useNow'
+import { opsDataSource } from '@/data/client'
 import { formatClock } from '@/lib/format'
 import { useLiveStore } from '@/stores/live'
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 const now = useNow()
@@ -14,7 +15,11 @@ function sectionActive(prefix: string): boolean {
 }
 
 onMounted(() => {
-  void live.load()
+  live.startPolling()
+})
+
+onUnmounted(() => {
+  live.stopPolling()
 })
 </script>
 
@@ -46,7 +51,7 @@ onMounted(() => {
         <router-link to="/dashboard/system" :class="{ 'is-section': sectionActive('/dashboard/system') }">System</router-link>
       </nav>
       <div class="top-meta">
-        <span class="env-pill">Mock data</span>
+        <span class="env-pill">{{ opsDataSource === 'mock' ? 'Mock data' : 'Read API' }}</span>
         <time class="clock">{{ formatClock(now) }}</time>
       </div>
     </header>
