@@ -1,7 +1,6 @@
 """Composition root for repositories and the event bus.
 
-Routes keep their current handlers. SB-003 publishes through
-`telephony_events`. SB-018 reads through `open_read_models`.
+SB-003 publishes through `telephony_events`. Call reads use `open_read_models`.
 """
 
 from collections.abc import Iterator
