@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from uuid import uuid4
 
 import pytest
@@ -10,6 +11,8 @@ from switchboard_media.hotpath import respond_to_audio
 from switchboard_media.main import app as media_app
 from switchboard_media.main import get_stream_token_validator
 from switchboard_schemas.api import ValidateStreamTokenResponse
+from switchboard_schemas.enums import Speaker, TranscriptSource
+from switchboard_schemas.observations import TranscriptSegment
 
 media = TestClient(media_app)
 intelligence = TestClient(intelligence_app)
@@ -59,3 +62,45 @@ def test_extract_requires_token_and_returns_no_findings() -> None:
     )
     assert allowed.status_code == 200
     assert allowed.json() == {"findings": []}
+
+
+def test_extract_proposes_one_callback_finding_for_an_e164() -> None:
+    call_id = uuid4()
+    segment = TranscriptSegment(
+        id=uuid4(),
+        call_session_id=call_id,
+        media_stream_id=uuid4(),
+        sequence=0,
+        speaker=Speaker.CALLER,
+        source=TranscriptSource.STT,
+        text="Please call +15551234567.",
+        start_offset_ms=0,
+        end_offset_ms=900,
+        is_final=True,
+        provider="mock-stt",
+        created_at=datetime(2026, 9, 25, 21, 0, tzinfo=timezone.utc),
+    )
+    quiet = segment.model_copy(update={"id": uuid4(), "sequence": 1, "text": "No number in this segment."})
+    response = intelligence.post(
+        "/v1/internal/extract",
+        json={
+            "call_session_id": str(call_id),
+            "segments": [
+                segment.model_dump(mode="json"),
+                quiet.model_dump(mode="json"),
+            ],
+        },
+        headers={"X-Switchboard-Internal-Token": "test-internal-token"},
+    )
+    assert response.status_code == 200
+    findings = response.json()["findings"]
+    assert len(findings) == 1
+    finding = findings[0]
+    assert finding["record_layer"] == "interpretation"
+    assert finding["kind"] == "callback_number"
+    assert finding["status"] == "proposed"
+    assert finding["value"] == "+15551234567"
+    assert finding["raw_quote"] == "+15551234567"
+    assert finding["transcript_segment_ids"] == [str(segment.id)]
+    assert finding["call_session_id"] == str(call_id)
+    assert finding["confidence"] == 1.0
