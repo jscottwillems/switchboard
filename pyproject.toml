@@ -1,0 +1,26 @@
+[project]
+name = "switchboard"
+version = "0.1.0"
+description = "Project Switchboard — LOKI honeypot conversation policy and offline evaluation."
+requires-python = ">=3.11"
+dependencies = [
+  "pydantic>=2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8",
+]
+
+[project.scripts]
+loki-eval = "switchboard.loki.eval.__main__:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.setuptools.packages.find]
+include = ["switchboard*"]
+
+[tool.setuptools.package-data]
+"switchboard.loki" = ["prompts/*.md", "data/*.json"]
