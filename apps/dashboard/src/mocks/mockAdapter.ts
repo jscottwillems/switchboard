@@ -1,4 +1,7 @@
 import type { OpsDataPort } from '@/data/port'
+import { primaryFilename } from '@/lib/reports'
+import { reportCatalog } from '@/mocks/reportFixtures'
+import type { OpenReportRequest, OpenReportResult, ReportIndexEntry } from '@/types/reports'
 import type {
   CallDetail,
   CallSummary,
@@ -219,5 +222,42 @@ export const mockOpsDataPort: OpsDataPort = {
   async fetchSystemHealth(): Promise<SystemHealth> {
     await delay()
     return systemHealthFixture
+  },
+
+  async fetchReportIndex(): Promise<ReportIndexEntry[]> {
+    await delay()
+    return reportCatalog.index
+      .slice()
+      .sort((left, right) => left.report_id.localeCompare(right.report_id))
+  },
+
+  async openReport(request: OpenReportRequest): Promise<OpenReportResult> {
+    await delay()
+    const entry = reportCatalog.index.find((item) => item.report_id === request.report_id)
+    if (!entry) return { status: 'not_found', reportId: request.report_id }
+    if (!entry.available_formats.includes(request.format)) {
+      return { status: 'format_unavailable', reportId: request.report_id, format: request.format }
+    }
+    const render = reportCatalog.renders.find(
+      (item) => item.report_id === request.report_id && item.format === request.format,
+    )
+    if (!render) throw new Error(`Missing mock render for ${request.report_id} ${request.format}`)
+    const primary = primaryFilename(request.report_id, request.format)
+    if (!render.parts.some((item) => item.filename === primary)) {
+      throw new Error(`Mock render ${request.report_id} ${request.format} is missing ${primary}`)
+    }
+    return {
+      status: 'opened',
+      report: {
+        report_id: entry.report_id,
+        package_id: entry.package_id,
+        package_ids: entry.package_ids,
+        kind: entry.kind,
+        format: request.format,
+        synthetic: entry.synthetic,
+        primary_filename: primary,
+        parts: render.parts,
+      },
+    }
   },
 }

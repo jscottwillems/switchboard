@@ -5,6 +5,8 @@ import CampaignDetailView from '@/views/CampaignDetailView.vue'
 import CampaignsView from '@/views/CampaignsView.vue'
 import LiveView from '@/views/LiveView.vue'
 import NotFoundView from '@/views/NotFoundView.vue'
+import ReportDetailView from '@/views/ReportDetailView.vue'
+import ReportsView from '@/views/ReportsView.vue'
 import SystemView from '@/views/SystemView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -22,6 +24,8 @@ export const router = createRouter({
         { path: 'dashboard/calls/:id', name: 'call-detail', component: CallDetailView },
         { path: 'dashboard/campaigns', name: 'campaigns', component: CampaignsView },
         { path: 'dashboard/campaigns/:id', name: 'campaign-detail', component: CampaignDetailView },
+        { path: 'dashboard/reports', name: 'reports', component: ReportsView },
+        { path: 'dashboard/reports/:reportId', name: 'report-detail', component: ReportDetailView },
         { path: 'dashboard/system', name: 'system', component: SystemView },
         { path: ':pathMatch(.*)*', name: 'not-found', component: NotFoundView },
       ],

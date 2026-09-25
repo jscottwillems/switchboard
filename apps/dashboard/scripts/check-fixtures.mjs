@@ -209,4 +209,78 @@ for (const provider of system.providers) {
   expectEnum(provider.status, new Set(['ok', 'degraded', 'down']), provider.id)
 }
 
-console.log(`fixtures ok: ${history.length} history, ${live.length} live, ${campaigns.length} campaigns`)
+const catalog = load('report-catalog.json')
+const reportFormats = new Set(['json', 'markdown', 'pdf_ready', 'csv', 'campaign_summary'])
+const reportKinds = new Set(['single_call', 'multi_call_campaign', 'technical_incident', 'machine_readable_json'])
+const factClasses = new Set([
+  'reported_caller_metadata',
+  'spoken_identifier',
+  'raw_observation',
+  'confirmed_observation',
+  'derived_interpretation',
+  'derived_association',
+])
+const requiredReports = [
+  'syn-pkg-call-001__single_call',
+  'syn-pkg-campaign-001__multi_call_campaign',
+  'syn-pkg-incident-001__technical_incident',
+  'syn-export-synthetic-001__machine_readable_json',
+]
+if (!catalog || !Array.isArray(catalog.index) || !Array.isArray(catalog.renders)) fail('report catalog shape')
+const reportIds = new Set(catalog.index.map((entry) => entry.report_id))
+for (const reportId of requiredReports) {
+  if (!reportIds.has(reportId)) fail(`missing report ${reportId}`)
+}
+function primaryName(reportId, format) {
+  if (format === 'json') return `${reportId}.json`
+  if (format === 'markdown') return `${reportId}.md`
+  if (format === 'pdf_ready') return `${reportId}.html`
+  if (format === 'csv') return 'calls.csv'
+  if (format === 'campaign_summary') return `${reportId}.campaign_summary.json`
+  fail(`unknown format ${format}`)
+}
+const seenFacts = new Set()
+for (const entry of catalog.index) {
+  expectEnum(entry.kind, reportKinds, entry.report_id)
+  if (!Array.isArray(entry.available_formats) || entry.available_formats.length === 0) fail(`${entry.report_id} formats`)
+  if (entry.kind === 'machine_readable_json') {
+    if (entry.available_formats.length !== 1 || entry.available_formats[0] !== 'json') {
+      fail(`${entry.report_id} must offer json only`)
+    }
+  } else {
+    for (const format of reportFormats) {
+      if (!entry.available_formats.includes(format)) fail(`${entry.report_id} missing ${format}`)
+    }
+  }
+  for (const format of entry.available_formats) {
+    expectEnum(format, reportFormats, entry.report_id)
+    const render = catalog.renders.find((item) => item.report_id === entry.report_id && item.format === format)
+    if (!render) fail(`missing render ${entry.report_id} ${format}`)
+    const names = render.parts.map((item) => item.filename)
+    if (new Set(names).size !== names.length) fail(`${entry.report_id} ${format} duplicate filename`)
+    const primary = primaryName(entry.report_id, format)
+    if (!names.includes(primary)) fail(`${entry.report_id} ${format} missing ${primary}`)
+    if (format !== 'csv' && render.parts.length !== 1) fail(`${entry.report_id} ${format} should have one part`)
+    for (const item of render.parts) {
+      if (!item.body || !item.content_type) fail(`${item.filename} empty part`)
+      if (!String(item.content_type).includes('json')) continue
+      const parsed = JSON.parse(item.body)
+      const stack = [parsed]
+      while (stack.length) {
+        const current = stack.pop()
+        if (!current || typeof current !== 'object') continue
+        if (Array.isArray(current)) {
+          stack.push(...current)
+          continue
+        }
+        if (typeof current.fact_class === 'string') seenFacts.add(current.fact_class)
+        stack.push(...Object.values(current))
+      }
+    }
+  }
+}
+for (const factClass of factClasses) {
+  if (!seenFacts.has(factClass)) fail(`report JSON never uses fact class ${factClass}`)
+}
+
+console.log(`fixtures ok: ${history.length} history, ${live.length} live, ${campaigns.length} campaigns, ${catalog.index.length} reports`)

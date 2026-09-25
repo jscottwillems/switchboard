@@ -42,6 +42,7 @@ onMounted(() => {
         <router-link to="/dashboard/campaigns" :class="{ 'is-section': sectionActive('/dashboard/campaigns') }">
           Campaigns
         </router-link>
+        <router-link to="/dashboard/reports" :class="{ 'is-section': sectionActive('/dashboard/reports') }">Reports</router-link>
         <router-link to="/dashboard/system" :class="{ 'is-section': sectionActive('/dashboard/system') }">System</router-link>
       </nav>
       <div class="top-meta">

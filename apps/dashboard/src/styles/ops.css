@@ -444,8 +444,39 @@ tbody tr:hover td { background: rgba(214, 242, 92, 0.04); }
 .banner { display: flex; justify-content: space-between; gap: 12px; align-items: center; color: var(--danger); border-color: #6d3a2c; }
 .attr-list li { display: flex; gap: 8px; }
 
+.json-tree, .json-fields, .json-list { margin: 0; }
+.json-fields { display: grid; grid-template-columns: minmax(120px, 180px) minmax(0, 1fr); gap: 4px 10px; }
+.json-fields dt { color: var(--faint); font-family: var(--mono); font-size: 11px; }
+.json-fields dd { margin: 0; min-width: 0; }
+.json-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.json-card {
+  border-left: 3px solid var(--line-strong);
+  background: var(--bg-sunken);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.json-card[data-prov="observed"] { border-left-color: var(--observed-line); }
+.json-card[data-prov="inferred"] { border-left-style: dashed; border-left-color: var(--inferred-line); }
+.json-card[data-prov="unverified"] { border-left-style: dotted; border-left-color: var(--unverified-line); }
+.json-primitive { white-space: pre-wrap; }
+.report-body {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.5;
+  background: var(--bg-sunken);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px;
+  overflow: auto;
+  max-height: 70vh;
+}
+
 @media (max-width: 960px) {
-  .live-layout, .split, .obs-grid, .timeline li, .transcript li { grid-template-columns: 1fr; }
+  .live-layout, .split, .obs-grid, .timeline li, .transcript li, .json-fields { grid-template-columns: 1fr; }
   .top-meta { margin-left: 0; }
   .topbar { flex-wrap: wrap; padding: 8px 12px; }
   th { top: 0; }

@@ -1,4 +1,5 @@
 import type { CallDetail, CallSummary, CampaignDetail, CampaignSummary, LiveCall, SystemHealth } from '@/types/models'
+import type { OpenReportRequest, OpenReportResult, ReportIndexEntry } from '@/types/reports'
 
 /**
  * The only data surface stores are allowed to use.
@@ -12,4 +13,8 @@ export interface OpsDataPort {
   fetchCampaigns(): Promise<CampaignSummary[]>
   fetchCampaignDetail(campaignId: string): Promise<CampaignDetail | null>
   fetchSystemHealth(): Promise<SystemHealth>
+  /** CLERK GET /clerk/reports. Mocked until a gateway exists. */
+  fetchReportIndex(): Promise<ReportIndexEntry[]>
+  /** CLERK POST /clerk/reports/open. Mocked until a gateway exists. */
+  openReport(request: OpenReportRequest): Promise<OpenReportResult>
 }

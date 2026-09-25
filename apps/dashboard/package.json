@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "generate:fixtures": "node scripts/generate-fixtures.mjs",
+    "generate:fixtures": "node scripts/generate-fixtures.mjs && node scripts/generate-report-fixtures.mjs",
     "check:fixtures": "node scripts/check-fixtures.mjs",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
     "build": "npm run check:fixtures && npm run typecheck && vite build",

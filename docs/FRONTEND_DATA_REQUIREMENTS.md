@@ -14,6 +14,8 @@ The UI loads data only through `OpsDataPort` in `apps/dashboard/src/data/port.ts
 | `fetchCampaigns()` | `/dashboard/campaigns` |
 | `fetchCampaignDetail(campaignId)` | `/dashboard/campaigns/:id`. Returns `null` when the id is unknown. |
 | `fetchSystemHealth()` | `/dashboard/system` |
+| `fetchReportIndex()` | `/dashboard/reports`. Mock of CLERK `GET /clerk/reports`. |
+| `openReport(request)` | `/dashboard/reports/:reportId`. Mock of CLERK `POST /clerk/reports/open`. |
 
 Identifiers are strings. Timestamps are ISO-8601 UTC. Durations and offsets are milliseconds. Scores and confidence are `0..1` or `null`.
 
@@ -344,6 +346,80 @@ Live detail sections store `offsetMs` without `at`. The adapter stamps `at` from
 - `IntelligenceItem.evidenceTurnIds` point at `TranscriptTurn.id` on that call
 
 Unknown call or campaign ids render an empty state. They should not be linked from fixtures.
+
+## CLERK reports
+
+These shapes are copied from CLERK `docs/schemas/report_index_entry.schema.json`, `open_report_request.schema.json`, and `open_report_response.schema.json` on `cursor/clerk-evidence-packages-cdef`. The dashboard mocks the JSON. It does not install the Python package and it does not add a server.
+
+Fixture report ids:
+
+- `syn-pkg-call-001__single_call`
+- `syn-pkg-campaign-001__multi_call_campaign`
+- `syn-pkg-incident-001__technical_incident`
+- `syn-export-synthetic-001__machine_readable_json`
+
+Human reports offer `json`, `markdown`, `pdf_ready`, `csv`, and `campaign_summary`. The machine-readable report offers `json` only. The format picker defaults to `markdown` when that format is available, otherwise the first available format.
+
+`openReport` returns a frontend result, not a third CLERK schema:
+
+| Status | When |
+| --- | --- |
+| `opened` | Body is `OpenReportResponse` |
+| `not_found` | Unknown `report_id` |
+| `format_unavailable` | Format is not in that report's `available_formats` |
+
+### ReportIndexEntry
+
+| Field | Type | UI |
+| --- | --- | --- |
+| `report_id` | string | Link and detail id |
+| `package_id` | string | Package column. Export id when `kind` is `machine_readable_json`. |
+| `package_ids` | string[] | Not drawn on the list. Present on the open response. |
+| `kind` | `single_call` \| `multi_call_campaign` \| `technical_incident` \| `machine_readable_json` | Kind column |
+| `title` | string | Link text |
+| `synthetic` | boolean | Synthetic pill when true |
+| `available_formats` | ReportFormat[] | Format column and the picker |
+
+`ReportFormat`: `json`, `markdown`, `pdf_ready`, `csv`, `campaign_summary`.
+
+### OpenReportRequest
+
+| Field | Type | UI |
+| --- | --- | --- |
+| `report_id` | string | Route param |
+| `format` | ReportFormat | Format picker and `?format=` |
+
+### OpenReportResponse
+
+| Field | Type | UI |
+| --- | --- | --- |
+| `report_id` | string | Header |
+| `package_id` | string | Header |
+| `package_ids` | string[] | Not drawn in this slice |
+| `kind` | ReportKind | Header |
+| `format` | ReportFormat | Matches the picker |
+| `synthetic` | boolean | Inherited from the index row |
+| `primary_filename` | string | File marked primary. CSV primary is `calls.csv`. |
+| `parts[].filename` | string | Part picker when there is more than one part |
+| `parts[].content_type` | string | Caption. `application/json` and `text/csv` / `text/markdown` / `text/html` as CLERK specifies |
+| `parts[].body` | string | Text body. JSON parts are parsed for the fact-class view |
+
+Only `csv` has more than one part. Other formats have one part.
+
+### Fact class badges
+
+When a JSON part is shown, each object with a `fact_class` string gets a provenance badge. The fact-class token and, when present, `epistemic` stay visible. This map is display-only:
+
+| CLERK `fact_class` | Badge |
+| --- | --- |
+| `confirmed_observation` | Observed |
+| `spoken_identifier` | Observed |
+| `reported_caller_metadata` | Unverified |
+| `raw_observation` | Unverified |
+| `derived_interpretation` | Inferred |
+| `derived_association` | Inferred |
+
+Markdown, CSV, and PDF-ready HTML are shown as text. They are not re-badged.
 
 ## What this slice does not need
 
