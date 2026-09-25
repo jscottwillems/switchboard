@@ -7,9 +7,10 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from switchboard_schemas.interpretations import IntelligenceFinding
+
 from watson.models import CompletedCall
-from watson.sherlock.mock import FixtureIntelligenceProvider
-from watson.sherlock.models import CallIntelligence, CorrelationInference, Observation
+from watson.sherlock.mock import FixtureFindingProvider
 
 
 class ScenarioTag(str, Enum):
@@ -34,8 +35,7 @@ class DatasetCallRecord(BaseModel):
     transcript: str
     ground_truth_campaign_id: str = Field(min_length=1)
     scenario_tags: list[ScenarioTag] = Field(min_length=1)
-    observations: list[Observation]
-    inference: CorrelationInference
+    findings: list[IntelligenceFinding]
 
     def to_call(self) -> CompletedCall:
         return CompletedCall(
@@ -52,7 +52,7 @@ class SyntheticDataset(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    version: int = 2
+    version: int = 3
     description: str
     calls: list[DatasetCallRecord] = Field(min_length=1)
 
@@ -86,16 +86,9 @@ class RunnableDataset:
     def calls(self) -> list[CompletedCall]:
         return [record.to_call() for record in self.records()]
 
-    def provider(self) -> FixtureIntelligenceProvider:
-        return FixtureIntelligenceProvider(
-            {
-                record.call_id: CallIntelligence(
-                    call_id=record.call_id,
-                    observations=record.observations,
-                    inference=record.inference,
-                )
-                for record in self.dataset.calls
-            }
+    def provider(self) -> FixtureFindingProvider:
+        return FixtureFindingProvider(
+            {record.call_id: record.findings for record in self.dataset.calls}
         )
 
     def ground_truth(self) -> dict[str, str]:

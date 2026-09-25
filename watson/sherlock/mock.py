@@ -1,19 +1,17 @@
-"""Fixture-backed provider used until Sherlock's package is on main."""
+"""Fixture-backed findings used by the synthetic dataset and tests."""
 
 from collections.abc import Mapping
 
+from switchboard_schemas.interpretations import IntelligenceFinding
+
 from watson.models import CompletedCall
-from watson.sherlock.models import CallIntelligence
 
 
-class FixtureIntelligenceProvider:
-    """Return prebuilt CallIntelligence records keyed by call id."""
+class FixtureFindingProvider:
+    """Return prebuilt findings keyed by call id."""
 
-    def __init__(self, intelligence_by_call: Mapping[str, CallIntelligence]) -> None:
-        self._intelligence = dict(intelligence_by_call)
+    def __init__(self, findings_by_call: Mapping[str, list[IntelligenceFinding]]) -> None:
+        self._findings = {call_id: list(findings) for call_id, findings in findings_by_call.items()}
 
-    def indicators_for(self, call: CompletedCall) -> CallIntelligence:
-        found = self._intelligence.get(call.call_id)
-        if found is None:
-            return CallIntelligence(call_id=call.call_id, observations=[], inference=None)
-        return found
+    def findings_for(self, call: CompletedCall) -> list[IntelligenceFinding]:
+        return list(self._findings.get(call.call_id, []))

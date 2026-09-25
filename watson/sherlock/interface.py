@@ -1,22 +1,19 @@
-"""Adapter boundary between WATSON and Sherlock's correlation contract."""
+"""Adapter boundary between WATSON and Sherlock findings."""
 
 from typing import Protocol
 
+from switchboard_schemas.interpretations import IntelligenceFinding
+
 from watson.models import CompletedCall
-from watson.sherlock.models import CallIntelligence
 
 
-class CallIntelligenceProvider(Protocol):
-    """Supply observations and the correlation inference for a completed call.
+class FindingProvider(Protocol):
+    """Supply `IntelligenceFinding` rows for a completed call.
 
-    Expected import once Sherlock publishes the correlation models on main:
-
-    `switchboard_intelligence.schemas.observation.Observation`
-    `switchboard_intelligence.schemas.inference` (correlation fields)
-
-    Call-layer metadata (CLI/ANI, timing, duration, simultaneous calls) stays
-    on `CompletedCall`. It is not an Observation.
+    Import path: `switchboard_schemas.interpretations.IntelligenceFinding`
+    (`packages/schemas`). Sherlock proposes findings. WATSON does not invent
+    finding kinds or campaign ids.
     """
 
-    def indicators_for(self, call: CompletedCall) -> CallIntelligence:
-        """Return observations and inference. `call_id` values must match."""
+    def findings_for(self, call: CompletedCall) -> list[IntelligenceFinding]:
+        """Return findings for this call. Unknown calls return an empty list."""

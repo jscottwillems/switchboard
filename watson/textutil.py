@@ -2,8 +2,6 @@
 
 import re
 
-from watson.config import ScoringConfig
-
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
 _ORG_SUFFIXES = frozenset(
     {"incorporated", "inc", "llc", "ltd", "corp", "corporation", "co", "company"}
@@ -237,11 +235,11 @@ def _sequence_distance(left: tuple[str, ...], right: tuple[str, ...]) -> int:
     return previous[-1]
 
 
-def edit_distance_bucket(ratio: float, config: ScoringConfig) -> float:
+def edit_distance_bucket(ratio: float, high: float = 0.90, mid: float = 0.80) -> float:
     """Map a raw edit ratio onto a near-copy bucket. Loose similarity stays 0."""
-    if ratio >= config.edit_bucket_high:
+    if ratio >= high:
         return 1.0
-    if ratio >= config.edit_bucket_mid:
+    if ratio >= mid:
         return 0.85
     return 0.0
 

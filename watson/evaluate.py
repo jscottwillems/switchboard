@@ -162,39 +162,28 @@ def render_markdown(report: EvaluationReport) -> str:
         "## Operating point",
         "",
         f"- `associate_threshold`: {config.associate_threshold:.2f}",
-        f"- Evidence guard: anchor group >= {config.min_anchor_group:.2f}, "
-        f"or script group >= {config.min_script_group:.2f}",
-        "- Missing features contribute 0. Weights are not renormalized.",
-        "- Caller id is not a feature. Timing, duration, and simultaneous calls",
-        "  come from the call store and do not add into association_score.",
+        f"- Evidence guard: anchor evidence >= {config.min_anchor_group:.2f}",
+        "- Missing findings contribute 0. Evidence weights are not renormalized.",
+        "- A shared callback_number alone clears the threshold. Other kinds do not.",
+        "- Caller id is not a feature. Timing and duration come from the call",
+        "  store and do not add into association_score.",
         "",
-        "Group weights:",
+        "Evidence contributions (added when the leaf score is 1, then capped at 1):",
         "",
-        "| group | weight |",
+        "| feature | contribution |",
         "| --- | --- |",
     ]
-    for name, weight in config.group_weights.items():
+    for name, weight in config.evidence_weights.items():
         lines.append(f"| {name} | {weight:.2f} |")
-    lines.extend(["", "Leaf weights inside each group:", ""])
-    lines.extend(_weight_table("anchor", config.anchor_weights))
-    lines.extend(_weight_table("script", config.script_weights))
+    lines.extend(["", "Tier C mix (tie-break only):", ""])
     lines.extend(_weight_table("structure", config.structure_weights))
     lines.extend(
         [
             "",
-            (
-                "Association score = "
-                f"{config.group_weights['anchor']:.2f} * anchor + "
-                f"{config.group_weights['script']:.2f} * script + "
-                f"{config.group_weights['structure']:.2f} * structure."
-            ),
-            "Structure weight is 0. That group is retrieval and a tie-break only.",
-            "Opening script score is the maximum of token Jaccard and a near-copy",
-            "edit-distance bucket "
-            f"(1.00 at ratio >= {config.edit_bucket_high:.2f}, "
-            f"0.85 at ratio >= {config.edit_bucket_mid:.2f}, otherwise 0). "
-            "Looser edit distance does not score.",
-            "Reasons cite Observation and Inference field names and values.",
+            "Association score = min(1, sum of evidence contribution times leaf score).",
+            "Structure does not enter that sum. Reasons for finding matches cite",
+            "the finding kind and value. Transcript overlap is call-store text,",
+            "not an IntelligenceFinding.",
             "",
             "## Pairwise scores at fixed thresholds",
             "",
@@ -317,7 +306,7 @@ def _feature_map(
 ) -> dict[str, CallFeatures]:
     provider = runnable.provider()
     return {
-        call.call_id: extract_features(call, provider.indicators_for(call), config)
+        call.call_id: extract_features(call, provider.findings_for(call), config)
         for call in runnable.calls()
     }
 

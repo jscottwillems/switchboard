@@ -1,112 +1,82 @@
-"""Feature extraction and the SHERLOCK fixture adapter."""
+"""Feature extraction from IntelligenceFinding rows."""
 
 import pytest
+from switchboard_schemas.enums import FindingKind, FindingStatus
 
 from watson.config import ScoringConfig
-from watson.features import admitted_observations, extract_features
+from watson.features import admitted_findings, extract_features
 from watson.models import CallFeatures
-from watson.sherlock.mock import FixtureIntelligenceProvider
-from watson.sherlock.models import ObservationKind
-from tests.helpers import make_call, make_intelligence, make_observation
+from watson.sherlock.mock import FixtureFindingProvider
+from tests.helpers import make_call, make_finding
 
 
 def test_caller_id_is_not_a_scoring_feature() -> None:
     assert "caller_id" not in CallFeatures.model_fields
-    assert "transferred" not in CallFeatures.model_fields
 
 
-def test_low_confidence_observations_are_dropped(config: ScoringConfig) -> None:
+def test_low_confidence_findings_are_dropped(config: ScoringConfig) -> None:
     call = make_call("bank-x", "Your account is on hold at First National Bank.")
-    observations = [
-        make_observation(
+    findings = [
+        make_finding(
             "bank-x",
-            ObservationKind.CLAIMED_COMPANY,
-            "First National Bank",
+            FindingKind.ORGANIZATION_NAME,
+            "first national bank",
             confidence=0.95,
+            extractor="fixture",
         ),
-        make_observation(
+        make_finding(
             "bank-x",
-            ObservationKind.CLAIMED_COMPANY,
-            "Internal Revenue Service",
+            FindingKind.ORGANIZATION_NAME,
+            "internal revenue service",
             confidence=0.15,
+            extractor="fixture",
         ),
     ]
-    kept = admitted_observations(observations, config)
-    assert [item.value for item in kept] == ["First National Bank"]
+    kept = admitted_findings(findings, config)
+    assert [item.value for item in kept] == ["first national bank"]
     features = extract_features(
         call,
-        FixtureIntelligenceProvider(
-            {"bank-x": make_intelligence("bank-x", observations)}
-        ).indicators_for(call),
+        FixtureFindingProvider({"bank-x": findings}).findings_for(call),
         config,
     )
-    assert features.claimed_company_normalized == frozenset({"first national bank"})
+    assert features.organization_name == frozenset({"first national bank"})
 
 
-def test_opening_observation_overrides_the_transcript_span(config: ScoringConfig) -> None:
-    call = make_call("c1", "alpha bravo charlie delta echo foxtrot golf hotel")
-    provider = FixtureIntelligenceProvider(
-        {
-            "c1": make_intelligence(
-                "c1",
-                [
-                    make_observation(
-                        "c1",
-                        ObservationKind.OPENING_SCRIPT_TEXT,
-                        "unique opening phrase about a federal refund",
-                    )
-                ],
-            )
-        }
+def test_rejected_findings_are_dropped(config: ScoringConfig) -> None:
+    call = make_call("c1", "callback +18005550101")
+    finding = make_finding(
+        "c1",
+        FindingKind.CALLBACK_NUMBER,
+        "+18005550101",
+        status=FindingStatus.REJECTED,
     )
-    features = extract_features(call, provider.indicators_for(call), config)
-    assert "refund" in features.opening_tokens
-    assert "alpha" not in features.opening_tokens
+    assert admitted_findings([finding], config) == []
+    features = extract_features(call, [finding], config)
+    assert features.callback_number == frozenset()
 
 
-def test_ivr_observation_is_parsed_into_steps(config: ScoringConfig) -> None:
-    call = make_call("c1", "hello there from support")
-    provider = FixtureIntelligenceProvider(
-        {
-            "c1": make_intelligence(
-                "c1",
-                [
-                    make_observation(
-                        "c1",
-                        ObservationKind.IVR_PROMPTS,
-                        "greeting > ssn_prompt > refund_agent",
-                    )
-                ],
-            )
-        }
-    )
-    features = extract_features(call, provider.indicators_for(call), config)
-    assert features.ivr_prompts == ("greeting", "ssn_prompt", "refund_agent")
+def test_callback_number_must_be_literal_e164(config: ScoringConfig) -> None:
+    call = make_call("c1", "call (800) 555-0101 or +18005550101")
+    findings = [
+        make_finding("c1", FindingKind.CALLBACK_NUMBER, "(800) 555-0101"),
+        make_finding("c1", FindingKind.CALLBACK_NUMBER, "+18005550101"),
+    ]
+    features = extract_features(call, findings, config)
+    assert features.callback_number == frozenset({"+18005550101"})
 
 
-def test_calling_from_stays_distinct_from_claimed_company(config: ScoringConfig) -> None:
-    call = make_call("c1", "Hello, this is Officer Jordan calling from the Internal Revenue Service.")
-    provider = FixtureIntelligenceProvider(
-        {
-            "c1": make_intelligence(
-                "c1",
-                [
-                    make_observation(
-                        "c1",
-                        ObservationKind.CALLING_FROM,
-                        "calling from the Internal Revenue Service",
-                    )
-                ],
-            )
-        }
-    )
-    features = extract_features(call, provider.indicators_for(call), config)
-    assert features.calling_from == frozenset({"internal revenue service"})
-    assert features.claimed_company_normalized == frozenset()
-
-
-def test_mismatched_intelligence_call_id_is_rejected(config: ScoringConfig) -> None:
-    call = make_call("c1", "hello there")
-    other = FixtureIntelligenceProvider({}).indicators_for(make_call("c2", "hello there"))
-    with pytest.raises(ValueError, match="does not match"):
-        extract_features(call, other, config)
+def test_other_finding_kinds_are_kept(config: ScoringConfig) -> None:
+    call = make_call("c1", "hello from the desk")
+    findings = [
+        make_finding("c1", FindingKind.PRETEXT, "government_refund", extractor="fixture"),
+        make_finding("c1", FindingKind.URL, "https://www.irs-refund-help.com/notice", extractor="fixture"),
+        make_finding("c1", FindingKind.OTHER, "irf4421", extractor="fixture"),
+        make_finding("c1", FindingKind.PAYMENT_METHOD, "direct deposit", extractor="fixture"),
+        make_finding("c1", FindingKind.PERSON_NAME, "Jordan", extractor="fixture"),
+    ]
+    features = extract_features(call, findings, config)
+    assert features.pretext == frozenset({"government_refund"})
+    assert features.url == frozenset({"irs-refund-help.com"})
+    assert features.other == frozenset({"irf4421"})
+    assert features.payment_method == frozenset({"direct deposit"})
+    assert features.person_name == frozenset({"Jordan"})

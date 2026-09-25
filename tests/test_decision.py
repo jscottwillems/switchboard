@@ -1,6 +1,6 @@
 """Threshold and evidence-guard decisions."""
 
-from watson.config import ANCHOR_FEATURES, SCRIPT_FEATURES, ScoringConfig
+from watson.config import ANCHOR_FEATURES, ScoringConfig
 from watson.decision import decide
 from watson.models import LEAF_FEATURES, DecisionAction, ScoreBreakdown
 
@@ -14,7 +14,7 @@ def _breakdown(
 ) -> ScoreBreakdown:
     feature_scores = {name: 0.0 for name in LEAF_FEATURES}
     if leaves is None:
-        feature_scores.update({name: 1.0 for name in SCRIPT_FEATURES})
+        feature_scores["callback_number"] = 1.0
     else:
         feature_scores.update(leaves)
     return ScoreBreakdown(

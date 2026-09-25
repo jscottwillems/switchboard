@@ -1,9 +1,13 @@
-"""Small call and observation builders shared by tests."""
+"""Small call and finding builders shared by tests."""
 
 from datetime import datetime, timezone
+from uuid import uuid5
+
+from switchboard_schemas.common import SWITCHBOARD_ID_NAMESPACE
+from switchboard_schemas.enums import FindingKind, FindingStatus
+from switchboard_schemas.interpretations import IntelligenceFinding
 
 from watson.models import CompletedCall
-from watson.sherlock.models import CallIntelligence, Observation, ObservationKind
 
 
 def make_call(
@@ -22,33 +26,30 @@ def make_call(
     )
 
 
-def make_observation(
+def make_finding(
     call_id: str,
-    kind: ObservationKind,
+    kind: FindingKind,
     value: str,
     *,
-    confidence: float = 0.95,
-    normalized: str | None = None,
-) -> Observation:
-    normalized_value = value if normalized is None else normalized
-    return Observation(
-        observation_id=f"{call_id}:{kind.value}:{normalized_value}",
-        call_id=call_id,
+    confidence: float = 1.0,
+    raw_quote: str | None = None,
+    status: FindingStatus = FindingStatus.PROPOSED,
+    extractor: str = "e164",
+    extractor_version: str = "0.1.0",
+) -> IntelligenceFinding:
+    quote = value if raw_quote is None else raw_quote
+    return IntelligenceFinding(
+        id=uuid5(SWITCHBOARD_ID_NAMESPACE, f"intelligence_finding|{call_id}|{kind.value}|{value}"),
+        call_session_id=uuid5(SWITCHBOARD_ID_NAMESPACE, f"call_session|{call_id}"),
         kind=kind,
         value=value,
-        normalized_value=normalized_value,
-        source="test",
-        transcript_segment_id="seg",
-        start_timestamp=0.0,
-        end_timestamp=1.0,
-        char_start=0,
-        char_end=len(value),
+        raw_quote=quote,
+        transcript_segment_ids=[
+            uuid5(SWITCHBOARD_ID_NAMESPACE, f"segment|{call_id}|{kind.value}|{value}")
+        ],
+        extractor=extractor,
+        extractor_version=extractor_version,
         confidence=confidence,
+        status=status,
+        created_at=datetime(2026, 4, 2, tzinfo=timezone.utc),
     )
-
-
-def make_intelligence(
-    call_id: str,
-    observations: list[Observation],
-) -> CallIntelligence:
-    return CallIntelligence(call_id=call_id, observations=observations, inference=None)

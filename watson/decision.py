@@ -41,7 +41,7 @@ def decide(candidates: list[ScoreBreakdown], config: ScoringConfig | None = None
         ),
     )
     anchor, script, structure = group_totals(best.feature_scores, active)
-    guard_passed = _evidence_guard(anchor, script, active)
+    guard_passed = _evidence_guard(anchor, active)
     above_threshold = best.association_score >= active.associate_threshold
     if above_threshold and guard_passed:
         if best.campaign_id is None:
@@ -78,14 +78,12 @@ def evidence_guard_passes(
     feature_scores: dict[str, float],
     config: ScoringConfig,
 ) -> bool:
-    anchor, script, _structure = group_totals(feature_scores, config)
-    return _evidence_guard(anchor, script, config)
+    anchor, _script, _structure = group_totals(feature_scores, config)
+    return _evidence_guard(anchor, config)
 
 
-def _evidence_guard(anchor: float, script: float, config: ScoringConfig) -> bool:
-    if anchor >= config.min_anchor_group:
-        return True
-    return script >= config.min_script_group
+def _evidence_guard(anchor: float, config: ScoringConfig) -> bool:
+    return anchor >= config.min_anchor_group
 
 
 def _empty_decision() -> Decision:

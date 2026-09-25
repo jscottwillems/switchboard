@@ -5,7 +5,7 @@ from pathlib import Path
 from watson.config import ScoringConfig
 from watson.dataset import ScenarioTag, default_report_path, load_dataset
 from watson.evaluate import evaluate_dataset, render_markdown
-from watson.sherlock.models import ObservationKind
+from switchboard_schemas.enums import FindingKind
 from watson.synthetic import build_dataset
 
 
@@ -20,21 +20,24 @@ def test_dataset_covers_the_required_scenarios() -> None:
     assert records["irs-4"].ground_truth_campaign_id != records["tech-3"].ground_truth_campaign_id
     assert records["irs-1"].ground_truth_campaign_id == records["irs-4"].ground_truth_campaign_id
     irs_callbacks = {
-        observation.value
+        finding.value
         for record in (records["irs-1"], records["irs-4"])
-        for observation in record.observations
-        if observation.kind.value == "callback_numbers" and observation.confidence >= 0.5
+        for finding in record.findings
+        if finding.kind is FindingKind.CALLBACK_NUMBER and finding.confidence >= 0.5
     }
-    assert len(irs_callbacks) == 2
+    assert irs_callbacks == {"+18005550101", "+18005550144"}
     irs_1 = records["irs-1"]
-    assert irs_1.inference.claimed_company_normalized == "internal revenue service"
-    assert {phone.source for phone in irs_1.inference.phone_e164} == {"callback", "spoken"}
-    assert irs_1.inference.email[0].local == "refunds"
-    assert irs_1.inference.email_domain_registrable == ["irs-refund-help.com"]
-    assert "case_id" in irs_1.inference.identifier_kind
-    assert irs_1.inference.opening_script_fingerprint == "fp-irs-refund-v1"
-    assert any(observation.kind.value == "calling_from" for observation in irs_1.observations)
-    assert any(observation.kind.value == "script_language" for observation in irs_1.observations)
+    callback = next(item for item in irs_1.findings if item.kind is FindingKind.CALLBACK_NUMBER)
+    assert callback.status.value == "proposed"
+    assert callback.extractor == "e164"
+    assert callback.value == "+18005550101"
+    kinds = {item.kind for item in irs_1.findings}
+    assert FindingKind.ORGANIZATION_NAME in kinds
+    assert FindingKind.URL in kinds
+    assert FindingKind.PRETEXT in kinds
+    assert FindingKind.OTHER in kinds
+    assert FindingKind.PAYMENT_METHOD in kinds
+    assert FindingKind.PERSON_NAME in kinds
 
 
 def test_committed_dataset_matches_the_builder() -> None:
@@ -67,8 +70,10 @@ def test_docs_name_the_threshold_and_observation_kinds() -> None:
     adapter = Path("docs/watson/SHERLOCK_ADAPTER.md").read_text(encoding="utf-8")
     assert f"{ScoringConfig().associate_threshold:.2f}" in scoring
     assert "Caller id is stored on the call record and is not a feature" in scoring
-    for kind in ObservationKind:
+    for kind in FindingKind:
         assert kind.value in adapter
+    assert "callback_number" in adapter
+    assert "emitted today" in adapter
 
 
 def test_committed_report_matches_a_fresh_evaluation() -> None:

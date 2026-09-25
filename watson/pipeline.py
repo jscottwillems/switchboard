@@ -14,7 +14,7 @@ from watson.models import (
 )
 from watson.retrieval import retrieve_candidates
 from watson.scoring import score_features
-from watson.sherlock.interface import CallIntelligenceProvider
+from watson.sherlock.interface import FindingProvider
 from watson.store import CampaignProfile, CampaignStore
 
 
@@ -23,7 +23,7 @@ class AssociationPipeline:
 
     def __init__(
         self,
-        intelligence: CallIntelligenceProvider,
+        intelligence: FindingProvider,
         store: CampaignStore | None = None,
         emitter: EventEmitter | None = None,
         config: ScoringConfig | None = None,
@@ -34,8 +34,8 @@ class AssociationPipeline:
         self.config = config or ScoringConfig()
 
     def ingest(self, call: CompletedCall) -> CampaignAssociation:
-        intelligence = self.intelligence.indicators_for(call)
-        features = extract_features(call, intelligence, self.config)
+        findings = self.intelligence.findings_for(call)
+        features = extract_features(call, findings, self.config)
         candidates = retrieve_candidates(features, self.store, self.config)
         scored = [_score_campaign(features, campaign, self.config) for campaign in candidates]
         decision = decide(scored, self.config)

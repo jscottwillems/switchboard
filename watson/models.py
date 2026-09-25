@@ -6,24 +6,20 @@ from typing import Never
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-# Feature-score keys are the correlation field names WATSON cites in reasons.
-# timing and duration come from the call store. The rest are Observation or
-# Inference fields. Tier C does not add into association_score.
+# Feature-score keys are FindingKind values, plus call-store signals.
+# timing and duration come from the call store and do not add into
+# association_score. transcript_overlap is call-store text, not a finding.
 LEAF_FEATURES: tuple[str, ...] = (
-    "phone_e164",
-    "case_id",
-    "domain_registrable",
-    "email_domain_registrable",
-    "claimed_company_normalized",
-    "opening_script_text",
-    "opening_script_fingerprint",
-    "script_phrase_normalized",
-    "pretext_category_canonical",
-    "transfer_destination_claimed",
-    "script_language",
+    "callback_number",
+    "organization_name",
+    "url",
+    "payment_method",
+    "other",
+    "pretext",
+    "person_name",
+    "transcript_overlap",
     "timing",
     "duration",
-    "ivr_prompts",
 )
 
 
@@ -71,22 +67,16 @@ class CallFeatures(BaseModel):
     started_at: datetime
     ended_at: datetime
     duration_seconds: float = Field(ge=0)
-    phone_e164: tuple[tuple[str, str], ...]
-    case_id: frozenset[str]
-    domain_registrable: frozenset[str]
-    email_split: tuple[tuple[str, str, str], ...]
-    claimed_company_normalized: frozenset[str]
-    calling_from: frozenset[str]
-    opening_script_text: str
+    callback_number: frozenset[str]
+    organization_name: frozenset[str]
+    url: frozenset[str]
+    payment_method: frozenset[str]
+    other: frozenset[str]
+    pretext: frozenset[str]
+    person_name: frozenset[str]
+    opening_text: str
     opening_tokens: frozenset[str]
-    opening_turns: tuple[str, ...]
     transcript_tokens: frozenset[str]
-    opening_script_fingerprint: str | None
-    script_phrase_normalized: frozenset[str]
-    pretext_category_canonical: str | None
-    transfer_destination_claimed: frozenset[str]
-    script_language: str | None
-    ivr_prompts: tuple[str, ...]
 
 
 class ScoreBreakdown(BaseModel):

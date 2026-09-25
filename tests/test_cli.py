@@ -16,6 +16,6 @@ def test_run_prints_explainable_associations(capsys) -> None:
     output = capsys.readouterr().out
     assert "irs-2" in output
     assert "decision=associate" in output
-    assert "opening_script_text score" in output
+    assert "callback_number +18005550101" in output
     assert "irs-4" in output
     assert "tech-3" in output

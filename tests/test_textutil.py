@@ -1,6 +1,5 @@
 """Normalization and similarity primitives."""
 
-from watson.config import ScoringConfig
 from watson.textutil import (
     edit_distance_bucket,
     jaccard,
@@ -39,9 +38,8 @@ def test_tokenize_drops_stopwords_and_short_tokens() -> None:
 
 
 def test_edit_distance_buckets_only_near_copies() -> None:
-    config = ScoringConfig()
     assert levenshtein_ratio("refund hold", "refund hold") == 1.0
-    assert edit_distance_bucket(0.90, config) == 1.0
-    assert edit_distance_bucket(0.80, config) == 0.85
-    assert edit_distance_bucket(0.79, config) == 0.0
+    assert edit_distance_bucket(0.90) == 1.0
+    assert edit_distance_bucket(0.80) == 0.85
+    assert edit_distance_bucket(0.79) == 0.0
     assert levenshtein_ratio("", "refund") == 0.0
