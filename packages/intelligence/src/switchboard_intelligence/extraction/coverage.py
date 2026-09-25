@@ -17,7 +17,13 @@ DETERMINISTIC_COVERAGE: dict[ObservationKind, str] = {
         "NANP phone with a callback cue in the preceding window "
         "(call us back, call back, callback, call us at, dial, reach us at, our number is)."
     ),
-    ObservationKind.SPOKEN_NUMBERS: "NANP phone in the same segment without a callback cue.",
+    ObservationKind.SPOKEN_NUMBERS: (
+        "NANP phone in the same segment without a callback cue or a spoken caller-ID cue."
+    ),
+    ObservationKind.SPOKEN_CLI_CLAIM: (
+        "NANP phone after a spoken caller-ID cue "
+        "(caller ID will show, caller ID shows, shows up as). Not carrier CLI."
+    ),
     ObservationKind.DOMAINS: "Host of an http(s) URL, host of an email, or a bare domain with a known TLD.",
     ObservationKind.URLS: "http and https URLs.",
     ObservationKind.EMAIL_ADDRESSES: "Standard email addresses.",
@@ -37,7 +43,8 @@ DETERMINISTIC_COVERAGE: dict[ObservationKind, str] = {
         "value is that free-text purpose; pretext_category is the coarse enum."
     ),
     ObservationKind.CASE_OR_REFERENCE_IDS: (
-        "Case, claim, reference, ticket, or confirmation numbers that contain a digit."
+        "Case, claim, reference, ticket, confirmation, or account numbers that contain a digit, "
+        "plus a social-security last four after 'ending in' or 'last four'."
     ),
     ObservationKind.THREAT_OR_CONSEQUENCE_LANGUAGE: (
         "Arrest, account freeze or suspension, lawsuit, or failure-to-comply lexicon."
@@ -48,6 +55,20 @@ DETERMINISTIC_COVERAGE: dict[ObservationKind, str] = {
     ),
     ObservationKind.FOLLOW_UP_PROMISES: (
         "Promises to call back, send a link, email next steps, or follow up."
+    ),
+    ObservationKind.OPENING_SCRIPT_TEXT: (
+        "Full text of each of the first three scammer turns, with opening_turn_index 0, 1, or 2."
+    ),
+    ObservationKind.IVR_PROMPTS: "System-speaker 'press N for …' menu prompts.",
+    ObservationKind.IVR_MENU_PATH: (
+        "Full system-speaker segment when it contains two or more IVR prompts, in spoken order."
+    ),
+    ObservationKind.TRANSFER_DESTINATION_CLAIMED: (
+        "Organization, department, or phone in a segment that also has a transfer phrase."
+    ),
+    ObservationKind.SCRIPT_LANGUAGE: (
+        "Locale from an explicit English or Spanish cue, otherwise en when the first "
+        "detectable scammer turn has an English function word. Evidence is a verbatim span."
     ),
     ObservationKind.OTHER: "Badge numbers that contain a digit and do not fit case_or_reference_ids.",
 }
@@ -62,4 +83,7 @@ MODEL_GAPS: tuple[str, ...] = (
     "Purpose lines that are not in the purpose lexicon.",
     "Threats paraphrased outside the threat lexicon.",
     "Remote-access tools named outside the tool lexicon.",
+    "IVR menus that are not 'press N for' lines on the system speaker.",
+    "Transfer destinations that are not a lexicon organization, department, or phone.",
+    "Script language when no English or Spanish cue is present.",
 )

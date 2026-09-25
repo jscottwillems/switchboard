@@ -25,7 +25,7 @@ def extract_intelligence(
     if model_extractor is not None:
         extra = model_extractor.extract(transcript, observations)
         observations = dedupe_observations([*observations, *extra])
-    inferences = infer_from_observations(transcript.call_id, observations)
+    inferences = infer_from_observations(transcript.call_id, observations, transcript)
     if attributor is None:
         attributor = NoCampaignCorpusAttributor()
     attributions = attributor.attribute(transcript.call_id, observations, inferences)

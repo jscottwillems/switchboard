@@ -5,9 +5,11 @@ from collections.abc import Sequence
 from typing import assert_never
 
 from switchboard_intelligence.extraction import confidence
+from switchboard_intelligence.extraction.derive import derive_correlation
 from switchboard_intelligence.extraction.spans import stable_id
 from switchboard_intelligence.schemas.inference import Inference, InferenceKind, InferenceMethod
 from switchboard_intelligence.schemas.observation import Observation, ObservationKind
+from switchboard_intelligence.schemas.transcript import Transcript
 
 _OFFER_KINDS = (
     ObservationKind.FEES,
@@ -16,7 +18,11 @@ _OFFER_KINDS = (
 )
 
 
-def infer_from_observations(call_id: str, observations: Sequence[Observation]) -> list[Inference]:
+def infer_from_observations(
+    call_id: str,
+    observations: Sequence[Observation],
+    transcript: Transcript | None = None,
+) -> list[Inference]:
     grouped: dict[ObservationKind, list[Observation]] = defaultdict(list)
     for observation in observations:
         if observation.call_id != call_id:
@@ -83,7 +89,17 @@ def infer_from_observations(call_id: str, observations: Sequence[Observation]) -
         confidence.OFFER_TERMS,
         "Fees, loan amounts, and rates are treated as the offer terms.",
     )
-    return sorted(built, key=lambda item: item.kind.value)
+    built.extend(derive_correlation(call_id, observations, transcript))
+    return sorted(
+        built,
+        key=lambda item: (
+            item.kind.value,
+            item.normalized_value or "",
+            item.source_tag.value if item.source_tag is not None else "",
+            item.identifier_kind.value if item.identifier_kind is not None else "",
+            item.inference_id,
+        ),
+    )
 
 
 def _add(
@@ -133,6 +149,24 @@ def _proposition(kind: InferenceKind, support: Sequence[Observation]) -> str:
         return f"Caller offered a callback channel at {values}."
     if kind is InferenceKind.OFFER_TERMS:
         return f"Offer terms mentioned: {values}."
+    if kind is InferenceKind.CLAIMED_COMPANY_NORMALIZED:
+        return f"Normalized claimed company from {values}."
+    if kind is InferenceKind.PHONE_E164:
+        return f"E.164 phone from {values}."
+    if kind is InferenceKind.DOMAIN_REGISTRABLE:
+        return f"Registrable domain from {values}."
+    if kind is InferenceKind.EMAIL_LOCAL_DOMAIN:
+        return f"Email split from {values}."
+    if kind is InferenceKind.EMAIL_DOMAIN_REGISTRABLE:
+        return f"Email registrable domain from {values}."
+    if kind is InferenceKind.SCRIPT_PHRASE_NORMALIZED:
+        return f"Normalized script phrase from {values}."
+    if kind is InferenceKind.OPENING_SCRIPT_FINGERPRINT:
+        return f"Opening fingerprint from {values}."
+    if kind is InferenceKind.PRETEXT_CATEGORY_CANONICAL:
+        return f"Canonical pretext from {values}."
+    if kind is InferenceKind.IDENTIFIER_KIND:
+        return f"Identifier kind from {values}."
     if kind is InferenceKind.OTHER:
         return f"Unclassified inference from {values}."
     assert_never(kind)

@@ -41,6 +41,14 @@ export const PaymentMethod = [
 
 export type PaymentMethod = (typeof PaymentMethod)[number];
 
+export const ScriptLocale = [
+  "en",
+  "es",
+  "other",
+] as const;
+
+export type ScriptLocale = (typeof ScriptLocale)[number];
+
 export const ObservationKind = [
   "claimed_company",
   "claimed_agent",
@@ -64,6 +72,12 @@ export const ObservationKind = [
   "remote_access_tools",
   "spoofed_authority_claims",
   "follow_up_promises",
+  "opening_script_text",
+  "ivr_prompts",
+  "ivr_menu_path",
+  "transfer_destination_claimed",
+  "spoken_cli_claim",
+  "script_language",
   "other",
 ] as const;
 
@@ -77,10 +91,40 @@ export const InferenceKind = [
   "offer_terms",
   "callback_channel",
   "threatened_consequence",
+  "claimed_company_normalized",
+  "phone_e164",
+  "domain_registrable",
+  "email_local_domain",
+  "email_domain_registrable",
+  "script_phrase_normalized",
+  "opening_script_fingerprint",
+  "pretext_category_canonical",
+  "identifier_kind",
   "other",
 ] as const;
 
 export type InferenceKind = (typeof InferenceKind)[number];
+
+export const PhoneSourceTag = [
+  "callback",
+  "spoken",
+  "spoken_cli",
+] as const;
+
+export type PhoneSourceTag = (typeof PhoneSourceTag)[number];
+
+export const IdentifierKind = [
+  "ticket",
+  "case",
+  "claim",
+  "confirmation",
+  "reference",
+  "badge",
+  "ssn_last4",
+  "account",
+] as const;
+
+export type IdentifierKind = (typeof IdentifierKind)[number];
 
 export const InferenceMethod = [
   "rule",
@@ -145,6 +189,8 @@ export interface Observation {
   confidence: number;
   payment_method: PaymentMethod | null;
   pretext_category: PretextCategory | null;
+  locale: ScriptLocale | null;
+  opening_turn_index: number | null;
 }
 
 export interface Inference {
@@ -158,6 +204,13 @@ export interface Inference {
   confidence: number;
   method: InferenceMethod;
   rationale: string;
+  normalized_value: string | null;
+  original_value: string | null;
+  source_tag: PhoneSourceTag | null;
+  identifier_kind: IdentifierKind | null;
+  email_local: string | null;
+  email_domain: string | null;
+  fingerprint_tokens: string[];
 }
 
 export interface Attribution {
@@ -173,6 +226,20 @@ export interface Attribution {
   confidence: number;
   status: AttributionStatus;
   rationale: string;
+}
+
+export interface AssociationReason {
+  field: string;
+  value: string;
+}
+
+export interface CampaignAssociation {
+  record_type: "campaign_association";
+  call_id: string;
+  campaign_id: string;
+  association_score: number;
+  reasons: AssociationReason[];
+  feature_scores: Record<string, number>;
 }
 
 export interface IntelligenceBundle {

@@ -1,7 +1,10 @@
-"""Attributions: links from intelligence to an actor, campaign, or kit.
+"""Sherlock attribution stub.
 
-This milestone defines the record. It does not ship a campaign corpus,
-so extraction returns an empty attribution list.
+Watson owns campaign linking in v1 and emits `CampaignAssociation`
+(`call_id`, `campaign_id`, `association_score`, `reasons`, `feature_scores`).
+Reasons cite Sherlock field names and values. Sherlock does not compute
+association scores or embeddings, and `extract_intelligence` returns no
+attributions unless a caller passes an attributor.
 """
 
 from enum import Enum

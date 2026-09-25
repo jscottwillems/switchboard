@@ -56,7 +56,21 @@ RULE_CONFIDENCE = {
     confidence.FOLLOW_UP,
     confidence.PRETEXT,
     confidence.TRANSFER,
+    confidence.IVR,
+    confidence.TRANSFER_DESTINATION,
+    confidence.OPENING_SCRIPT,
+    confidence.SCRIPT_LANGUAGE,
+    confidence.SCRIPT_LANGUAGE_EXPLICIT,
 }
+
+_STRUCTURAL = {
+    ObservationKind.OPENING_SCRIPT_TEXT,
+    ObservationKind.SCRIPT_LANGUAGE,
+}
+
+
+def _content(observations: list[Observation]) -> list[Observation]:
+    return [item for item in observations if item.kind not in _STRUCTURAL]
 
 
 def _transcript(text: str, *, speaker: SpeakerRole = SpeakerRole.SCAMMER) -> Transcript:
@@ -75,7 +89,7 @@ def _transcript(text: str, *, speaker: SpeakerRole = SpeakerRole.SCAMMER) -> Tra
 
 
 def _only(text: str, kind: ObservationKind) -> list[Observation]:
-    observations = extract_intelligence(_transcript(text)).observations
+    observations = _content(extract_intelligence(_transcript(text)).observations)
     assert observations, text
     assert {item.kind for item in observations} == {kind}
     return observations
@@ -124,13 +138,13 @@ def test_requested_information_needs_an_ask(phrase: str) -> None:
         ObservationKind.REQUESTED_INFORMATION,
     )
     assert found[0].value.casefold() == phrase.casefold()
-    assert extract_intelligence(_transcript(f"We discussed {phrase} yesterday.")).observations == []
+    assert _content(extract_intelligence(_transcript(f"We discussed {phrase} yesterday.")).observations) == []
 
 
 @pytest.mark.parametrize("organization", ORGANIZATIONS)
 def test_claimed_company_needs_a_cue(organization: str) -> None:
     text = f"I am calling from {organization} today."
-    observations = extract_intelligence(_transcript(text)).observations
+    observations = _content(extract_intelligence(_transcript(text)).observations)
     assert {item.kind for item in observations} == {
         ObservationKind.CLAIMED_COMPANY,
         ObservationKind.SPOOFED_AUTHORITY_CLAIMS,
@@ -139,7 +153,7 @@ def test_claimed_company_needs_a_cue(organization: str) -> None:
     spoof = next(item for item in observations if item.kind is ObservationKind.SPOOFED_AUTHORITY_CLAIMS)
     assert company.value == organization
     assert spoof.value == f"I am calling from {organization} today"
-    assert extract_intelligence(_transcript(f"People mention {organization} often.")).observations == []
+    assert _content(extract_intelligence(_transcript(f"People mention {organization} often.")).observations) == []
 
 
 @pytest.mark.parametrize(
@@ -202,8 +216,8 @@ def test_fee_loan_and_rate_need_cues() -> None:
     assert fee[0].normalized_value == "49.95"
     assert loan[0].normalized_value == "12500.00"
     assert rate[0].normalized_value == "4.25%"
-    assert extract_intelligence(_transcript("The balance shows $40 on the screen.")).observations == []
-    assert extract_intelligence(_transcript("I am 100% sure about that.")).observations == []
+    assert _content(extract_intelligence(_transcript("The balance shows $40 on the screen.")).observations) == []
+    assert _content(extract_intelligence(_transcript("I am 100% sure about that.")).observations) == []
 
 
 @pytest.mark.parametrize("phrase", THREAT_PHRASES)
@@ -236,13 +250,13 @@ def test_pretext_category_and_free_text_purpose(phrase: str, category: object) -
     unknown = extract_intelligence(
         _transcript("The purpose of this call is a vague complaint.")
     )
-    assert unknown.observations == []
+    assert _content(unknown.observations) == []
 
 
 def test_spoofed_authority_without_a_known_company() -> None:
-    observations = extract_intelligence(
-        _transcript("I'm with your bank's fraud department.")
-    ).observations
+    observations = _content(
+        extract_intelligence(_transcript("I'm with your bank's fraud department.")).observations
+    )
     assert {item.kind for item in observations} == {
         ObservationKind.SPOOFED_AUTHORITY_CLAIMS,
         ObservationKind.CLAIMED_DEPARTMENT,
@@ -281,7 +295,7 @@ def test_other_identifier_and_nearest_money_cue() -> None:
     ],
 )
 def test_model_gaps_are_not_extracted(text: str) -> None:
-    assert extract_intelligence(_transcript(text)).observations == []
+    assert _content(extract_intelligence(_transcript(text)).observations) == []
 
 
 def test_coverage_mentions_every_kind() -> None:
@@ -324,8 +338,8 @@ def test_elicited_hints_are_not_promoted_to_observations() -> None:
         }
     )
     bundle = extract_intelligence(hinted)
-    assert bundle.observations == []
-    assert bundle.inferences == []
+    assert all(item.kind is not ObservationKind.CALLBACK_NUMBERS for item in bundle.observations)
+    assert all("800-555-0100" not in item.value for item in bundle.observations)
     assert bundle.elicited_hints == hinted.elicited_hints
     assert "confidence" not in ElicitedHint.model_fields
 

@@ -184,12 +184,15 @@ FOLLOW_UPS = (
     ("a colleague will follow up", "A colleague will follow up tomorrow."),
 )
 TRANSFERS = (
-    ("let me transfer you", "Let me transfer you to a specialist."),
-    ("i am transferring you", "I am transferring you to a specialist."),
-    ("transferring you now", "We are transferring you now."),
-    ("connecting you to", "I am connecting you to a specialist."),
-    ("please hold while i connect you", "Please hold while I connect you."),
+    ("let me transfer you", "Let me transfer you to the {department}."),
+    ("i am transferring you", "I am transferring you to the {department}."),
+    ("transferring you now", "We are transferring you now to the {department}."),
+    ("connecting you to", "I am connecting you to the {department}."),
+    ("please hold while i connect you", "Please hold while I connect you to the {department}."),
 )
+IVR_TEXT = "Press 1 for claims. Press 2 for a representative."
+IVR_PROMPTS = ("Press 1 for claims", "Press 2 for a representative")
+CLI_AREAS = ("844", "833", "822", "801", "702")
 DECOYS = (
     "I am 100% committed to resolving this today, and the extension is 12.",
     "Call eight hundred five five five zero one nine nine when you can.",
@@ -222,7 +225,8 @@ def _build_call(index: int) -> dict[str, object]:
     request = REQUESTS[index % len(REQUESTS)]
     urgency_phrase, urgency_text = URGENCY[index % len(URGENCY)]
     threat_phrase, threat_text = THREATS[index % len(THREATS)]
-    transfer_phrase, transfer_text = TRANSFERS[variant]
+    transfer_phrase, transfer_template = TRANSFERS[variant]
+    transfer_text = transfer_template.format(department=family["department"])
     purpose_phrase, pretext_category = PRETEXT[family["slug"]]
     remote_tool = REMOTE_TOOLS[index % len(REMOTE_TOOLS)]
     follow_phrase, follow_text = FOLLOW_UPS[index % len(FOLLOW_UPS)]
@@ -231,6 +235,7 @@ def _build_call(index: int) -> dict[str, object]:
     url = f"https://{family['domain']}/case/{case_id}"
     callback = _format_phone(variant, CALLBACK_AREAS[variant], f"{100 + index:04d}")
     spoken = _format_phone(variant, SPOKEN_AREAS[variant], f"{200 + index:04d}")
+    spoken_cli = _format_phone(variant, CLI_AREAS[variant], f"{300 + index:04d}")
     company_text = f"I am calling from {family['company']}, {family['department']}."
     fee_text = f"The processing fee is {fee}."
     loan_text = f"You are approved for a loan of {loan}."
@@ -242,6 +247,7 @@ def _build_call(index: int) -> dict[str, object]:
     url_text = f"Open {url} for the form."
     bare_domain_text = f"If the link fails, type {family['domain']} into a browser."
     spoken_text = f"The desk line on file is {spoken} if the transfer drops."
+    cli_text = f"Your caller ID will show {spoken_cli} on this call."
     agent_text = f"My name is {agent}."
     case_text = f"Your case number {case_id} is open."
     badge_id = f"BD-{44000 + index}"
@@ -255,6 +261,15 @@ def _build_call(index: int) -> dict[str, object]:
 
     planned: list[tuple[str, str, list[dict[str, str]]]] = [
         ("system", recording_text, [_plant("script_phrases", _surface(recording_text, "this call is being recorded"))]),
+        (
+            "system",
+            IVR_TEXT,
+            [
+                _plant("ivr_prompts", prompt)
+                for prompt in IVR_PROMPTS
+            ]
+            + [_plant("ivr_menu_path", IVR_TEXT)],
+        ),
         ("scammer", family["script"], [_plant("script_phrases", _surface(family["script"], family["script_phrase"]))]),
         ("scammer", purpose_text, [_plant("pretext_category", _surface(purpose_text, purpose_phrase), pretext_category=pretext_category)]),
         ("scammer", agent_text, [_plant("claimed_agent", _token(agent_text, agent))]),
@@ -297,7 +312,16 @@ def _build_call(index: int) -> dict[str, object]:
         ),
         ("scammer", bare_domain_text, [_plant("domains", _token(bare_domain_text, family["domain"]))]),
         ("scammer", spoken_text, [_plant("spoken_numbers", _token(spoken_text, spoken))]),
-        ("scammer", transfer_text, [_plant("transfer_events", _surface(transfer_text, transfer_phrase))]),
+        ("scammer", cli_text, [_plant("spoken_cli_claim", _token(cli_text, spoken_cli))]),
+        (
+            "scammer",
+            transfer_text,
+            [
+                _plant("transfer_events", _surface(transfer_text, transfer_phrase)),
+                _plant("claimed_department", _surface(transfer_text, family["department"])),
+                _plant("transfer_destination_claimed", _surface(transfer_text, family["department"])),
+            ],
+        ),
         ("target", hello_text, []),
         ("scammer", decoy_text, []),
     ]
@@ -306,6 +330,7 @@ def _build_call(index: int) -> dict[str, object]:
     gold = []
     decoy_segment_ids = []
     cursor = 0.0
+    scammer_turns = 0
     for segment_index, (speaker, text, plants) in enumerate(planned):
         segment_id = f"{call_id}-s{segment_index:02d}"
         duration = round(2.0 + len(text) / 50, 3)
@@ -323,6 +348,26 @@ def _build_call(index: int) -> dict[str, object]:
             decoy_segment_ids.append(segment_id)
         for plant in plants:
             gold.append({"segment_id": segment_id, **plant})
+        if speaker == "scammer":
+            if scammer_turns < 3:
+                gold.append(
+                    {
+                        "segment_id": segment_id,
+                        "kind": "opening_script_text",
+                        "value": text,
+                        "opening_turn_index": scammer_turns,
+                    }
+                )
+            if scammer_turns == 0:
+                gold.append(
+                    {
+                        "segment_id": segment_id,
+                        "kind": "script_language",
+                        "value": text,
+                        "locale": "en",
+                    }
+                )
+            scammer_turns += 1
         cursor = round(end + 0.35, 3)
 
     signatures = [(item["kind"], item["segment_id"], item["value"]) for item in gold]

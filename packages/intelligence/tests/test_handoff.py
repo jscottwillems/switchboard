@@ -17,6 +17,7 @@ def test_loki_elicit_groups() -> None:
             ObservationKind.CALLBACK_NUMBERS,
             ObservationKind.SPOKEN_NUMBERS,
             ObservationKind.CASE_OR_REFERENCE_IDS,
+            ObservationKind.SPOKEN_CLI_CLAIM,
         ),
         (ObservationKind.CLAIMED_AGENT, ObservationKind.CLAIMED_DEPARTMENT),
         (ObservationKind.DOMAINS, ObservationKind.URLS, ObservationKind.EMAIL_ADDRESSES),
@@ -28,6 +29,11 @@ def test_loki_elicit_groups() -> None:
             ObservationKind.THREAT_OR_CONSEQUENCE_LANGUAGE,
             ObservationKind.TRANSFER_EVENTS,
             ObservationKind.SPOOFED_AUTHORITY_CLAIMS,
+            ObservationKind.OPENING_SCRIPT_TEXT,
+            ObservationKind.IVR_PROMPTS,
+            ObservationKind.IVR_MENU_PATH,
+            ObservationKind.TRANSFER_DESTINATION_CLAIMED,
+            ObservationKind.SCRIPT_LANGUAGE,
         ),
         (ObservationKind.FOLLOW_UP_PROMISES,),
         (ObservationKind.OTHER,),
@@ -39,6 +45,20 @@ def test_elicit_rank_is_a_permutation_of_observation_kinds() -> None:
     kinds = [kind for kind, _reason in ELICIT_RANK]
     assert len(kinds) == len(set(kinds))
     assert set(kinds) == set(ObservationKind)
+
+
+def test_status_names_watson_shapes() -> None:
+    from switchboard_intelligence.handoff import WATSON_FEATURES
+
+    text = STATUS_PATH.read_text(encoding="utf-8")
+    watson = text.split("## HANDOFF — Sherlock → Watson", 1)[1]
+    assert "CampaignAssociation" in watson
+    assert "Observation" in watson
+    assert "Inference" in watson
+    tier_at = [watson.index(f"### Tier {tier}") for tier in ("A", "B", "C")]
+    assert tier_at == sorted(tier_at)
+    positions = [watson.index(f"`{feature}`") for _tier, _shape, feature, _note in WATSON_FEATURES]
+    assert positions == sorted(positions)
 
 
 def test_status_handoff_follows_elicit_rank() -> None:

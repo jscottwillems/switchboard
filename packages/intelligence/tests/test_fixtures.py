@@ -17,7 +17,7 @@ from collections import Counter
 
 from switchboard_intelligence.extraction.pipeline import extract_intelligence
 from switchboard_intelligence.schemas import ObservationKind, Transcript
-from switchboard_intelligence.schemas.inference import InferenceKind
+from switchboard_intelligence.schemas.inference import InferenceKind, PhoneSourceTag
 
 EXPECTED_INFERENCE_KINDS = {
     InferenceKind.IMPERSONATED_ORGANIZATION,
@@ -27,6 +27,15 @@ EXPECTED_INFERENCE_KINDS = {
     InferenceKind.OFFER_TERMS,
     InferenceKind.CALLBACK_CHANNEL,
     InferenceKind.THREATENED_CONSEQUENCE,
+    InferenceKind.CLAIMED_COMPANY_NORMALIZED,
+    InferenceKind.PHONE_E164,
+    InferenceKind.DOMAIN_REGISTRABLE,
+    InferenceKind.EMAIL_LOCAL_DOMAIN,
+    InferenceKind.EMAIL_DOMAIN_REGISTRABLE,
+    InferenceKind.SCRIPT_PHRASE_NORMALIZED,
+    InferenceKind.OPENING_SCRIPT_FINGERPRINT,
+    InferenceKind.PRETEXT_CATEGORY_CANONICAL,
+    InferenceKind.IDENTIFIER_KIND,
 }
 
 
@@ -79,6 +88,27 @@ def test_obvious_indicator_precision_and_recall(fixture_rows: list[dict[str, obj
                 assert observation.normalized_value == item["pretext_category"]
             else:
                 assert observation.pretext_category is None
+            if observation.kind is ObservationKind.OPENING_SCRIPT_TEXT:
+                assert observation.opening_turn_index == item["opening_turn_index"]
+            else:
+                assert observation.opening_turn_index is None
+            if observation.kind is ObservationKind.SCRIPT_LANGUAGE:
+                assert observation.locale is not None
+                assert observation.locale.value == item["locale"]
+                assert observation.normalized_value == item["locale"]
+            else:
+                assert observation.locale is None
+        phone_tags = {
+            item.source_tag
+            for item in bundle.inferences
+            if item.kind is InferenceKind.PHONE_E164
+        }
+        assert phone_tags == {
+            PhoneSourceTag.CALLBACK,
+            PhoneSourceTag.SPOKEN,
+            PhoneSourceTag.SPOKEN_CLI,
+        }
+        assert any(item.fingerprint_tokens for item in bundle.inferences)
         assert bundle.elicited_hints == []
         true_positive += sum((pred & gold).values())
         predicted += sum(pred.values())

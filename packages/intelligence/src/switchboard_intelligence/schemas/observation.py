@@ -37,6 +37,14 @@ class PaymentMethod(str, Enum):
     OTHER = "other"
 
 
+class ScriptLocale(str, Enum):
+    """Language tag for a `script_language` observation."""
+
+    EN = "en"
+    ES = "es"
+    OTHER = "other"
+
+
 class ObservationKind(str, Enum):
     """Indicator kinds Sherlock stores.
 
@@ -68,6 +76,12 @@ class ObservationKind(str, Enum):
     REMOTE_ACCESS_TOOLS = "remote_access_tools"
     SPOOFED_AUTHORITY_CLAIMS = "spoofed_authority_claims"
     FOLLOW_UP_PROMISES = "follow_up_promises"
+    OPENING_SCRIPT_TEXT = "opening_script_text"
+    IVR_PROMPTS = "ivr_prompts"
+    IVR_MENU_PATH = "ivr_menu_path"
+    TRANSFER_DESTINATION_CLAIMED = "transfer_destination_claimed"
+    SPOKEN_CLI_CLAIM = "spoken_cli_claim"
+    SCRIPT_LANGUAGE = "script_language"
     OTHER = "other"
 
 
@@ -78,6 +92,10 @@ class Observation(BaseModel):
     `start_timestamp`, `end_timestamp`, and `confidence`. `value` is the
     exact substring `text[char_start:char_end]` of that segment. Conclusions
     that are not a verbatim span belong on Inference, not here.
+
+    Call-layer facts stay off this record: timing windows, simultaneous calls,
+    duration, dialing cadence, true carrier CLI/ANI, and carrier spoof flags.
+    Watson reads those from the call session, not from Observation.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -98,6 +116,8 @@ class Observation(BaseModel):
     confidence: Confidence
     payment_method: PaymentMethod | None = None
     pretext_category: PretextCategory | None = None
+    locale: ScriptLocale | None = None
+    opening_turn_index: int | None = Field(default=None, ge=0, le=2)
 
     @model_validator(mode="after")
     def span_and_facets(self) -> "Observation":
@@ -115,6 +135,16 @@ class Observation(BaseModel):
             self.pretext_category,
             "pretext_category",
         )
+        self._check_facet(
+            self.kind is ObservationKind.SCRIPT_LANGUAGE,
+            self.locale,
+            "locale",
+        )
+        if self.kind is ObservationKind.OPENING_SCRIPT_TEXT:
+            if self.opening_turn_index is None:
+                raise ValueError("opening_script_text observations require opening_turn_index")
+        elif self.opening_turn_index is not None:
+            raise ValueError(f"opening_turn_index does not belong on kind {self.kind.value}")
         return self
 
     def _check_facet(self, required: bool, facet: Enum | None, field_name: str) -> None:

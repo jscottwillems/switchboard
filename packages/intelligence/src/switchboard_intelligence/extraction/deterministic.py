@@ -48,8 +48,9 @@ from switchboard_intelligence.schemas.observation import (
     ObservationKind,
     PaymentMethod,
     PretextCategory,
+    ScriptLocale,
 )
-from switchboard_intelligence.schemas.transcript import Transcript, TranscriptSegment
+from switchboard_intelligence.schemas.transcript import SpeakerRole, Transcript, TranscriptSegment
 
 EXTRACTOR_NAME = "deterministic.rules/v1"
 
@@ -78,6 +79,27 @@ CALLBACK_CUE_RE = re.compile(
     r"dial|reach\s+us\s+at|our\s+number\s+is)\b",
     re.IGNORECASE,
 )
+CLI_CUE_RE = re.compile(
+    r"\b(?:caller\s+id\s+will\s+show|caller\s+id\s+shows|caller\s+id\s+displays|"
+    r"shows\s+up\s+as)\b",
+    re.IGNORECASE,
+)
+IVR_PROMPT_RE = re.compile(r"\b[Pp]ress\s+\d+\s+for\s+[^.]{1,60}")
+EXPLICIT_ENGLISH_RE = re.compile(r"\benglish\b", re.IGNORECASE)
+EXPLICIT_SPANISH_RE = re.compile(r"\b(?:spanish|español|espanol)\b", re.IGNORECASE)
+ENGLISH_FUNCTION_RE = re.compile(
+    r"\b(?:the|your|this|please|for|you|is|a|call|from|and)\b",
+    re.IGNORECASE,
+)
+SSN_LAST4_RE = re.compile(
+    r"\b(?:social security number|ssn)\s+(?:ending in|last four)\s+(\d{4})\b",
+    re.IGNORECASE,
+)
+OPENING_TURN_LIMIT = 3
+TRAILING_LEGAL_SUFFIX_RE = re.compile(
+    r"(?:,|\s)+(?:incorporated|inc|l\.l\.c\.?|llc|corp|corporation|ltd|limited|plc)\.?",
+    re.IGNORECASE,
+)
 COMPANY_CUE_RE = re.compile(
     r"\b(?:calling from(?: the)?|on behalf of(?: the)?|representing(?: the)?|"
     r"i am with(?: the)?|this is the)\b",
@@ -86,7 +108,7 @@ COMPANY_CUE_RE = re.compile(
 AGENT_NAME_RE = re.compile(r"\b[Mm]y name is\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\b")
 AGENT_TITLE_RE = re.compile(r"\b(?:Agent|Officer|Detective)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b")
 IDENTIFIER_RE = re.compile(
-    r"\b(case|claim|reference|ticket|confirmation|badge)\s+(?:number|id)\s*[:#]?\s*"
+    r"\b(case|claim|reference|ticket|confirmation|badge|account)\s+(?:number|id)\s*[:#]?\s*"
     r"([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*)",
     re.IGNORECASE,
 )
@@ -106,6 +128,7 @@ class DeterministicExtractor:
         found: list[Observation] = []
         for segment in transcript.segments:
             found.extend(self._extract_segment(transcript.call_id, segment))
+        found.extend(self._opening_and_language(transcript))
         return dedupe_observations(found)
 
     def _extract_segment(self, call_id: str, segment: TranscriptSegment) -> list[Observation]:
@@ -196,11 +219,15 @@ class DeterministicExtractor:
         for match in PHONE_RE.finditer(text):
             window_start = max(previous_phone_end, match.start() - 80)
             window = text[window_start:match.start()]
-            kind = (
-                ObservationKind.CALLBACK_NUMBERS
-                if CALLBACK_CUE_RE.search(window)
-                else ObservationKind.SPOKEN_NUMBERS
-            )
+            if CALLBACK_CUE_RE.search(window):
+                kind = ObservationKind.CALLBACK_NUMBERS
+                rule = "phone"
+            elif CLI_CUE_RE.search(window):
+                kind = ObservationKind.SPOKEN_CLI_CLAIM
+                rule = "spoken_cli"
+            else:
+                kind = ObservationKind.SPOKEN_NUMBERS
+                rule = "phone"
             observations.append(
                 self._emit(
                     call_id,
@@ -208,7 +235,7 @@ class DeterministicExtractor:
                     kind,
                     match.start(),
                     match.end(),
-                    "phone",
+                    rule,
                     confidence.PHONE,
                     normalize_phone,
                 )
@@ -334,6 +361,9 @@ class DeterministicExtractor:
         observations.extend(self._pretext(call_id, segment))
         observations.extend(self._agents(call_id, segment))
         observations.extend(self._identifiers(call_id, segment))
+        if segment.speaker is SpeakerRole.SYSTEM:
+            observations.extend(self._ivr(call_id, segment))
+        observations.extend(self._transfer_destinations(call_id, segment))
         return observations
 
     def _phrases(
@@ -375,6 +405,9 @@ class DeterministicExtractor:
                 end = cue.end() + match.end()
                 if overlaps(start, end, occupied) or not word_bounded(text, start, end):
                     continue
+                suffix = TRAILING_LEGAL_SUFFIX_RE.match(text, end)
+                if suffix is not None:
+                    end = suffix.end()
                 occupied.append((start, end))
                 found.append(
                     self._emit(
@@ -469,8 +502,126 @@ class DeterministicExtractor:
             )
         return found
 
+    def _ivr(self, call_id: str, segment: TranscriptSegment) -> list[Observation]:
+        prompts = list(IVR_PROMPT_RE.finditer(segment.text))
+        found = [
+            self._emit(
+                call_id,
+                segment,
+                ObservationKind.IVR_PROMPTS,
+                match.start(),
+                match.end(),
+                "ivr_prompt",
+                confidence.IVR,
+                normalize_phrase,
+            )
+            for match in prompts
+        ]
+        if len(prompts) >= 2 and segment.text:
+            found.append(
+                self._emit(
+                    call_id,
+                    segment,
+                    ObservationKind.IVR_MENU_PATH,
+                    0,
+                    len(segment.text),
+                    "ivr_menu_path",
+                    confidence.IVR,
+                    normalize_phrase,
+                )
+            )
+        return found
+
+    def _transfer_destinations(self, call_id: str, segment: TranscriptSegment) -> list[Observation]:
+        if not find_phrases(segment.text, TRANSFER_PHRASES):
+            return []
+        found: list[Observation] = []
+        for phrases in (DEPARTMENTS, ORGANIZATIONS):
+            for start, end, _surface in find_phrases(segment.text, phrases):
+                found.append(
+                    self._emit(
+                        call_id,
+                        segment,
+                        ObservationKind.TRANSFER_DESTINATION_CLAIMED,
+                        start,
+                        end,
+                        "transfer_destination",
+                        confidence.TRANSFER_DESTINATION,
+                        normalize_phrase,
+                    )
+                )
+        for match in PHONE_RE.finditer(segment.text):
+            found.append(
+                self._emit(
+                    call_id,
+                    segment,
+                    ObservationKind.TRANSFER_DESTINATION_CLAIMED,
+                    match.start(),
+                    match.end(),
+                    "transfer_destination",
+                    confidence.TRANSFER_DESTINATION,
+                    normalize_phone,
+                )
+            )
+        return found
+
+    def _opening_and_language(self, transcript: Transcript) -> list[Observation]:
+        scammer = [
+            segment for segment in transcript.segments if segment.speaker is SpeakerRole.SCAMMER
+        ]
+        found: list[Observation] = []
+        for index, segment in enumerate(scammer[:OPENING_TURN_LIMIT]):
+            if not segment.text:
+                continue
+            found.append(
+                self._emit(
+                    transcript.call_id,
+                    segment,
+                    ObservationKind.OPENING_SCRIPT_TEXT,
+                    0,
+                    len(segment.text),
+                    "opening_turn",
+                    confidence.OPENING_SCRIPT,
+                    normalize_phrase,
+                    opening_turn_index=index,
+                )
+            )
+        for segment in scammer:
+            detected = _detect_script_language(segment.text)
+            if detected is None:
+                continue
+            start, end, locale, score = detected
+            found.append(
+                self._emit(
+                    transcript.call_id,
+                    segment,
+                    ObservationKind.SCRIPT_LANGUAGE,
+                    start,
+                    end,
+                    "script_language",
+                    score,
+                    _locale_normalized(locale),
+                    locale=locale,
+                )
+            )
+            break
+        return found
+
     def _identifiers(self, call_id: str, segment: TranscriptSegment) -> list[Observation]:
         found: list[Observation] = []
+        for match in SSN_LAST4_RE.finditer(segment.text):
+            found.append(
+                self._emit(
+                    call_id,
+                    segment,
+                    ObservationKind.CASE_OR_REFERENCE_IDS,
+                    match.start(1),
+                    match.end(1),
+                    "ssn_last4",
+                    confidence.CASE_ID,
+                    normalize_identifier,
+                )
+            )
         for match in IDENTIFIER_RE.finditer(segment.text):
             identifier = match.group(2)
             if len(identifier) < 4 or not re.search(r"\d", identifier):
@@ -510,6 +661,8 @@ class DeterministicExtractor:
         normalize: Normalizer,
         payment_method: PaymentMethod | None = None,
         pretext_category: PretextCategory | None = None,
+        locale: ScriptLocale | None = None,
+        opening_turn_index: int | None = None,
     ) -> Observation:
         value = segment.text[char_start:char_end]
         if payment_method is not None:
@@ -538,7 +691,28 @@ class DeterministicExtractor:
             confidence=score,
             payment_method=payment_method,
             pretext_category=pretext_category,
+            locale=locale,
+            opening_turn_index=opening_turn_index,
         )
+
+
+def _locale_normalized(locale: ScriptLocale) -> Callable[[str], str]:
+    def normalize(_value: str) -> str:
+        return locale.value
+
+    return normalize
+
+
+def _detect_script_language(text: str) -> tuple[int, int, ScriptLocale, float] | None:
+    english = EXPLICIT_ENGLISH_RE.search(text)
+    if english is not None:
+        return english.start(), english.end(), ScriptLocale.EN, confidence.SCRIPT_LANGUAGE_EXPLICIT
+    spanish = EXPLICIT_SPANISH_RE.search(text)
+    if spanish is not None:
+        return spanish.start(), spanish.end(), ScriptLocale.ES, confidence.SCRIPT_LANGUAGE_EXPLICIT
+    if ENGLISH_FUNCTION_RE.search(text):
+        return 0, len(text), ScriptLocale.EN, confidence.SCRIPT_LANGUAGE
+    return None
 
 
 def _trim_url(match: re.Match[str]) -> tuple[int, int]:

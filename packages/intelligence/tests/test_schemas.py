@@ -175,5 +175,11 @@ def test_observation_kind_values_are_stable() -> None:
         "remote_access_tools",
         "spoofed_authority_claims",
         "follow_up_promises",
+        "opening_script_text",
+        "ivr_prompts",
+        "ivr_menu_path",
+        "transfer_destination_claimed",
+        "spoken_cli_claim",
+        "script_language",
         "other",
     ]

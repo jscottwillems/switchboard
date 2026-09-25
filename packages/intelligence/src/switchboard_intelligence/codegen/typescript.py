@@ -19,14 +19,22 @@ from switchboard_intelligence.schemas.attribution import (
     AttributionSubject,
 )
 from switchboard_intelligence.schemas.bundle import IntelligenceBundle
+from switchboard_intelligence.schemas.campaign import AssociationReason, CampaignAssociation
 from switchboard_intelligence.schemas.common import SCHEMA_VERSION
 from switchboard_intelligence.schemas.hints import ElicitedHint
-from switchboard_intelligence.schemas.inference import Inference, InferenceKind, InferenceMethod
+from switchboard_intelligence.schemas.inference import (
+    IdentifierKind,
+    Inference,
+    InferenceKind,
+    InferenceMethod,
+    PhoneSourceTag,
+)
 from switchboard_intelligence.schemas.observation import (
     Observation,
     ObservationKind,
     PaymentMethod,
     PretextCategory,
+    ScriptLocale,
 )
 from switchboard_intelligence.schemas.transcript import SpeakerRole, Transcript, TranscriptSegment
 
@@ -34,8 +42,11 @@ ENUMS: tuple[type[Enum], ...] = (
     SpeakerRole,
     PretextCategory,
     PaymentMethod,
+    ScriptLocale,
     ObservationKind,
     InferenceKind,
+    PhoneSourceTag,
+    IdentifierKind,
     InferenceMethod,
     AttributionSubject,
     AttributionStatus,
@@ -48,6 +59,8 @@ MODELS: tuple[type[BaseModel], ...] = (
     Observation,
     Inference,
     Attribution,
+    AssociationReason,
+    CampaignAssociation,
     IntelligenceBundle,
 )
 
@@ -116,6 +129,9 @@ def _typescript_type(annotation: object) -> str:
     if origin in (list,):
         inner = _typescript_type(get_args(annotation)[0])
         return f"{inner}[]"
+    if origin is dict:
+        key_type, value_type = get_args(annotation)
+        return f"Record<{_typescript_type(key_type)}, {_typescript_type(value_type)}>"
     if origin in (Union, types.UnionType):
         return " | ".join(_typescript_type(arg) for arg in get_args(annotation))
     if isinstance(annotation, type) and issubclass(annotation, Enum):
