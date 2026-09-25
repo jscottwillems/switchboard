@@ -15,8 +15,9 @@ Error body (`ErrorBody`):
 | 401 | `webhook_unauthorized` | Carrier signature rejected |
 | 401 | `unauthorized` | Missing or wrong internal token |
 | 403 | `number_not_enrolled` | `to_e164` is not an active operator number |
-| 404 | `call_not_found` | Unknown call session on a read route |
+| 404 | `call_not_found` | Unknown call session on a read route or a status callback |
 | 404 | `campaign_not_found` | Unknown campaign |
+| 409 | `state_conflict` | Status callback would move `obs.call_session.state` backward |
 | 413 | `webhook_too_large` | Carrier body exceeds 1 MiB. Checked before the signature and before schema validation |
 | 422 | `invalid_request` | Body or path failed validation. Values from the body are not echoed |
 | 429 | `webhook_rate_limited` | Per-client webhook window exceeded. Checked before schema validation |
@@ -83,15 +84,24 @@ Response:
 
 Mock session ids are UUIDv5(`SWITCHBOARD_ID_NAMESPACE`, `mock:{provider_call_id}`).
 
-The voice route performs these five steps. Stream tokens remain the process-local store until `SB-014`. `telephony.call.received` is validated and published with `EventBus` (`envelope` JSON, stream `switchboard.events`, approximate maxlen 100000). Only the first insert of a `(carrier, external_call_id)` publishes. A publish failure does not roll back the session. The status route still checks the signature and returns `accepted: true` without a write (`SB-003`). Schema-invalid bodies still fail before the handler (`SB-015`), so they do not insert a receipt.
+The voice route performs these five steps. Stream tokens remain the process-local store until `SB-014`. `telephony.call.received` is validated and published with `EventBus` (`envelope` JSON, stream `switchboard.events`, approximate maxlen 100000). Only the first insert of a `(carrier, external_call_id)` publishes. A publish failure does not roll back the session. The status route updates that session and publishes `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same `EventBus` (`SB-003`). Schema-invalid bodies still fail before the handler (`SB-015`), so they do not insert a receipt.
 
 ### `POST /v1/telephony/status/{provider}`
 
 Request `MockStatusWebhook`: `provider_call_id`, `status` (`CallState`), `timestamp`, optional `end_reason`.
 
-Target: update the session and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed`. Response `StatusAccepted`: `{"accepted": true}`.
+The route verifies the signature on the raw body, then updates the session for that `(provider, provider_call_id)` through `TelephonyObsStore.apply_call_state` (`CallSessionRepository.apply_state`). It publishes through `EventBus.publish` after the commit. The status event id is UUIDv5 of the session id and the event type, so a duplicate callback does not append a second stream entry.
 
-The stub checks the signature and returns `accepted: true` without a write.
+| `status` | Session | Event |
+| --- | --- | --- |
+| `in_progress` | `in_progress`, `answered_at` = `timestamp` | `telephony.call.answered` |
+| `completed` | `completed`, `ended_at` = `timestamp`, `end_reason` when sent | `telephony.call.completed` |
+| `failed` | `failed`, `ended_at` = `timestamp`, `end_reason` (`failed` when omitted or blank) | `telephony.call.failed` |
+| `ringing` | no write when the session is already `ringing` | none |
+
+Response `StatusAccepted`: `{"accepted": true}`.
+
+A second callback for the same state returns `accepted: true` and leaves `answered_at` and `ended_at` in place. An unknown `provider_call_id` is `404 call_not_found`. A backward transition is `409 state_conflict`. Signature failure is `401 webhook_unauthorized` and does not change the session. A publish failure does not roll back the session. Accepted callbacks, unknown-call callbacks, and signature-rejected JSON objects insert `obs.webhook_receipt` with `event_type` `status`. A rejected signature does not trust `provider_call_id`, so that receipt's `call_session_id` is null.
 
 ### Read models
 

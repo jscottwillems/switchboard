@@ -1,6 +1,7 @@
-"""Carrier webhooks. Voice persistence writes Atlas obs tables."""
+"""Carrier webhooks. Voice and status persistence write Atlas obs tables."""
 
 import json
+from datetime import datetime
 from typing import Any, Never
 from uuid import UUID, uuid5
 
@@ -8,6 +9,7 @@ from fastapi import APIRouter, Request
 from pydantic import ValidationError
 
 from switchboard_observability import log_info
+from switchboard_repositories import NotFound, StateConflict
 from switchboard_schemas.api import (
     MockStatusWebhook,
     MockVoiceWebhook,
@@ -17,6 +19,7 @@ from switchboard_schemas.api import (
 )
 from switchboard_schemas.common import SWITCHBOARD_ID_NAMESPACE
 from switchboard_schemas.enums import CallState, CarrierProvider
+from switchboard_schemas.events import EventEnvelope
 from switchboard_schemas.observations import CallSession
 from switchboard_telephony import (
     InstructionRenderer,
@@ -29,13 +32,21 @@ from switchboard_api.errors import ApiError
 from switchboard_api.memory_tokens import issue_token
 from switchboard_api.obs_store import get_obs_store
 from switchboard_api.settings import get_settings
-from switchboard_api.telephony_events import publish_envelope, telephony_call_received_envelope
+from switchboard_api.telephony_events import (
+    publish_envelope,
+    telephony_call_answered_envelope,
+    telephony_call_completed_envelope,
+    telephony_call_failed_envelope,
+    telephony_call_received_envelope,
+)
 from switchboard_api.webhook_edge import admit_webhook, status_for
 
 router = APIRouter(prefix="/v1/telephony", tags=["telephony"])
 _verifier = MockSignatureVerifier()
 _renderer: InstructionRenderer = VoiceInstructionRenderer()
 VOICE_RECEIPT_EVENT = "voice"
+STATUS_RECEIPT_EVENT = "status"
+_FAILED_END_REASON = "failed"
 
 
 def signature_status(raw_body: bytes, headers: list[tuple[str, str]]) -> bool | None:
@@ -46,10 +57,6 @@ def signature_status(raw_body: bytes, headers: list[tuple[str, str]]) -> bool | 
     if settings.env == "dev" and settings.dev_webhook_bypass:
         return None
     return _verifier.verify(raw_body, lowered)
-
-
-def webhook_authorized(raw_body: bytes, headers: list[tuple[str, str]]) -> bool:
-    return signature_status(raw_body, headers) is not False
 
 
 def session_id_for(provider: CarrierProvider, provider_call_id: str) -> UUID:
@@ -146,6 +153,7 @@ async def inbound_voice(provider: CarrierProvider, request: Request) -> Telephon
         if payload is not None:
             _store_receipt(
                 provider=provider.value,
+                event_type=VOICE_RECEIPT_EVENT,
                 payload=payload,
                 signature_valid=False,
                 call_session_id=None,
@@ -236,6 +244,7 @@ def _open_session_or_reject(
 def _store_receipt(
     *,
     provider: str,
+    event_type: str,
     payload: dict[str, Any],
     signature_valid: bool | None,
     call_session_id: UUID | None,
@@ -245,19 +254,194 @@ def _store_receipt(
         store.insert_webhook_receipt(
             conn,
             provider=provider,
-            event_type=VOICE_RECEIPT_EVENT,
+            event_type=event_type,
             payload=payload,
             signature_valid=signature_valid,
             call_session_id=call_session_id,
         )
 
 
+def _publishes_status(status: CallState) -> bool:
+    match status:
+        case CallState.IN_PROGRESS | CallState.COMPLETED | CallState.FAILED:
+            return True
+        case CallState.RINGING:
+            return False
+        case unreachable:
+            return _never(unreachable)
+
+
+def _failed_reason(end_reason: str | None) -> str:
+    if end_reason is None or end_reason.strip() == "":
+        return _FAILED_END_REASON
+    return end_reason
+
+
+def _status_timestamps(body: MockStatusWebhook) -> tuple[datetime | None, datetime | None]:
+    """Return answered_at and ended_at for this callback. Ringing changes neither."""
+
+    match body.status:
+        case CallState.IN_PROGRESS:
+            return body.timestamp, None
+        case CallState.COMPLETED | CallState.FAILED:
+            return None, body.timestamp
+        case CallState.RINGING:
+            return None, None
+        case unreachable:
+            return _never(unreachable)
+
+
+def _stored_end_reason(body: MockStatusWebhook) -> str | None:
+    match body.status:
+        case CallState.FAILED:
+            return _failed_reason(body.end_reason)
+        case CallState.COMPLETED:
+            return body.end_reason
+        case CallState.IN_PROGRESS | CallState.RINGING:
+            return None
+        case unreachable:
+            return _never(unreachable)
+
+
+def _status_occurred_at(session: CallSession, body: MockStatusWebhook) -> datetime:
+    match body.status:
+        case CallState.IN_PROGRESS:
+            when = session.answered_at
+        case CallState.COMPLETED | CallState.FAILED:
+            when = session.ended_at
+        case CallState.RINGING:
+            when = body.timestamp
+        case unreachable:
+            return _never(unreachable)
+    return when if when is not None else body.timestamp
+
+
+def _status_envelope(session: CallSession, body: MockStatusWebhook) -> EventEnvelope:
+    occurred_at = _status_occurred_at(session, body)
+    match body.status:
+        case CallState.IN_PROGRESS:
+            return telephony_call_answered_envelope(
+                call_session_id=session.id,
+                external_call_id=session.external_call_id,
+                occurred_at=occurred_at,
+            )
+        case CallState.COMPLETED:
+            return telephony_call_completed_envelope(
+                call_session_id=session.id,
+                external_call_id=session.external_call_id,
+                occurred_at=occurred_at,
+                end_reason=session.end_reason,
+            )
+        case CallState.FAILED:
+            return telephony_call_failed_envelope(
+                call_session_id=session.id,
+                external_call_id=session.external_call_id,
+                occurred_at=occurred_at,
+                end_reason=_failed_reason(session.end_reason),
+            )
+        case CallState.RINGING:
+            raise AssertionError("ringing status does not publish a telephony event")
+        case unreachable:
+            return _never(unreachable)
+
+
+def _apply_status_callback(
+    provider: CarrierProvider,
+    body: MockStatusWebhook,
+    payload: dict[str, Any],
+    signature_valid: bool | None,
+) -> EventEnvelope | None:
+    """Commit the receipt and any forward transition. Publish happens after return."""
+
+    store = get_obs_store()
+    missing = False
+    conflict = False
+    envelope: EventEnvelope | None = None
+    answered_at, ended_at = _status_timestamps(body)
+    with store.connection() as conn:
+        current = store.get_call_session(conn, provider.value, body.provider_call_id)
+        if current is None:
+            store.insert_webhook_receipt(
+                conn,
+                provider=provider.value,
+                event_type=STATUS_RECEIPT_EVENT,
+                payload=payload,
+                signature_valid=signature_valid,
+                call_session_id=None,
+            )
+            missing = True
+        else:
+            store.insert_webhook_receipt(
+                conn,
+                provider=provider.value,
+                event_type=STATUS_RECEIPT_EVENT,
+                payload=payload,
+                signature_valid=signature_valid,
+                call_session_id=current.id,
+            )
+            session = current
+            if current.state != body.status:
+                try:
+                    session = store.apply_call_state(
+                        conn,
+                        current.id,
+                        state=body.status,
+                        answered_at=answered_at,
+                        ended_at=ended_at,
+                        end_reason=_stored_end_reason(body),
+                    )
+                except StateConflict:
+                    conflict = True
+                except NotFound:
+                    missing = True
+            if not missing and not conflict and _publishes_status(body.status):
+                envelope = _status_envelope(session, body)
+    if missing:
+        log_info(
+            "webhook_rejected",
+            provider=provider.value,
+            route="status",
+            error="call_not_found",
+        )
+        raise ApiError(404, "call_not_found", "No call session exists with that id.")
+    if conflict:
+        log_info(
+            "webhook_rejected",
+            provider=provider.value,
+            route="status",
+            error="state_conflict",
+        )
+        raise ApiError(409, "state_conflict", "Call session cannot move to that state.")
+    return envelope
+
+
 @router.post("/status/{provider}", response_model=StatusAccepted)
 async def status_callback(provider: CarrierProvider, request: Request) -> StatusAccepted:
     raw = await _admitted_body(request, provider, "status")
-    if not webhook_authorized(raw, list(request.headers.items())):
-        log_info("webhook_rejected", provider=provider.value, route="status", error="webhook_unauthorized")
+    headers = list(request.headers.items())
+    checked = signature_status(raw, headers)
+    payload = _json_object(raw)
+    if checked is False:
+        if payload is not None:
+            _store_receipt(
+                provider=provider.value,
+                event_type=STATUS_RECEIPT_EVENT,
+                payload=payload,
+                signature_valid=False,
+                call_session_id=None,
+            )
+        log_info(
+            "webhook_rejected",
+            provider=provider.value,
+            route="status",
+            error="webhook_unauthorized",
+        )
         raise ApiError(401, "webhook_unauthorized", "Webhook signature was rejected.")
-    _parse_status(raw)
+    if payload is None:
+        raise ApiError(422, "invalid_request", "Request failed validation.")
+    body = _parse_status(raw)
+    envelope = _apply_status_callback(provider, body, payload, checked)
+    if envelope is not None:
+        publish_envelope(envelope)
     log_info("webhook_accepted", provider=provider.value, route="status")
     return StatusAccepted()

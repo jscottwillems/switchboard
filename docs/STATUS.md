@@ -2,14 +2,14 @@
 
 Contract version **0.1.0**. Updated by ATLAS on 2026-09-25.
 
-The authoritative docs exist, the repository layout exists, and the shared schemas exist. The first-milestone phone call is not implemented. ECHO has landed media parsing, token checks, deterministic mock TTS, and hot-path timing (SB-004, SB-006, SB-020). Call list and detail read stored rows (SB-018). Campaign reads and the status webhook still advertise the contracts and stop there.
+The authoritative docs exist, the repository layout exists, and the shared schemas exist. The first-milestone phone call is not implemented. ECHO has landed media parsing, token checks, deterministic mock TTS, and hot-path timing (SB-004, SB-006, SB-020). Call list and detail read stored rows (SB-018). Status callbacks update session state and publish telephony events (SB-003). Campaign reads still advertise the contracts and stop there.
 
 ## What runs today
 
 | Target step | Skeleton |
 | --- | --- |
 | Test call reaches a webhook | `POST /v1/telephony/voice/mock` accepts a signed or dev-bypass body |
-| Call session created | Enrolled `POST /v1/telephony/voice/mock` inserts `obs.call_session` (UUIDv5) and `obs.webhook_receipt` |
+| Call session created | Enrolled `POST /v1/telephony/voice/mock` inserts `obs.call_session` (UUIDv5) in `ringing`. `POST /v1/telephony/status/mock` moves that row forward |
 | Audio streamed | WebSocket checks the token with the API, parses `start` / `media` / `stop`, and counts binary frames as audio. It does not run STT |
 | Speech recognized | `MockStt` returns no text |
 | Response selected | `FixedResponseSelector` exists. The socket does not call it |
@@ -18,7 +18,7 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | Intelligence extracted | `POST /v1/internal/extract` proposes `callback_number` when a segment contains an E.164 |
 | Call on the dashboard | `GET /v1/calls` and `GET /v1/calls/{id}` return stored rows. The Vue app still uses mock fixtures until SB-013 |
 
-`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. Campaign routes still return an empty list and `404`. The media gateway can publish and does not open Postgres. The dashboard does not open either client.
+`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. Campaign routes still return an empty list and `404`. The media gateway can publish and does not open Postgres. The dashboard does not open either client.
 
 ## Ownership map
 
@@ -585,3 +585,53 @@ This handoff sits on the ATLAS skeleton. It does not replace the handoff above. 
 - RADAR SB-013: HTTP adapter for `GET /v1/calls` and `GET /v1/calls/{id}`. Render an empty list and `call_not_found`. Keep transcript segments and findings visually separate. Poll the list for the live board. Do not invent gap fields.
 - SENTINEL: operator authentication before any shared deployment. The tripwire in `tests/test_runtime_gaps.py` still skips until `switchboard_api.operator_auth` exists.
 - Campaign reads stay a later ATLAS ticket. This change does not start them.
+
+## HANDOFF — BELL — 2026-09-25T23:43:46Z
+
+### Completed
+
+- SB-003. `POST /v1/telephony/status/{provider}` verifies the mock signature on the raw body, then updates `obs.call_session` through `TelephonyObsStore.apply_call_state` (`CallSessionRepository.apply_state`) and publishes through `publish_envelope` / `EventBus`.
+- `in_progress` sets `answered_at` and publishes `telephony.call.answered`. `completed` sets `ended_at` and publishes `telephony.call.completed`. `failed` sets `ended_at` and publishes `telephony.call.failed`. A `failed` callback with no `end_reason` stores and publishes `failed`.
+- A repeat of the stored state leaves `answered_at` and `ended_at` in place. The status event id is UUIDv5(`SWITCHBOARD_ID_NAMESPACE`, `{call_session_id}:{event_type}`), so the duplicate does not append a second stream entry. A retry after a lost publish can still write that one entry.
+- An unknown `provider_call_id` is `404 call_not_found`. A backward transition is `409 state_conflict`. Signature failure stays `401 webhook_unauthorized` and does not change the session. Signed non-JSON stays `422` and does not insert a receipt.
+- Each accepted callback, unknown-call callback, and signature-rejected JSON object inserts `obs.webhook_receipt` with `event_type` `status`. A rejected signature does not look up `provider_call_id`, so that receipt's `call_session_id` is null.
+- Publish still happens after the Postgres commit. Redis failure returns `PublishResult.failed`, logs `event_publish_failed`, and does not roll back the session (ADR-011). No private `XADD`.
+
+### Files changed
+
+- `apps/api/switchboard_api/routes/telephony.py`
+- `apps/api/switchboard_api/telephony_events.py`
+- `apps/api/switchboard_api/obs_store.py`
+- `packages/repositories/switchboard_repositories/telephony_store.py`
+- `tests/test_status_callback.py`
+- `docs/API_CONTRACTS.md`, `docs/DATA_MODEL.md`, `docs/STATUS.md`
+
+### Interfaces added-changed
+
+- `TelephonyObsStore.get_call_session` and `TelephonyObsStore.apply_call_state`. No new table and no new migration.
+- `telephony_call_answered_envelope`, `telephony_call_completed_envelope`, and `telephony_call_failed_envelope`. They call `build_envelope`, which calls `validate_event`, then `publish_envelope`.
+- Status receipt `event_type` is `status`. Voice receipts stay `voice`.
+- `404 call_not_found` now also covers an unknown status callback. `409 state_conflict` is the backward-transition response.
+
+### Tests
+
+- `make test`: 134 passed, 2 skipped. The skips are the existing SB-014 and operator-auth tripwires.
+- New cases in `tests/test_status_callback.py`: completed sets `ended_at` and publishes one `telephony.call.completed` even when the callback is repeated with a later timestamp; answered then completed keeps `answered_at`; failed sets `ended_at` and publishes `telephony.call.failed`; a missing `end_reason` on failed uses `failed`; ringing publishes no extra telephony event; signature rejection, unsigned garbage, and signed garbage; unknown call; backward transition; Redis outage still sets `ended_at`.
+- Postgres at `DATABASE_URL` and Redis at `REDIS_URL`. Docker Compose was not executed.
+
+### Dependencies
+
+- No new packages. SB-001 and SB-016 were already on main (`5d4bf44`).
+
+### Blocking issues
+
+- No projector consumes these events yet. The webhook writes the session itself, the same way the voice route inserts `ringing` before `telephony.call.received`. A later projector must treat the status event as idempotent on the session.
+- A crash after commit and before a successful publish can still drop the event until the carrier retries that same status (ADR-011). The deterministic event id makes that retry safe.
+- `GET /v1/calls` is still the SB-018 stub, so the updated session is not on the read API.
+- `apps/media_gateway` was not changed. Stream disconnect still does not end the session; the carrier status callback does.
+
+### Recommended next work
+
+- SB-018 can read the session this route now updates.
+- SB-005 / SB-008 publish from `switchboard_media.events.event_bus`. Do not add a second Redis writer.
+- A future projector for `api.projector` should no-op when the session is already in the event's state.
