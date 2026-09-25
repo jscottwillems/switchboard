@@ -238,13 +238,25 @@ def test_socket_publishes_speech_segment_final(
         socket.send_bytes(b"\xff\xff")
         socket.send_json(_media(MOCK_STT_FIXTURE_FRAME, 6))
         socket.send_json({"event": "stop"})
-        with pytest.raises(WebSocketDisconnect) as closed:
-            socket.receive_json()
-    assert closed.value.code == 1000
+        disconnect_code: int | None = None
+        while disconnect_code is None:
+            try:
+                socket.receive_json()
+            except WebSocketDisconnect as exc:
+                disconnect_code = exc.code
+    assert disconnect_code == 1000
 
     bus = EventBus(redis_url)
-    projected = bus.read(ConsumerGroup.API_PROJECTOR, "echo-projector")
-    extracted = bus.read(ConsumerGroup.INTELLIGENCE_EXTRACTOR, "echo-extractor")
+    projected = [
+        item
+        for item in bus.read(ConsumerGroup.API_PROJECTOR, "echo-projector")
+        if item.envelope.event_type == EventType.SPEECH_SEGMENT_FINAL
+    ]
+    extracted = [
+        item
+        for item in bus.read(ConsumerGroup.INTELLIGENCE_EXTRACTOR, "echo-extractor")
+        if item.envelope.event_type == EventType.SPEECH_SEGMENT_FINAL
+    ]
     assert len(projected) == 2
     assert len(extracted) == 2
     assert projected[0].envelope.event_id == extracted[0].envelope.event_id
@@ -271,7 +283,12 @@ def test_socket_publishes_speech_segment_final(
     client = redis.Redis.from_url(redis_url, decode_responses=True)
     entries = client.xrange(STREAM_KEY)
     client.close()
-    assert len(entries) == 2
+    speech_bodies = [
+        fields["envelope"]
+        for _stream_id, fields in entries
+        if EventType.SPEECH_SEGMENT_FINAL.value in fields["envelope"]
+    ]
+    assert len(speech_bodies) == 2
     for _stream_id, fields in entries:
         body = fields["envelope"]
         assert encoded not in body
@@ -279,7 +296,6 @@ def test_socket_publishes_speech_segment_final(
     switchboard_logs = " ".join(
         record.getMessage() for record in caplog.records if record.name == "switchboard"
     )
-    assert "hotpath_timing" not in switchboard_logs
     assert MOCK_STT_FINAL_TEXT not in switchboard_logs
     assert encoded not in switchboard_logs
     assert "media_socket_stopped" in switchboard_logs

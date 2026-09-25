@@ -72,6 +72,7 @@ class MediaSession:
         self.audio_frames = 0
         self._next_sequence = 0
         self._outbound: list[bytes] = []
+        self._playing = False
 
     def accept_text(self, text: str) -> FrameResult:
         try:
@@ -109,10 +110,28 @@ class MediaSession:
     def pending_outbound_bytes(self) -> int:
         return sum(len(chunk) for chunk in self._outbound)
 
+    def pop_outbound(self) -> bytes | None:
+        """Take the next unsent chunk. None means the queue is empty."""
+
+        if not self._outbound:
+            return None
+        return self._outbound.pop(0)
+
+    def mark_outbound_playing(self) -> None:
+        """Audio was written to the socket and has not been cleared."""
+
+        self._playing = True
+
+    def outbound_in_progress(self) -> bool:
+        """True while a reply is queued or already written and not cleared."""
+
+        return self._playing or bool(self._outbound)
+
     def clear_outbound(self) -> StreamClear:
         """Drop queued outbound audio and return the barge-in `clear` message."""
 
         self._outbound.clear()
+        self._playing = False
         return StreamClear()
 
     def _start(self, message: StreamStart) -> FrameResult:
@@ -168,3 +187,11 @@ def frame_from_websocket_message(
     if isinstance(text, str):
         return session.accept_text(text)
     return FrameResult(close_code=CLOSE_INVALID_PAYLOAD, reason="empty_frame")
+
+
+def outbound_chunks(audio: bytes, frame_bytes: int) -> list[bytes]:
+    """Split synthesized audio into frames. Empty audio sends nothing."""
+
+    if not audio or frame_bytes < 1:
+        return []
+    return [audio[index : index + frame_bytes] for index in range(0, len(audio), frame_bytes)]

@@ -149,7 +149,7 @@ Base URL locally: `http://localhost:8001`.
 
 Protocol id: `switchboard.media.v1`.
 
-The gateway calls `POST /v1/internal/stream-tokens/validate` and accepts the socket only when `valid` is true. A missing or rejected token closes with code `1008` before accept. The first server message is `StreamReady`. Frame rules, the PCMU default, the outbound buffer, and barge-in `clear` are specified under [ECHO media requirements](#echo-media-requirements). The socket passes accepted audio to mock STT and publishes `speech.segment.final` for the fixture frame. It does not call `respond_to_audio` (`SB-008`).
+The gateway calls `POST /v1/internal/stream-tokens/validate` and accepts the socket only when `valid` is true. A missing or rejected token closes with code `1008` before accept. The first server message is `StreamReady`. Frame rules, the PCMU default, the outbound buffer, and barge-in `clear` are specified under [ECHO media requirements](#echo-media-requirements). The socket passes accepted audio to mock STT and publishes `speech.segment.final` for the fixture frame. A non-empty final calls `respond_to_audio` and publishes `conversation.response.selected` and `conversation.turn.recorded`.
 
 First server message:
 
@@ -167,7 +167,7 @@ Client JSON messages (`InboundMediaMessage`):
 
 `encoding` is `audio/pcmu` or `audio/pcm`. A binary WebSocket frame is an audio frame with an implicit sequence. Carrier-native messages are translated in `packages/telephony` before they reach this socket.
 
-Server messages after `ready`: `media`, `mark` (`name`), `clear`. `clear` drops outbound audio still buffered for barge-in. The buffer behavior is specified under ECHO media requirements. The socket sends `ready` on connect and does not synthesize yet (`SB-008`).
+Server messages after `ready`: `media`, `mark` (`name`), `clear`. `clear` drops outbound audio still buffered for barge-in. The buffer behavior is specified under ECHO media requirements. After a final, the socket sends synthesized `media`. A later final during outbound sends `clear` before the next reply.
 
 Audio bytes, `payload_b64`, and tokens are not logged.
 
@@ -222,7 +222,21 @@ That final event has text `fixture caller segment`, `is_final` true, `stt_confid
 
 The socket calls `recognize_frame` for each accepted audio frame. Each final with non-empty text is published as `speech.segment.final` through `switchboard_media.events.event_bus`. `build_envelope` fills `producer: media_gateway`. The payload is `SpeechSegmentPayload` with `speaker: caller` and `is_final: true`. `sequence` starts at `0` on the socket and advances only after a publish that is not `failed`. A Redis failure is `PublishResult.failed`. It does not raise and it does not close the socket. The audio bytes are not fields on the envelope.
 
-The socket does not call `respond_to_audio` (`SB-008`).
+### Speak-back
+
+After `recognize_frame` returns one or more non-empty finals, the socket calls `respond_to_audio` with `recognized` set to those finals. `push_audio` is not called again for that frame. The selector is LOKI's `ResponseSelector` (`FixedResponseSelector` by default). TTS is `MockTts`. `turn_index` on that call is the honeypot turn.
+
+The socket then publishes through `event_bus()`:
+
+| Order | Event | Payload |
+| --- | --- | --- |
+| 1 | `conversation.turn.recorded` | Caller turn. `speaker: caller`, `strategy_id: null`, `confidence: 1.0`, `text` of the last final, `transcript_segment_ids` of every final in the frame. `turn_index` is 0, then 2, then 4 |
+| 2 | `conversation.response.selected` | `text`, `strategy_id`, and `confidence` from the `ResponseDecision`. `turn_id` is the honeypot turn |
+| 3 | `conversation.turn.recorded` | Honeypot turn. `speaker: honeypot`, same `turn_id` as the selected event, decision `text` / `strategy_id` / `confidence`. `turn_index` is 1, then 3, then 5 |
+
+`causation_id` on the caller turn and the selected event is the speech event id. `causation_id` on the honeypot turn is the selected event id. A failed publish does not raise and does not close the socket. Audio bytes and the reply text are not logged.
+
+Non-empty audio is sent as one or more `media` messages. Outbound `sequence` starts at 0 per socket. `timestamp_ms` is `sequence * 20`. Empty audio sends no `media`. The turn events are still published.
 
 ### Outbound buffer and barge-in `clear`
 
@@ -230,7 +244,7 @@ The gateway keeps a per-socket outbound buffer for synthesized audio that has no
 
 `clear` (`{"event":"clear"}`) drops every byte still in that buffer. That is the barge-in signal. Audio already written on the WebSocket stays written. Audio still queued is not written after `clear`.
 
-This slice does not synthesize on the socket and does not send `clear` from the socket (`SB-008`). `MediaSession.clear_outbound` drops the buffer and returns the `clear` message.
+If a non-empty final arrives while outbound audio is queued, or already written and not yet cleared, the socket sends `clear` and drops the queue before it writes the new reply. Audio already written stays written. A frame with no final does not send `clear`. `MediaSession.clear_outbound` drops the buffer and returns the `clear` message.
 
 ### Mock TTS
 
@@ -251,11 +265,7 @@ Event `hotpath_timing`. Fields: `stt_ms`, plus `select_ms` and `tts_ms` when tho
 
 If that emit raises, the gateway logs `hotpath_timing_failed` when the logger still accepts a call, and `respond_to_audio` still returns the audio bytes from TTS.
 
-`MockStt` returns one final for the fixture frame and `[]` for every other payload, so a non-fixture call to `respond_to_audio` returns `b""` after the STT stage. The fixture frame continues through the selector and TTS inside `respond_to_audio`. Tests can pass another `SttPort` in-process. The selector remains LOKI's `ResponseSelector`. The WebSocket does not call `respond_to_audio` (`SB-008`). `recognize_frame` is what publishes `speech.segment.final`.
-
-### Waiting
-
-`SB-008` needs `SB-004`, `SB-005`, `SB-006`, and `SB-007`. `SB-005` is the fixture final and the `speech.segment.final` publish. `SB-008` is still the socket calling the selector and TTS.
+`MockStt` returns one final for the fixture frame and `[]` for every other payload, so a non-fixture call to `respond_to_audio` returns `b""` after the STT stage. The fixture frame continues through the selector and TTS inside `respond_to_audio`. Tests can pass another `SttPort` in-process. The selector remains LOKI's `ResponseSelector`. The WebSocket calls `respond_to_audio` with `recognized` set, so the frame is not pushed twice. `recognize_frame` is what publishes `speech.segment.final`.
 
 ## apps/intelligence
 
@@ -295,7 +305,7 @@ These are not HTTP APIs.
 | `FindingExtractor.extract(segments)` | `packages/classification` | SHERLOCK | `E164FindingExtractor` proposes `callback_number`. `NullFindingExtractor` returns `[]` |
 | `CampaignCorrelator.propose(CorrelationInput)` | `packages/classification` | WATSON | `NullCampaignCorrelator` returns `[]` |
 
-`respond_to_audio` in `apps/media_gateway/switchboard_media/hotpath.py` is the hot-path order: STT, then selector, then TTS. It emits stage durations through `log_info`. The WebSocket handler does not call it yet (`SB-008`).
+`respond_to_audio` in `apps/media_gateway/switchboard_media/hotpath.py` is the hot-path order: STT, then selector, then TTS. It emits stage durations through `log_info`. The WebSocket calls it after a final, passing the finals from `recognize_frame`.
 
 ## Shared clients
 
