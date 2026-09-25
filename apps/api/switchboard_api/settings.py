@@ -13,6 +13,7 @@ class Settings:
     cors_origins: tuple[str, ...]
     media_gateway_public_ws: str
     dev_webhook_bypass: bool
+    health_probes: bool
     database_url: str
     redis_url: str
 
@@ -34,6 +35,7 @@ def get_settings() -> Settings:
             "ws://localhost:8001/v1/streams",
         ),
         dev_webhook_bypass=_flag("SWITCHBOARD_DEV_WEBHOOK_BYPASS"),
+        health_probes=_flag("SWITCHBOARD_HEALTH_PROBES"),
         database_url=os.environ.get(
             "DATABASE_URL",
             "postgresql://switchboard:switchboard@localhost:5432/switchboard",

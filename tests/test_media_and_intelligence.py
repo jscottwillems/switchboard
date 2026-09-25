@@ -7,6 +7,8 @@ from starlette.websockets import WebSocketDisconnect
 
 from switchboard_intelligence.main import app as intelligence_app
 from switchboard_intelligence.settings import get_settings as intelligence_settings
+from sentinel.limits import ResourceLimits
+from switchboard_media.budgets import reset_limits, set_limits
 from switchboard_media.hotpath import respond_to_audio
 from switchboard_media.main import app as media_app
 from switchboard_media.main import get_stream_token_validator
@@ -41,6 +43,27 @@ def test_media_health_and_socket() -> None:
             assert closed.value.code == 1000
     finally:
         media_app.dependency_overrides.clear()
+
+
+def test_oversized_media_frame_closes_the_socket() -> None:
+    set_limits(
+        ResourceLimits(
+            max_audio_bytes_per_call=4,
+            max_audio_bytes_per_second=4,
+            max_ws_message_bytes=4,
+        )
+    )
+    media_app.dependency_overrides[get_stream_token_validator] = lambda: _AcceptToken()
+    try:
+        with media.websocket_connect("/v1/streams?token=dev-token") as socket:
+            assert socket.receive_json()["event"] == "ready"
+            socket.send_bytes(b"x" * 32)
+            with pytest.raises(WebSocketDisconnect) as caught:
+                socket.receive_json()
+    finally:
+        reset_limits()
+        media_app.dependency_overrides.clear()
+    assert caught.value.code == 1008
 
 
 def test_hot_path_mock_returns_no_audio() -> None:

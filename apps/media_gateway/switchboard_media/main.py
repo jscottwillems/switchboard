@@ -1,8 +1,10 @@
 """Media WebSocket. Parses switchboard.media.v1 and checks stream tokens.
 
-Inbound audio is counted and dropped. STT and respond_to_audio are not called
-from this socket yet (SB-005, SB-008).
+Inbound audio is counted against the call budget, then dropped. STT and
+respond_to_audio are not called from this socket yet (SB-005, SB-008).
 """
+
+import time
 
 from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect
 
@@ -11,6 +13,7 @@ from switchboard_schemas.api import HealthResponse
 from switchboard_schemas.common import CONTRACT_VERSION
 from switchboard_schemas.media import MEDIA_PROTOCOL, StreamReady
 
+from switchboard_media.budgets import admit_frame, new_budget
 from switchboard_media.protocol import (
     CLOSE_NORMAL,
     CLOSE_POLICY_VIOLATION,
@@ -68,6 +71,7 @@ async def streams(
     await websocket.send_json(StreamReady().model_dump())
     log_info("media_socket_ready", call_session_id=str(result.call_session_id))
     session = MediaSession(result.call_session_id)
+    budget = new_budget()
     try:
         while True:
             message = await websocket.receive()
@@ -75,6 +79,14 @@ async def streams(
                 break
             if message["type"] != "websocket.receive":
                 continue
+            payload = message.get("bytes") or b""
+            text = message.get("text") or ""
+            nbytes = len(payload) if payload else len(text.encode("utf-8"))
+            decision = admit_frame(budget, nbytes, at=time.monotonic())
+            if not decision.allowed:
+                log_info("media_budget_denied", reason=decision.reason.value)
+                await websocket.close(code=CLOSE_POLICY_VIOLATION)
+                return
             outcome = frame_from_websocket_message(session, message)
             # `outcome.audio` is not stored. SB-005 will pass it to STT.
             if outcome.close_code is not None:
