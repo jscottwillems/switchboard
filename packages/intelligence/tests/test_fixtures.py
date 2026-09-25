@@ -1,0 +1,86 @@
+"""Precision and recall against the 50 synthetic transcripts.
+
+Gold labels are the indicators the fixture builder planted. They are not
+copied from extractor output. On this set the deterministic extractor is
+expected to hit every planted indicator and to emit nothing else:
+
+- precision 1.0
+- recall 1.0
+
+That is the coverage bar for obvious surface forms (see
+``DETERMINISTIC_COVERAGE``). Decoy segments hold the model gaps — spoken
+digits, word amounts, paraphrased urgency, and 'dot com' hosts — and must
+produce no observations.
+"""
+
+from collections import Counter
+
+from switchboard_intelligence.extraction.pipeline import extract_intelligence
+from switchboard_intelligence.schemas import ObservationKind, Transcript
+from switchboard_intelligence.schemas.inference import InferenceKind
+
+EXPECTED_INFERENCE_KINDS = {
+    InferenceKind.IMPERSONATED_ORGANIZATION,
+    InferenceKind.PAYMENT_RAIL,
+    InferenceKind.DATA_TARGET,
+    InferenceKind.PRESSURE_TACTIC,
+    InferenceKind.OFFER_TERMS,
+    InferenceKind.CALLBACK_CHANNEL,
+}
+
+
+def test_fixture_count_and_kind_coverage(fixture_rows: list[dict[str, object]]) -> None:
+    assert len(fixture_rows) == 50
+    families = Counter(row["family"] for row in fixture_rows)
+    assert set(families) == {
+        "irs",
+        "ssa",
+        "microsoft",
+        "warranty",
+        "student",
+        "bank",
+        "medicare",
+        "utility",
+        "package",
+        "prize",
+    }
+    assert set(families.values()) == {5}
+    planted = {item["kind"] for row in fixture_rows for item in row["gold"]}
+    assert planted == {kind.value for kind in ObservationKind}
+
+
+def test_obvious_indicator_precision_and_recall(fixture_rows: list[dict[str, object]]) -> None:
+    true_positive = 0
+    predicted = 0
+    gold_total = 0
+    for row in fixture_rows:
+        transcript = Transcript.model_validate(row["transcript"])
+        bundle = extract_intelligence(transcript)
+        segments = {segment.segment_id: segment for segment in transcript.segments}
+        pred = Counter(
+            (item.kind.value, item.transcript_segment_id, item.value) for item in bundle.observations
+        )
+        gold = Counter((item["kind"], item["segment_id"], item["value"]) for item in row["gold"])
+        assert pred == gold, row["call_id"]
+        true_positive += sum((pred & gold).values())
+        predicted += sum(pred.values())
+        gold_total += sum(gold.values())
+        decoys = set(row["decoy_segment_ids"])
+        assert decoys
+        assert all(item.transcript_segment_id not in decoys for item in bundle.observations)
+        for observation in bundle.observations:
+            segment = segments[observation.transcript_segment_id]
+            assert segment.text[observation.char_start : observation.char_end] == observation.value
+            assert segment.start_timestamp <= observation.start_timestamp <= observation.end_timestamp
+            assert observation.end_timestamp <= segment.end_timestamp
+            assert observation.source.startswith("deterministic.rules/v1#")
+        assert {item.kind for item in bundle.inferences} == EXPECTED_INFERENCE_KINDS
+        assert bundle.attributions == []
+        again = extract_intelligence(transcript)
+        assert again.model_dump(mode="json") == bundle.model_dump(mode="json")
+
+    assert predicted == gold_total
+    precision = true_positive / predicted
+    recall = true_positive / gold_total
+    assert precision == 1.0
+    assert recall == 1.0
