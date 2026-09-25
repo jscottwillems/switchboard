@@ -1,10 +1,24 @@
-"""STT and TTS ports. Owner: ECHO. Mocks return no recognition and no audio."""
+"""STT and TTS ports. Owner: ECHO.
 
+Mock STT returns no recognition (SB-005). Mock TTS returns one local PCMU frame.
+"""
+
+import hashlib
 from typing import Protocol
 
 from pydantic import Field
 
 from switchboard_schemas.common import Confidence, ContractModel
+
+from switchboard_media.protocol import (
+    TELEPHONY_DEFAULT_ENCODING,
+    TELEPHONY_DEFAULT_SAMPLE_RATE_HZ,
+)
+
+MOCK_TTS_ENCODING = TELEPHONY_DEFAULT_ENCODING
+MOCK_TTS_SAMPLE_RATE_HZ = TELEPHONY_DEFAULT_SAMPLE_RATE_HZ
+MOCK_TTS_FRAME_MS = 20
+MOCK_TTS_FRAME_BYTES = MOCK_TTS_SAMPLE_RATE_HZ * MOCK_TTS_FRAME_MS // 1000
 
 
 class SttEvent(ContractModel):
@@ -32,6 +46,15 @@ class MockStt:
 
 
 class MockTts:
+    """Offline `audio/pcmu` at 8 kHz mono. No network and no account.
+
+    Empty text returns `b""`. Any other string returns one 20 ms frame (160 bytes).
+    The bytes are SHA-256 of the UTF-8 text, repeated to the frame length.
+    """
+
     def synthesize(self, text: str) -> bytes:
-        del text
-        return b""
+        if text == "":
+            return b""
+        digest = hashlib.sha256(text.encode("utf-8")).digest()
+        repeats = (MOCK_TTS_FRAME_BYTES + len(digest) - 1) // len(digest)
+        return (digest * repeats)[:MOCK_TTS_FRAME_BYTES]

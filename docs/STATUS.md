@@ -2,7 +2,7 @@
 
 Contract version **0.1.0**. Updated by ATLAS on 2026-09-25.
 
-The authoritative docs exist, the repository layout exists, and the shared schemas exist. The first-milestone phone call is not implemented. Stubs advertise the contracts and stop there.
+The authoritative docs exist, the repository layout exists, and the shared schemas exist. The first-milestone phone call is not implemented. ECHO has landed media parsing, token checks, deterministic mock TTS, and hot-path timing (SB-004, SB-006, SB-020). The other stubs advertise the contracts and stop there.
 
 ## What runs today
 
@@ -10,10 +10,10 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | --- | --- |
 | Test call reaches a webhook | `POST /v1/telephony/voice/mock` accepts a signed or dev-bypass body |
 | Call session created | Enrolled `POST /v1/telephony/voice/mock` inserts `obs.call_session` (UUIDv5) and `obs.webhook_receipt` |
-| Audio streamed | WebSocket accepts a non-empty token, sends `ready`, discards frames |
+| Audio streamed | WebSocket checks the token with the API, parses `start` / `media` / `stop`, and counts binary frames as audio. It does not run STT |
 | Speech recognized | `MockStt` returns no text |
 | Response selected | `FixedResponseSelector` exists. The socket does not call it |
-| TTS and audio to caller | `MockTts` returns empty bytes. The socket does not call it |
+| TTS and audio to caller | `MockTts` returns 160 deterministic PCMU bytes. The socket does not call it |
 | Transcript stored | No projector |
 | Intelligence extracted | `POST /v1/internal/extract` returns an empty list |
 | Call on the dashboard | Vue page calls `GET /v1/calls`, which returns an empty list |
@@ -287,3 +287,50 @@ ATLAS's own next implementation tickets are SB-016 and SB-017. Other agents shou
 
 - ECHO SB-008: after a final recognition, call `select` and publish `conversation.response.selected` and `conversation.turn.recorded`.
 - A later LOKI ticket can replace `fixed.v1` with a state machine. Keep using `ResponseDecision` until ATLAS changes the contract.
+
+## HANDOFF — ECHO — 2026-09-25T21:01:10Z
+
+### Completed
+
+- SB-004. The media socket parses JSON `start`, `media`, and `stop`, treats binary frames as audio, closes `1008` when `token` is missing, and checks a present token with `POST /v1/internal/stream-tokens/validate` using `X-Switchboard-Internal-Token`.
+- SB-006. `MockTts.synthesize` returns 160 deterministic `audio/pcmu` bytes (8 kHz mono, 20 ms) for non-empty text and `b""` for empty text. Local, no network.
+- SB-020. `respond_to_audio` emits `stt_ms`, `select_ms`, and `tts_ms` through `log_info`. If that emit raises, the function still returns the TTS bytes.
+- ECHO media requirements in `docs/API_CONTRACTS.md`: `audio/pcmu` / `audio/pcm`, 8 kHz mono default, outbound buffer, barge-in `clear`, token validation.
+- Short pointer in `docs/echo/README.md`.
+
+### Files changed
+
+- `apps/media_gateway/switchboard_media/` (`main.py`, `protocol.py`, `tokens.py`, `hotpath.py`, `ports.py`, `settings.py`)
+- `tests/test_echo_media.py`, `tests/test_media_and_intelligence.py`
+- `docs/API_CONTRACTS.md`, `docs/STATUS.md`, `docs/echo/README.md`
+- `docker-compose.yml` media gateway env (`API_BASE_URL`, internal token), `.env.example`
+
+### Interfaces added-changed
+
+- WebSocket `/v1/streams` validates tokens and media frames. It sends `ready` and still does not call STT or `respond_to_audio`.
+- `MockTts` output is one 20 ms PCMU frame (160 bytes) derived from SHA-256 of the text.
+- `respond_to_audio(..., *, stt, tts, selector)` emits `hotpath_timing`.
+- `MediaSession.clear_outbound()` drops the outbound buffer and returns `{"event":"clear"}`.
+- Wire encodings remain `audio/pcmu` and `audio/pcm`. `audio/x-mulaw` closes `1007`.
+
+### Tests
+
+- `tests/test_echo_media.py` covers SB-004, SB-006, and SB-020.
+- Run `make test` from the repo root.
+
+### Dependencies
+
+- Token checks call the API. Compose sets `API_BASE_URL=http://api:8000` and `SWITCHBOARD_INTERNAL_TOKEN` on the media gateway.
+- SB-014 still owns the Redis single-use store. This slice uses whatever the API validate route returns.
+- SB-016 is still required before `speech.segment.final` can be published.
+
+### Blocking issues
+
+- None for SB-004, SB-006, and SB-020.
+- `docs/SECURITY.md` still says the socket only checks that the query string is non-empty. That sentence is stale after SB-004. ATLAS or SENTINEL should replace it. ECHO did not edit that file.
+- The socket does not synthesize, send `clear`, or publish events.
+
+### Recommended next work
+
+- ECHO waits on SB-005 until SB-016 lands, then SB-008 after SB-005 and SB-007.
+- SB-007 (LOKI) is still the selector rule change. This slice calls the existing `FixedResponseSelector` from `respond_to_audio` and from the timing tests. It does not add conversation policy.
