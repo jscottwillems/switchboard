@@ -59,7 +59,7 @@ The compose file sets `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` for local development o
 sh scripts/mock_inbound_call.sh
 ```
 
-The API returns a `connect_stream` instruction. It does not store a session yet. The dashboard shows an empty call list until the read-model tickets land.
+The API returns a `connect_stream` instruction and stores the session when `to_e164` is an active operator number. The dashboard shows an empty call list until the read-model tickets land.
 
 Without Docker, install and test the contracts:
 

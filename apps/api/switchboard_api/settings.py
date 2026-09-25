@@ -1,4 +1,4 @@
-"""Process settings. Database and Redis URLs are accepted and unused until persistence lands."""
+"""Process settings. The voice webhook reads database_url and redis_url."""
 
 import os
 from dataclasses import dataclass

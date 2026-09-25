@@ -20,6 +20,10 @@ def reset_token_store() -> None:
     _tokens.clear()
 
 
+def token_count() -> int:
+    return len(_tokens)
+
+
 def issue_token(call_session_id: UUID) -> IssueStreamTokenResponse:
     token = token_urlsafe(32)
     expires_at = datetime.now(timezone.utc) + _TTL

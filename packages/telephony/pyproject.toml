@@ -1,9 +1,11 @@
 [project]
 name = "switchboard-telephony"
 version = "0.1.0"
-description = "Carrier adapter ports. Owner: BELL. Mock verifier only in the skeleton."
+description = "Carrier adapter ports. Owner: BELL. Mock verifier and VoiceInstruction renderer."
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+  "pydantic>=2.7",
+]
 
 [build-system]
 requires = ["hatchling"]
