@@ -5,6 +5,7 @@ from typing import Any, Never
 from uuid import UUID, uuid5
 
 from fastapi import APIRouter, Request
+from pydantic import ValidationError
 
 from switchboard_observability import log_info
 from switchboard_schemas.api import (
@@ -29,6 +30,7 @@ from switchboard_api.memory_tokens import issue_token
 from switchboard_api.obs_store import get_obs_store
 from switchboard_api.settings import get_settings
 from switchboard_api.telephony_events import publish_envelope, telephony_call_received_envelope
+from switchboard_api.webhook_edge import admit_webhook, status_for
 
 router = APIRouter(prefix="/v1/telephony", tags=["telephony"])
 _verifier = MockSignatureVerifier()
@@ -108,13 +110,35 @@ def _ringing_session(
     )
 
 
-@router.post("/voice/{provider}", response_model=TelephonyWebhookAck)
-async def inbound_voice(
-    provider: CarrierProvider,
-    body: MockVoiceWebhook,
-    request: Request,
-) -> TelephonyWebhookAck:
+async def _admitted_body(request: Request, provider: CarrierProvider, route: str) -> bytes:
+    """Size and rate limits, then the raw body. Signature and schema stay with the caller."""
+
     raw = await request.body()
+    denied = admit_webhook(request, raw)
+    if denied is not None:
+        status_code, error, message = status_for(denied)
+        log_info("webhook_rejected", provider=provider.value, route=route, reason=error)
+        raise ApiError(status_code, error, message)
+    return raw
+
+
+def _parse_voice(raw: bytes) -> MockVoiceWebhook:
+    try:
+        return MockVoiceWebhook.model_validate_json(raw)
+    except (ValidationError, UnicodeError):
+        raise ApiError(422, "invalid_request", "Request failed validation.") from None
+
+
+def _parse_status(raw: bytes) -> MockStatusWebhook:
+    try:
+        return MockStatusWebhook.model_validate_json(raw)
+    except (ValidationError, UnicodeError):
+        raise ApiError(422, "invalid_request", "Request failed validation.") from None
+
+
+@router.post("/voice/{provider}", response_model=TelephonyWebhookAck)
+async def inbound_voice(provider: CarrierProvider, request: Request) -> TelephonyWebhookAck:
+    raw = await _admitted_body(request, provider, "voice")
     headers = list(request.headers.items())
     checked = signature_status(raw, headers)
     payload = _json_object(raw)
@@ -135,6 +159,7 @@ async def inbound_voice(
         raise ApiError(401, "webhook_unauthorized", "Webhook signature was rejected.")
     if payload is None:
         raise ApiError(422, "invalid_request", "Request failed validation.")
+    body = _parse_voice(raw)
 
     session_id, created = _open_session_or_reject(provider, body, payload, checked)
     if created:
@@ -228,15 +253,11 @@ def _store_receipt(
 
 
 @router.post("/status/{provider}", response_model=StatusAccepted)
-async def status_callback(
-    provider: CarrierProvider,
-    body: MockStatusWebhook,
-    request: Request,
-) -> StatusAccepted:
-    del body
-    raw = await request.body()
+async def status_callback(provider: CarrierProvider, request: Request) -> StatusAccepted:
+    raw = await _admitted_body(request, provider, "status")
     if not webhook_authorized(raw, list(request.headers.items())):
-        log_info("webhook_rejected", provider=provider.value, route="status")
+        log_info("webhook_rejected", provider=provider.value, route="status", error="webhook_unauthorized")
         raise ApiError(401, "webhook_unauthorized", "Webhook signature was rejected.")
+    _parse_status(raw)
     log_info("webhook_accepted", provider=provider.value, route="status")
     return StatusAccepted()

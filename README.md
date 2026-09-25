@@ -31,6 +31,7 @@ Machine-readable fields live in `packages/schemas` (Pydantic). `packages/schemas
 | `packages/conversation` | Reply-selector port |
 | `packages/classification` | Extractor and correlator ports |
 | `packages/observability` | Log redaction helper |
+| `sentinel/` | Resource limits and adversarial fixtures. Webhook verification stays in `packages/telephony` |
 
 ## Collaborate
 

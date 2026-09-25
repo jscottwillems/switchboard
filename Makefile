@@ -1,5 +1,5 @@
 PYTHON ?= python3
-PYTHONPATH := packages/schemas:packages/telephony:packages/conversation:packages/classification:packages/observability:apps/api:apps/media_gateway:apps/intelligence
+PYTHONPATH := .:packages/schemas:packages/telephony:packages/conversation:packages/classification:packages/observability:apps/api:apps/media_gateway:apps/intelligence
 export PYTHONPATH
 
 .PHONY: test install-dev

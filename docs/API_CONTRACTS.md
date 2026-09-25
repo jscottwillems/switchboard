@@ -17,7 +17,10 @@ Error body (`ErrorBody`):
 | 403 | `number_not_enrolled` | `to_e164` is not an active operator number |
 | 404 | `call_not_found` | Unknown call session on a read route |
 | 404 | `campaign_not_found` | Unknown campaign |
+| 413 | `webhook_too_large` | Carrier body exceeds 1 MiB. Checked before the signature and before schema validation |
 | 422 | `invalid_request` | Body or path failed validation. Values from the body are not echoed |
+| 429 | `webhook_rate_limited` | Per-client webhook window exceeded. Checked before schema validation |
+| 503 | `dependencies_unavailable` | `GET /health` with `SWITCHBOARD_HEALTH_PROBES=1` and Postgres or Redis refusing TCP |
 
 ## Authentication
 
@@ -38,7 +41,7 @@ Base URL locally: `http://localhost:8000`.
 
 Response `HealthResponse`: `{"service":"api","status":"ok","version":"0.1.0"}`.
 
-`status: ok` means the process is up. It does not mean Postgres or Redis is reachable.
+`status: ok` means the process is up. It does not mean Postgres or Redis is reachable unless `SWITCHBOARD_HEALTH_PROBES=1`. With that flag, a refused TCP connection to `DATABASE_URL` or `REDIS_URL` is `503 dependencies_unavailable`. The compose file leaves the flag unset.
 
 ### `POST /v1/telephony/voice/{provider}`
 
@@ -57,7 +60,7 @@ Request `MockVoiceWebhook`:
 
 Target behavior:
 
-1. Verify the signature on the raw body before trusting fields.
+1. Verify the signature on the raw body before trusting fields. The skeleton does this: size and rate checks, then `MockSignatureVerifier` or the dev bypass, then `MockVoiceWebhook` validation. Invalid JSON with a bad signature is `401`, not `422`.
 2. Insert `obs.webhook_receipt` even when the call is rejected.
 3. If `to_e164` is not an active `ops.operator_number`, respond `403 number_not_enrolled` and do not issue a token.
 4. Insert `obs.call_session` in `ringing` and publish `telephony.call.received`.

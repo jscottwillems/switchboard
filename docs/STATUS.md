@@ -419,3 +419,62 @@ SB-009. Findings are `interp.intelligence_finding` rows (`IntelligenceFinding`, 
 - **SB-013** (RADAR, still open). Swap `opsData` for an HTTP adapter on `GET /v1/calls` and `GET /v1/calls/{id}` once **SB-018** returns stored rows. Keep transcript segments and findings visually separate. Render empty list and `call_not_found`. Do not invent gap fields on the wire.
 - Leave campaign volume, dialogue beats, classification, latency, cost, and the report catalog as gaps until ATLAS or CLERK add a route. `SB-019` is CLERK's manifest, not this report index.
 - `docs/API_CONTRACTS.md` still says the Vue app calls `GET /v1/calls` once on load. That describes the skeleton stub this dashboard replaced. The ops UI does not call the API. ATLAS should update that paragraph when the HTTP adapter lands.
+
+## HANDOFF — SENTINEL — 2026-09-25T15:58:40-05:00
+
+This handoff sits on the ATLAS skeleton. It does not replace the handoff above. Webhook verification stays `switchboard_telephony.MockSignatureVerifier`. There is no second signature package.
+
+### Completed
+
+- Deepened `docs/SECURITY.md` on top of the ATLAS baseline: threat model, failure-mode matrix, implementer checklist, and recommended alerts.
+- `SB-015` signature-before-parse is **closed** on `POST /v1/telephony/voice/{provider}` and `POST /v1/telephony/status/{provider}`. Size and the in-process rate limit run first, then the mock header or the dev bypass, then JSON validation. Unsigned garbage is `401`. Signed garbage is `422`. `SWITCHBOARD_DEV_WEBHOOK_BYPASS` is still ignored unless `SWITCHBOARD_ENV=dev`.
+- Webhook body cap is 1 MiB (`413 webhook_too_large`). The shared voice/status window defaults to 600 events per minute per client host (`429 webhook_rate_limited`).
+- Media frames pass `admit_frame` before they are discarded. A deny closes the socket with `1008`.
+- `GET /health` can probe Postgres and Redis TCP when `SWITCHBOARD_HEALTH_PROBES=1`. The flag is off by default, so `status: ok` still means process liveness.
+- Adversarial fixtures target the mock header `X-Switchboard-Mock-Signature: dev`.
+
+### Files changed
+
+- `docs/SECURITY.md`, `docs/API_CONTRACTS.md`, `docs/STATUS.md`
+- `apps/api/switchboard_api/routes/telephony.py`, `routes/health.py`, `settings.py`, `webhook_edge.py`, `health_probes.py`
+- `apps/media_gateway/switchboard_media/main.py`, `budgets.py`
+- `packages/telephony/switchboard_telephony/ports.py` (docstring only; verifier behavior unchanged)
+- `sentinel/limits.py`, `sentinel/fixtures/webhook_attacks.py`, `sentinel/__init__.py`
+- `tests/test_signatures.py`, `tests/test_webhook_edge.py`, `tests/test_limits.py`, `tests/test_media_and_intelligence.py`, `tests/test_runtime_gaps.py`, `tests/test_fixture_imports.py`, `tests/conftest.py`
+- `Makefile`, `pytest.ini`, `pyproject.toml`, `README.md`
+
+### Interfaces added-changed
+
+- Admission order on the mock voice and status routes: size, per-host rate limit, signature, then schema. Error codes `webhook_too_large`, `webhook_rate_limited`, and `dependencies_unavailable`.
+- `sentinel.limits.KeyedEventLimiter` and `switchboard_media.budgets.admit_frame`.
+- `SWITCHBOARD_HEALTH_PROBES=1` opts `GET /health` into TCP checks of `DATABASE_URL` and `REDIS_URL`.
+- The mock verifier is unchanged: header `x-switchboard-mock-signature` must equal `dev`. It does not cover the body.
+
+### Tests
+
+- `python3 -m pytest`: 62 passed, 2 skipped. The skips are the open-control tripwires below.
+- New coverage: unsigned body before schema errors, signed garbage, webhook rate limit, body cap, health probes on and off, oversized media frame, keyed limiter, fixture header matching the telephony package.
+- Skipped tripwires: `SB-014` Redis token store, operator authentication. They fail if those modules appear without the named check.
+
+### Dependencies
+
+- This branch is based on `cursor/atlas-architecture-skeleton-05c7` (pull request 9), not on a merge of that work into `main`.
+- No live carrier, STT, TTS, or model account.
+- No new third-party security library. Limits and fixtures stay in the repo-root `sentinel` package.
+
+### Blocking issues
+
+- **`SB-014` is open.** Stream tokens are still process-local, still last 60 seconds, and a second validate still returns `valid: true`. They are not in Redis and they are not single-use. Do not treat the in-memory store as the control.
+- **`SB-004` is open** for token checks on the socket. Byte accounting is in place and is not a substitute.
+- **Operator authentication is open** on the read API and the dashboard.
+- **Health probes are partial.** They are off in compose, and a successful probe is a TCP accept, not a query. Apps still do not open Postgres or Redis (`SB-017`).
+- The webhook rate limit is not shared across API processes. The mock signature does not authenticate the body. Production HMAC belongs beside `MockSignatureVerifier`.
+- The media socket does not enforce call duration or jitter. Those helpers are tested and unwired.
+
+### Recommended next work
+
+- `SB-014`: Redis stream tokens, single-use, 60 second TTL, absent from logs.
+- `SB-004`: validate the token with the API before `ready`, then keep `admit_frame`.
+- Operator authentication on the read API before any non-local dashboard deploy.
+- When `SB-017` adds repositories, turn health probes on in the deployment that should fail closed, and keep them off for the local compose file until those clients exist.
+- BELL adds a real `SignatureVerifier` next to the mock class when a carrier is chosen. Dedupe stays on `provider_call_id` (`SB-001`).

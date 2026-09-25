@@ -12,7 +12,7 @@ class SignatureVerifier(Protocol):
 
 
 class MockSignatureVerifier:
-    """Dev stand-in. SENTINEL replaces this with a fail-closed provider verifier."""
+    """Dev stand-in. Header value `dev` only. Provider HMAC belongs beside this class, not in a second package."""
 
     def verify(self, raw_body: bytes, headers: Mapping[str, str]) -> bool:
         del raw_body
