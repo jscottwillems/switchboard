@@ -169,5 +169,11 @@ def test_observation_kind_values_are_stable() -> None:
         "script_phrases",
         "urgency_language",
         "transfer_events",
+        "pretext_category",
+        "case_or_reference_ids",
+        "threat_or_consequence_language",
+        "remote_access_tools",
+        "spoofed_authority_claims",
+        "follow_up_promises",
         "other",
     ]

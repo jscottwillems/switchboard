@@ -21,9 +21,16 @@ These are different records. A JSON object says which one it is with `record_typ
 
 `normalized_value` is the canonical form used for identity (E.164-style phones, lowercased hosts, numeric amounts). Timestamps are interpolated across the segment from the character span and clamped to the segment bounds. Reprocessing the same transcript yields the same ids.
 
-`ObservationKind` is a closed string enum. Add a member when an indicator becomes first-class. Until then, use `other`. Current members:
+`ObservationKind` is a closed string enum. Those strings are also the goal ids Loki may put in `goals_completed` and `goals_remaining`. Add a member when an indicator becomes first-class. Until then, use `other`. Current members:
 
-`claimed_company`, `claimed_agent`, `claimed_department`, `callback_numbers`, `spoken_numbers`, `domains`, `urls`, `email_addresses`, `loan_amounts`, `rates`, `fees`, `requested_information`, `payment_methods`, `script_phrases`, `urgency_language`, `transfer_events`, `other`.
+`claimed_company`, `claimed_agent`, `claimed_department`, `callback_numbers`, `spoken_numbers`, `domains`, `urls`, `email_addresses`, `loan_amounts`, `rates`, `fees`, `requested_information`, `payment_methods`, `script_phrases`, `urgency_language`, `transfer_events`, `pretext_category`, `case_or_reference_ids`, `threat_or_consequence_language`, `remote_access_tools`, `spoofed_authority_claims`, `follow_up_promises`, `other`.
+
+Two kinds carry an extra enum. It is unset on every other kind.
+
+- `pretext_category` (kind) uses `pretext_category`: `tax`, `bank`, `warranty`, `debt`, `prize`, `tech_support`, `government`, `utility`, `other`. `value` is the free-text purpose span. `normalized_value` repeats the enum.
+- `payment_methods` uses `payment_method`: `gift_card`, `wire`, `crypto`, `remote_access`, `bank_verify`, `other`. `value` is the spoken phrase. `normalized_value` repeats the enum.
+
+`threat_or_consequence_language` is arrest, account freeze, or lawsuit language. `urgency_language` is time pressure only. `case_or_reference_ids` are ticket, case, claim, and confirmation numbers. Badge numbers stay on `other`. `spoofed_authority_claims` is the spoken "I am calling from…" or "I'm with…" clause, separate from the extracted company name. `follow_up_promises` is a promise to call back, send a link, or follow up, separate from a live `transfer_events` handoff and from `remote_access_tools` (AnyDesk, TeamViewer, and similar).
 
 **Inference** is a proposition supported by one or more observations. It has no transcript span. Rule inferences in this slice:
 
@@ -33,6 +40,7 @@ These are different records. A JSON object says which one it is with `record_typ
 | `payment_rail` | `payment_methods` |
 | `data_target` | `requested_information` |
 | `pressure_tactic` | `urgency_language` |
+| `threatened_consequence` | `threat_or_consequence_language` |
 | `offer_terms` | `fees`, `loan_amounts`, `rates` |
 | `callback_channel` | `callback_numbers` |
 
@@ -41,6 +49,20 @@ Other observation kinds stay observations. A guessed campaign link is not an inf
 **Attribution** links observations or inferences to an external subject (`campaign`, `actor`, `infrastructure`, `script_family`, or `unknown`). The record exists so it cannot be confused with the other two. This milestone has no campaign corpus. `NoCampaignCorpusAttributor` returns an empty list. Pass a different `Attributor` when a corpus exists.
 
 Input transcripts use a local adapter (`Transcript`, `TranscriptSegment`) defined for Sherlock. Speakers are `scammer`, `target`, `system`, or `unknown`. That adapter is not a Switchboard-wide session contract.
+
+## Who owns what
+
+Sherlock owns typed Observation, Inference, and Attribution records. Each observation is grounded in a transcript span and an explicit confidence. That grounding is Sherlock-only.
+
+Loki does not emit parallel typed observations and does not attach an extraction confidence. The only soft handoff is optional and unverified:
+
+```json
+"elicited_hints": [
+  {"goal": "callback_numbers", "surface_text": "call this number", "turn_index": 3}
+]
+```
+
+`goal` must be an `ObservationKind` value, the same string Loki uses in `goals_completed` and `goals_remaining`. `surface_text` is whatever was heard. `turn_index` is Loki's turn counter. Hints are echoed on the bundle and are not promoted into observations. Sherlock still has to find a span before anything counts as intelligence.
 
 ## Extraction
 
@@ -79,11 +101,17 @@ High precision is the goal. Dollar amounts are kept only when a fee cue or a loa
 | `rates` | Percent in a segment that also says interest, APR, or rate |
 | `fees` | `$` amount whose nearest cue is a fee word |
 | `requested_information` | Target phrase plus an ask cue in the same segment |
-| `payment_methods` | Payment lexicon (gift card, wire, bitcoin, Zelle, and similar) |
+| `payment_methods` | Payment phrase, plus `payment_method` enum |
 | `script_phrases` | Canned pitch lexicon |
-| `urgency_language` | Urgency lexicon |
-| `transfer_events` | Transfer lexicon |
-| `other` | Case, badge, reference, ticket, or confirmation numbers that contain a digit |
+| `urgency_language` | Time-pressure lexicon |
+| `transfer_events` | Live transfer lexicon |
+| `pretext_category` | Known purpose phrase after "the purpose of this call is" |
+| `case_or_reference_ids` | Case, claim, reference, ticket, or confirmation numbers |
+| `threat_or_consequence_language` | Arrest, freeze, lawsuit, or failure-to-comply lexicon |
+| `remote_access_tools` | Named tools such as AnyDesk or TeamViewer |
+| `spoofed_authority_claims` | "I am calling from…", "I am with…", or "I'm with…" |
+| `follow_up_promises` | Call-back, send-a-link, or follow-up promises |
+| `other` | Badge numbers that are not case or reference ids |
 
 Known TLDs for bare domains: `com`, `net`, `org`, `gov`, `edu`, `info`, `biz`, `us`.
 

@@ -6,6 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from switchboard_intelligence.schemas.attribution import Attribution
 from switchboard_intelligence.schemas.common import SCHEMA_VERSION
+from switchboard_intelligence.schemas.hints import ElicitedHint
 from switchboard_intelligence.schemas.inference import Inference
 from switchboard_intelligence.schemas.observation import Observation
 
@@ -20,6 +21,7 @@ class IntelligenceBundle(BaseModel):
     observations: list[Observation]
     inferences: list[Inference]
     attributions: list[Attribution]
+    elicited_hints: list[ElicitedHint] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def call_ids_match(self) -> "IntelligenceBundle":

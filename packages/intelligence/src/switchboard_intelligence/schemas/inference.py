@@ -15,6 +15,7 @@ class InferenceKind(str, Enum):
     PRESSURE_TACTIC = "pressure_tactic"
     OFFER_TERMS = "offer_terms"
     CALLBACK_CHANNEL = "callback_channel"
+    THREATENED_CONSEQUENCE = "threatened_consequence"
     OTHER = "other"
 
 

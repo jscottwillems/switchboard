@@ -34,4 +34,5 @@ def extract_intelligence(
         observations=observations,
         inferences=inferences,
         attributions=attributions,
+        elicited_hints=list(transcript.elicited_hints),
     )

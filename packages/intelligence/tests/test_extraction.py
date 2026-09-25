@@ -7,16 +7,22 @@ from switchboard_intelligence.extraction.attribute import NoCampaignCorpusAttrib
 from switchboard_intelligence.extraction.coverage import DETERMINISTIC_COVERAGE, MODEL_GAPS
 from switchboard_intelligence.extraction.lexicon import (
     DEPARTMENTS,
+    FOLLOW_UP_PHRASES,
     ORGANIZATIONS,
+    PAYMENT_METHOD_BY_PHRASE,
     PAYMENT_PHRASES,
+    PURPOSE_CATEGORIES,
+    REMOTE_ACCESS_TOOLS,
     REQUEST_TARGETS,
     SCRIPT_PHRASES,
+    THREAT_PHRASES,
     TRANSFER_PHRASES,
     URGENCY_PHRASES,
 )
 from switchboard_intelligence.extraction.model import NullModelExtractor
 from switchboard_intelligence.extraction.pipeline import extract_intelligence
 from switchboard_intelligence.schemas import (
+    ElicitedHint,
     Observation,
     ObservationKind,
     SpeakerRole,
@@ -43,6 +49,12 @@ RULE_CONFIDENCE = {
     confidence.AGENT,
     confidence.REQUESTED,
     confidence.OTHER_ID,
+    confidence.CASE_ID,
+    confidence.THREAT,
+    confidence.REMOTE_ACCESS,
+    confidence.SPOOF,
+    confidence.FOLLOW_UP,
+    confidence.PRETEXT,
     confidence.TRANSFER,
 }
 
@@ -85,6 +97,12 @@ def test_script_lexicon(phrase: str) -> None:
 def test_payment_lexicon(phrase: str) -> None:
     found = _only(f"Note: {phrase}.", ObservationKind.PAYMENT_METHODS)
     assert found[0].value.casefold() == phrase.casefold()
+    assert found[0].payment_method is PAYMENT_METHOD_BY_PHRASE[phrase.casefold()]
+    assert found[0].normalized_value == found[0].payment_method.value
+
+
+def test_payment_phrases_all_map_to_the_enum() -> None:
+    assert set(PAYMENT_PHRASES) == set(PAYMENT_METHOD_BY_PHRASE)
 
 
 @pytest.mark.parametrize("phrase", DEPARTMENTS)
@@ -111,11 +129,16 @@ def test_requested_information_needs_an_ask(phrase: str) -> None:
 
 @pytest.mark.parametrize("organization", ORGANIZATIONS)
 def test_claimed_company_needs_a_cue(organization: str) -> None:
-    found = _only(
-        f"I am calling from {organization} today.",
+    text = f"I am calling from {organization} today."
+    observations = extract_intelligence(_transcript(text)).observations
+    assert {item.kind for item in observations} == {
         ObservationKind.CLAIMED_COMPANY,
-    )
-    assert found[0].value == organization
+        ObservationKind.SPOOFED_AUTHORITY_CLAIMS,
+    }
+    company = next(item for item in observations if item.kind is ObservationKind.CLAIMED_COMPANY)
+    spoof = next(item for item in observations if item.kind is ObservationKind.SPOOFED_AUTHORITY_CLAIMS)
+    assert company.value == organization
+    assert spoof.value == f"I am calling from {organization} today"
     assert extract_intelligence(_transcript(f"People mention {organization} often.")).observations == []
 
 
@@ -183,10 +206,62 @@ def test_fee_loan_and_rate_need_cues() -> None:
     assert extract_intelligence(_transcript("I am 100% sure about that.")).observations == []
 
 
+@pytest.mark.parametrize("phrase", THREAT_PHRASES)
+def test_threat_lexicon_is_not_urgency(phrase: str) -> None:
+    found = _only(f"Note: {phrase}.", ObservationKind.THREAT_OR_CONSEQUENCE_LANGUAGE)
+    assert found[0].value.casefold() == phrase.casefold()
+
+
+@pytest.mark.parametrize("phrase", REMOTE_ACCESS_TOOLS)
+def test_remote_access_tools(phrase: str) -> None:
+    found = _only(f"Note: {phrase}.", ObservationKind.REMOTE_ACCESS_TOOLS)
+    assert found[0].value.casefold() == phrase.casefold()
+
+
+@pytest.mark.parametrize("phrase", FOLLOW_UP_PHRASES)
+def test_follow_up_promises(phrase: str) -> None:
+    found = _only(f"Note: {phrase}.", ObservationKind.FOLLOW_UP_PROMISES)
+    assert found[0].value.casefold() == phrase.casefold()
+
+
+@pytest.mark.parametrize(("phrase", "category"), list(PURPOSE_CATEGORIES.items()))
+def test_pretext_category_and_free_text_purpose(phrase: str, category: object) -> None:
+    found = _only(
+        f"The purpose of this call is {phrase}.",
+        ObservationKind.PRETEXT_CATEGORY,
+    )
+    assert found[0].value == phrase
+    assert found[0].pretext_category is category
+    assert found[0].normalized_value == category.value
+    unknown = extract_intelligence(
+        _transcript("The purpose of this call is a vague complaint.")
+    )
+    assert unknown.observations == []
+
+
+def test_spoofed_authority_without_a_known_company() -> None:
+    observations = extract_intelligence(
+        _transcript("I'm with your bank's fraud department.")
+    ).observations
+    assert {item.kind for item in observations} == {
+        ObservationKind.SPOOFED_AUTHORITY_CLAIMS,
+        ObservationKind.CLAIMED_DEPARTMENT,
+    }
+    spoof = next(item for item in observations if item.kind is ObservationKind.SPOOFED_AUTHORITY_CLAIMS)
+    assert spoof.value == "I'm with your bank's fraud department"
+
+
+def test_case_reference_and_badge_identifiers() -> None:
+    case = _only("Your case number IR-44921 is open.", ObservationKind.CASE_OR_REFERENCE_IDS)
+    assert case[0].value == "IR-44921"
+    claim = _only("Your claim number CL-10023 is ready.", ObservationKind.CASE_OR_REFERENCE_IDS)
+    assert claim[0].value == "CL-10023"
+    badge = _only("My badge number BD-44921 is on file.", ObservationKind.OTHER)
+    assert badge[0].value == "BD-44921"
+    assert badge[0].normalized_value == "BD-44921"
+
+
 def test_other_identifier_and_nearest_money_cue() -> None:
-    other = _only("Your case number IR-44921 is open.", ObservationKind.OTHER)
-    assert other[0].value == "IR-44921"
-    assert other[0].normalized_value == "IR-44921"
     mixed = extract_intelligence(
         _transcript("You are approved for a loan of $12,500 after a processing fee of $49.95.")
     ).observations
@@ -233,6 +308,26 @@ def test_null_model_extractor_adds_nothing() -> None:
     with_null = extract_intelligence(transcript, model_extractor=NullModelExtractor())
     assert plain.model_dump() == with_null.model_dump()
     assert NullModelExtractor().extract(transcript, plain.observations) == []
+
+
+def test_elicited_hints_are_not_promoted_to_observations() -> None:
+    transcript = _transcript("Hello there, thanks for staying on the line.")
+    hinted = transcript.model_copy(
+        update={
+            "elicited_hints": [
+                ElicitedHint(
+                    goal=ObservationKind.CALLBACK_NUMBERS,
+                    surface_text="please call 800-555-0100",
+                    turn_index=2,
+                )
+            ]
+        }
+    )
+    bundle = extract_intelligence(hinted)
+    assert bundle.observations == []
+    assert bundle.inferences == []
+    assert bundle.elicited_hints == hinted.elicited_hints
+    assert "confidence" not in ElicitedHint.model_fields
 
 
 def test_model_extractor_can_add_a_span() -> None:

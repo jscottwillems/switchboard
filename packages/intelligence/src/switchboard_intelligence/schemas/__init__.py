@@ -7,8 +7,14 @@ from switchboard_intelligence.schemas.attribution import (
 )
 from switchboard_intelligence.schemas.bundle import IntelligenceBundle
 from switchboard_intelligence.schemas.common import SCHEMA_VERSION
+from switchboard_intelligence.schemas.hints import ElicitedHint
 from switchboard_intelligence.schemas.inference import Inference, InferenceKind, InferenceMethod
-from switchboard_intelligence.schemas.observation import Observation, ObservationKind
+from switchboard_intelligence.schemas.observation import (
+    Observation,
+    ObservationKind,
+    PaymentMethod,
+    PretextCategory,
+)
 from switchboard_intelligence.schemas.transcript import SpeakerRole, Transcript, TranscriptSegment
 
 __all__ = [
@@ -16,12 +22,15 @@ __all__ = [
     "Attribution",
     "AttributionStatus",
     "AttributionSubject",
+    "ElicitedHint",
     "Inference",
     "InferenceKind",
     "InferenceMethod",
     "IntelligenceBundle",
     "Observation",
     "ObservationKind",
+    "PaymentMethod",
+    "PretextCategory",
     "SpeakerRole",
     "Transcript",
     "TranscriptSegment",

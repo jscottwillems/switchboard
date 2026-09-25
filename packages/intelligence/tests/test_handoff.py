@@ -2,10 +2,37 @@
 
 from pathlib import Path
 
-from switchboard_intelligence.handoff import ELICIT_RANK
+from switchboard_intelligence.handoff import ELICIT_GROUPS, ELICIT_RANK, GOAL_IDS
 from switchboard_intelligence.schemas import ObservationKind
 
 STATUS_PATH = Path(__file__).resolve().parents[3] / "docs" / "STATUS.md"
+
+
+def test_loki_elicit_groups() -> None:
+    assert [kinds for _rank, kinds in ELICIT_GROUPS] == [
+        (ObservationKind.PRETEXT_CATEGORY,),
+        (ObservationKind.CLAIMED_COMPANY,),
+        (ObservationKind.LOAN_AMOUNTS, ObservationKind.RATES, ObservationKind.FEES),
+        (
+            ObservationKind.CALLBACK_NUMBERS,
+            ObservationKind.SPOKEN_NUMBERS,
+            ObservationKind.CASE_OR_REFERENCE_IDS,
+        ),
+        (ObservationKind.CLAIMED_AGENT, ObservationKind.CLAIMED_DEPARTMENT),
+        (ObservationKind.DOMAINS, ObservationKind.URLS, ObservationKind.EMAIL_ADDRESSES),
+        (ObservationKind.PAYMENT_METHODS, ObservationKind.REMOTE_ACCESS_TOOLS),
+        (ObservationKind.REQUESTED_INFORMATION,),
+        (
+            ObservationKind.SCRIPT_PHRASES,
+            ObservationKind.URGENCY_LANGUAGE,
+            ObservationKind.THREAT_OR_CONSEQUENCE_LANGUAGE,
+            ObservationKind.TRANSFER_EVENTS,
+            ObservationKind.SPOOFED_AUTHORITY_CLAIMS,
+        ),
+        (ObservationKind.FOLLOW_UP_PROMISES,),
+        (ObservationKind.OTHER,),
+    ]
+    assert GOAL_IDS == tuple(kind.value for kind, _reason in ELICIT_RANK)
 
 
 def test_elicit_rank_is_a_permutation_of_observation_kinds() -> None:

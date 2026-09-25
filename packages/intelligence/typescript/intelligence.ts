@@ -16,6 +16,31 @@ export const SpeakerRole = [
 
 export type SpeakerRole = (typeof SpeakerRole)[number];
 
+export const PretextCategory = [
+  "tax",
+  "bank",
+  "warranty",
+  "debt",
+  "prize",
+  "tech_support",
+  "government",
+  "utility",
+  "other",
+] as const;
+
+export type PretextCategory = (typeof PretextCategory)[number];
+
+export const PaymentMethod = [
+  "gift_card",
+  "wire",
+  "crypto",
+  "remote_access",
+  "bank_verify",
+  "other",
+] as const;
+
+export type PaymentMethod = (typeof PaymentMethod)[number];
+
 export const ObservationKind = [
   "claimed_company",
   "claimed_agent",
@@ -33,6 +58,12 @@ export const ObservationKind = [
   "script_phrases",
   "urgency_language",
   "transfer_events",
+  "pretext_category",
+  "case_or_reference_ids",
+  "threat_or_consequence_language",
+  "remote_access_tools",
+  "spoofed_authority_claims",
+  "follow_up_promises",
   "other",
 ] as const;
 
@@ -45,6 +76,7 @@ export const InferenceKind = [
   "pressure_tactic",
   "offer_terms",
   "callback_channel",
+  "threatened_consequence",
   "other",
 ] as const;
 
@@ -76,6 +108,12 @@ export const AttributionStatus = [
 
 export type AttributionStatus = (typeof AttributionStatus)[number];
 
+export interface ElicitedHint {
+  goal: ObservationKind;
+  surface_text: string;
+  turn_index: number;
+}
+
 export interface TranscriptSegment {
   segment_id: string;
   speaker: SpeakerRole;
@@ -87,6 +125,7 @@ export interface TranscriptSegment {
 export interface Transcript {
   call_id: string;
   segments: TranscriptSegment[];
+  elicited_hints: ElicitedHint[];
 }
 
 export interface Observation {
@@ -104,6 +143,8 @@ export interface Observation {
   char_start: number;
   char_end: number;
   confidence: number;
+  payment_method: PaymentMethod | null;
+  pretext_category: PretextCategory | null;
 }
 
 export interface Inference {
@@ -140,6 +181,7 @@ export interface IntelligenceBundle {
   observations: Observation[];
   inferences: Inference[];
   attributions: Attribution[];
+  elicited_hints: ElicitedHint[];
 }
 
 export type IntelligenceRecord = Observation | Inference | Attribution;

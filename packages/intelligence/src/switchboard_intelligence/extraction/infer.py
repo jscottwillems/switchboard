@@ -54,7 +54,15 @@ def infer_from_observations(call_id: str, observations: Sequence[Observation]) -
         InferenceKind.PRESSURE_TACTIC,
         grouped.get(ObservationKind.URGENCY_LANGUAGE, []),
         confidence.PRESSURE_TACTIC,
-        "Urgency language is treated as a pressure tactic.",
+        "Urgency language is treated as time pressure, separate from threats.",
+    )
+    _add(
+        built,
+        call_id,
+        InferenceKind.THREATENED_CONSEQUENCE,
+        grouped.get(ObservationKind.THREAT_OR_CONSEQUENCE_LANGUAGE, []),
+        confidence.THREATENED_CONSEQUENCE,
+        "Threat language is treated as a stated consequence, separate from urgency.",
     )
     _add(
         built,
@@ -119,6 +127,8 @@ def _proposition(kind: InferenceKind, support: Sequence[Observation]) -> str:
         return f"Caller is asking for {values}."
     if kind is InferenceKind.PRESSURE_TACTIC:
         return f"Caller is applying pressure with: {values}."
+    if kind is InferenceKind.THREATENED_CONSEQUENCE:
+        return f"Caller threatened: {values}."
     if kind is InferenceKind.CALLBACK_CHANNEL:
         return f"Caller offered a callback channel at {values}."
     if kind is InferenceKind.OFFER_TERMS:

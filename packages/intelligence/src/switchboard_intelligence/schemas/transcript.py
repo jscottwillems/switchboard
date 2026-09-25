@@ -9,6 +9,7 @@ from enum import Enum
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from switchboard_intelligence.schemas.common import CallRelativeSeconds
+from switchboard_intelligence.schemas.hints import ElicitedHint
 
 
 class SpeakerRole(str, Enum):
@@ -41,6 +42,7 @@ class Transcript(BaseModel):
 
     call_id: str = Field(min_length=1)
     segments: list[TranscriptSegment] = Field(min_length=1)
+    elicited_hints: list[ElicitedHint] = Field(default_factory=list)
 
     @model_validator(mode="after")
     def segment_ids_are_unique(self) -> "Transcript":

@@ -114,8 +114,28 @@ FAMILIES: tuple[dict[str, str], ...] = (
     },
 )
 
+PRETEXT = {
+    "irs": ("your tax compliance matter", "tax"),
+    "ssa": ("a government benefits review", "government"),
+    "microsoft": ("a technical support alert", "tech_support"),
+    "warranty": ("your auto warranty plan", "warranty"),
+    "student": ("your outstanding loan debt", "debt"),
+    "bank": ("a bank fraud alert", "bank"),
+    "medicare": ("a government benefits review", "government"),
+    "utility": ("your utility shutoff notice", "utility"),
+    "package": ("your package delivery issue", "other"),
+    "prize": ("your prize claim", "prize"),
+}
 AGENTS = ("Helen Brooks", "Marcus Hale", "Priya Nandak", "Owen Clarke", "Lydia Cho")
-PAYMENTS = ("gift card", "wire transfer", "bitcoin", "zelle", "western union")
+PAYMENTS = (
+    ("gift card", "gift_card"),
+    ("wire transfer", "wire"),
+    ("bitcoin", "crypto"),
+    ("zelle", "other"),
+    ("bank verification", "bank_verify"),
+    ("remote session", "remote_access"),
+    ("western union", "wire"),
+)
 FEES = ("$29.95", "$49.95", "$79.00", "$99.50", "$149.00")
 LOANS = ("$5,000", "$8,500", "$12,500", "$15,000", "$25,000")
 RATES = ("2.9%", "3.5%", "4.25%", "1.9 percent", "6%")
@@ -134,15 +154,34 @@ URGENCY = (
     ("final notice", "This is your final notice."),
     ("within 24 hours", "Respond within 24 hours."),
     ("last chance", "This is your last chance."),
-    ("legal action", "We will begin legal action."),
     ("do not tell anyone", "Do not tell anyone about this call."),
     ("right away", "Handle this right away."),
     ("limited time", "This offer is for a limited time."),
     ("expires today", "Your window expires today."),
-    ("failure to comply", "Failure to comply will escalate the file."),
-    ("arrest warrant", "There is an arrest warrant attached to this file."),
-    ("account will be suspended", "Your account will be suspended."),
     ("urgent matter", "This is an urgent matter."),
+)
+THREATS = (
+    ("arrest warrant", "There is an arrest warrant attached to this file."),
+    ("you will be arrested", "They said you will be arrested."),
+    ("account will be frozen", "Your account will be frozen."),
+    ("account will be suspended", "Your account will be suspended."),
+    ("file a lawsuit", "We will file a lawsuit."),
+    ("legal action", "We will begin legal action."),
+    ("failure to comply", "Failure to comply will escalate the file."),
+)
+REMOTE_TOOLS = (
+    "AnyDesk",
+    "TeamViewer",
+    "Splashtop",
+    "LogMeIn",
+    "Quick Assist",
+    "Chrome Remote Desktop",
+)
+FOLLOW_UPS = (
+    ("i will call you back", "I will call you back if we disconnect."),
+    ("we will send you a link", "We will send you a link when this ends."),
+    ("i will email the next steps", "I will email the next steps tonight."),
+    ("a colleague will follow up", "A colleague will follow up tomorrow."),
 )
 TRANSFERS = (
     ("let me transfer you", "Let me transfer you to a specialist."),
@@ -176,13 +215,17 @@ def _build_call(index: int) -> dict[str, object]:
     variant = index % 5
     call_id = f"synth-{index + 1:03d}"
     agent = AGENTS[variant]
-    payment = PAYMENTS[variant]
+    payment, payment_method = PAYMENTS[index % len(PAYMENTS)]
     fee = FEES[variant]
     loan = LOANS[variant]
     rate = RATES[variant]
     request = REQUESTS[index % len(REQUESTS)]
     urgency_phrase, urgency_text = URGENCY[index % len(URGENCY)]
+    threat_phrase, threat_text = THREATS[index % len(THREATS)]
     transfer_phrase, transfer_text = TRANSFERS[variant]
+    purpose_phrase, pretext_category = PRETEXT[family["slug"]]
+    remote_tool = REMOTE_TOOLS[index % len(REMOTE_TOOLS)]
+    follow_phrase, follow_text = FOLLOW_UPS[index % len(FOLLOW_UPS)]
     case_id = f"{family['case_prefix']}-{44000 + index}"
     email = f"{family['email_local']}{index}@{family['domain']}"
     url = f"https://{family['domain']}/case/{case_id}"
@@ -201,49 +244,60 @@ def _build_call(index: int) -> dict[str, object]:
     spoken_text = f"The desk line on file is {spoken} if the transfer drops."
     agent_text = f"My name is {agent}."
     case_text = f"Your case number {case_id} is open."
+    badge_id = f"BD-{44000 + index}"
+    badge_text = f"My badge number {badge_id} is on file."
+    purpose_text = f"The purpose of this call is {purpose_phrase}."
+    remote_text = f"Please open {remote_tool} and share the code."
+    spoof_text = company_text[:-1]
     recording_text = "This call is being recorded."
     hello_text = "Hello? Who is this?"
     decoy_text = DECOYS[variant]
 
-    planned: list[tuple[str, str, list[tuple[str, str]]]] = [
-        ("system", recording_text, [("script_phrases", _surface(recording_text, "this call is being recorded"))]),
-        ("scammer", family["script"], [("script_phrases", _surface(family["script"], family["script_phrase"]))]),
-        ("scammer", agent_text, [("claimed_agent", _token(agent_text, agent))]),
+    planned: list[tuple[str, str, list[dict[str, str]]]] = [
+        ("system", recording_text, [_plant("script_phrases", _surface(recording_text, "this call is being recorded"))]),
+        ("scammer", family["script"], [_plant("script_phrases", _surface(family["script"], family["script_phrase"]))]),
+        ("scammer", purpose_text, [_plant("pretext_category", _surface(purpose_text, purpose_phrase), pretext_category=pretext_category)]),
+        ("scammer", agent_text, [_plant("claimed_agent", _token(agent_text, agent))]),
         (
             "scammer",
             company_text,
             [
-                ("claimed_company", _token(company_text, family["company"])),
-                ("claimed_department", _surface(company_text, family["department"])),
+                _plant("claimed_company", _token(company_text, family["company"])),
+                _plant("claimed_department", _surface(company_text, family["department"])),
+                _plant("spoofed_authority_claims", _token(company_text, spoof_text)),
             ],
         ),
-        ("scammer", urgency_text, [("urgency_language", _surface(urgency_text, urgency_phrase))]),
-        ("scammer", case_text, [("other", _token(case_text, case_id))]),
-        ("scammer", fee_text, [("fees", _token(fee_text, fee))]),
-        ("scammer", loan_text, [("loan_amounts", _token(loan_text, loan))]),
-        ("scammer", rate_text, [("rates", _token(rate_text, rate))]),
-        ("scammer", payment_text, [("payment_methods", _surface(payment_text, payment))]),
-        ("scammer", request_text, [("requested_information", _surface(request_text, request))]),
-        ("scammer", callback_text, [("callback_numbers", _token(callback_text, callback))]),
+        ("scammer", urgency_text, [_plant("urgency_language", _surface(urgency_text, urgency_phrase))]),
+        ("scammer", threat_text, [_plant("threat_or_consequence_language", _surface(threat_text, threat_phrase))]),
+        ("scammer", case_text, [_plant("case_or_reference_ids", _token(case_text, case_id))]),
+        ("scammer", badge_text, [_plant("other", _token(badge_text, badge_id))]),
+        ("scammer", fee_text, [_plant("fees", _token(fee_text, fee))]),
+        ("scammer", loan_text, [_plant("loan_amounts", _token(loan_text, loan))]),
+        ("scammer", rate_text, [_plant("rates", _token(rate_text, rate))]),
+        ("scammer", payment_text, [_plant("payment_methods", _surface(payment_text, payment), payment_method=payment_method)]),
+        ("scammer", remote_text, [_plant("remote_access_tools", _token(remote_text, remote_tool))]),
+        ("scammer", follow_text, [_plant("follow_up_promises", _surface(follow_text, follow_phrase))]),
+        ("scammer", request_text, [_plant("requested_information", _surface(request_text, request))]),
+        ("scammer", callback_text, [_plant("callback_numbers", _token(callback_text, callback))]),
         (
             "scammer",
             email_text,
             [
-                ("email_addresses", _token(email_text, email)),
-                ("domains", _token(email_text, family["domain"])),
+                _plant("email_addresses", _token(email_text, email)),
+                _plant("domains", _token(email_text, family["domain"])),
             ],
         ),
         (
             "scammer",
             url_text,
             [
-                ("urls", _token(url_text, url)),
-                ("domains", _token(url_text, family["domain"])),
+                _plant("urls", _token(url_text, url)),
+                _plant("domains", _token(url_text, family["domain"])),
             ],
         ),
-        ("scammer", bare_domain_text, [("domains", _token(bare_domain_text, family["domain"]))]),
-        ("scammer", spoken_text, [("spoken_numbers", _token(spoken_text, spoken))]),
-        ("scammer", transfer_text, [("transfer_events", _surface(transfer_text, transfer_phrase))]),
+        ("scammer", bare_domain_text, [_plant("domains", _token(bare_domain_text, family["domain"]))]),
+        ("scammer", spoken_text, [_plant("spoken_numbers", _token(spoken_text, spoken))]),
+        ("scammer", transfer_text, [_plant("transfer_events", _surface(transfer_text, transfer_phrase))]),
         ("target", hello_text, []),
         ("scammer", decoy_text, []),
     ]
@@ -267,8 +321,8 @@ def _build_call(index: int) -> dict[str, object]:
         )
         if not plants:
             decoy_segment_ids.append(segment_id)
-        for kind, value in plants:
-            gold.append({"kind": kind, "segment_id": segment_id, "value": value})
+        for plant in plants:
+            gold.append({"segment_id": segment_id, **plant})
         cursor = round(end + 0.35, 3)
 
     signatures = [(item["kind"], item["segment_id"], item["value"]) for item in gold]
@@ -282,6 +336,12 @@ def _build_call(index: int) -> dict[str, object]:
         "gold": gold,
         "transcript": {"call_id": call_id, "segments": segments},
     }
+
+
+def _plant(kind: str, value: str, **extra: str) -> dict[str, str]:
+    row = {"kind": kind, "value": value}
+    row.update(extra)
+    return row
 
 
 def _format_phone(style: int, area: str, subscriber: str) -> str:

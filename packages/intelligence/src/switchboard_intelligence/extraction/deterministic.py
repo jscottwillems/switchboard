@@ -12,11 +12,16 @@ from urllib.parse import urlparse
 from switchboard_intelligence.extraction import confidence
 from switchboard_intelligence.extraction.lexicon import (
     DEPARTMENTS,
+    FOLLOW_UP_PHRASES,
     ORGANIZATIONS,
+    PAYMENT_METHOD_BY_PHRASE,
     PAYMENT_PHRASES,
+    PURPOSE_CATEGORIES,
+    REMOTE_ACCESS_TOOLS,
     REQUEST_CUES,
     REQUEST_TARGETS,
     SCRIPT_PHRASES,
+    THREAT_PHRASES,
     TRANSFER_PHRASES,
     URGENCY_PHRASES,
 )
@@ -38,7 +43,12 @@ from switchboard_intelligence.extraction.spans import (
     stable_id,
     word_bounded,
 )
-from switchboard_intelligence.schemas.observation import Observation, ObservationKind
+from switchboard_intelligence.schemas.observation import (
+    Observation,
+    ObservationKind,
+    PaymentMethod,
+    PretextCategory,
+)
 from switchboard_intelligence.schemas.transcript import Transcript, TranscriptSegment
 
 EXTRACTOR_NAME = "deterministic.rules/v1"
@@ -75,11 +85,13 @@ COMPANY_CUE_RE = re.compile(
 )
 AGENT_NAME_RE = re.compile(r"\b[Mm]y name is\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+){0,2})\b")
 AGENT_TITLE_RE = re.compile(r"\b(?:Agent|Officer|Detective)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b")
-OTHER_ID_RE = re.compile(
-    r"\b(?:case|badge|reference|ticket|confirmation)\s+(?:number|id)\s*[:#]?\s*"
+IDENTIFIER_RE = re.compile(
+    r"\b(case|claim|reference|ticket|confirmation|badge)\s+(?:number|id)\s*[:#]?\s*"
     r"([A-Za-z0-9]+(?:-[A-Za-z0-9]+)*)",
     re.IGNORECASE,
 )
+SPOOF_RE = re.compile(r"\b(?:I am calling from|I'm with|I am with)\s+[^.]{2,120}")
+PURPOSE_RE = re.compile(r"\b[Tt]he purpose of this call is\s+([^.]{3,80})")
 TRAILING_URL_PUNCT = ".,);:]\"'"
 
 Normalizer = Callable[[str], str]
@@ -255,14 +267,35 @@ class DeterministicExtractor:
                 confidence.LEXICON,
             )
         )
+        observations.extend(self._payments(call_id, segment))
         observations.extend(
             self._phrases(
                 call_id,
                 segment,
-                PAYMENT_PHRASES,
-                ObservationKind.PAYMENT_METHODS,
-                "payment",
-                confidence.LEXICON,
+                THREAT_PHRASES,
+                ObservationKind.THREAT_OR_CONSEQUENCE_LANGUAGE,
+                "threat",
+                confidence.THREAT,
+            )
+        )
+        observations.extend(
+            self._phrases(
+                call_id,
+                segment,
+                REMOTE_ACCESS_TOOLS,
+                ObservationKind.REMOTE_ACCESS_TOOLS,
+                "remote_access",
+                confidence.REMOTE_ACCESS,
+            )
+        )
+        observations.extend(
+            self._phrases(
+                call_id,
+                segment,
+                FOLLOW_UP_PHRASES,
+                ObservationKind.FOLLOW_UP_PROMISES,
+                "follow_up",
+                confidence.FOLLOW_UP,
             )
         )
         observations.extend(
@@ -297,6 +330,8 @@ class DeterministicExtractor:
                 )
             )
         observations.extend(self._companies(call_id, segment))
+        observations.extend(self._spoofed_authority(call_id, segment))
+        observations.extend(self._pretext(call_id, segment))
         observations.extend(self._agents(call_id, segment))
         observations.extend(self._identifiers(call_id, segment))
         return observations
@@ -379,21 +414,85 @@ class DeterministicExtractor:
                 )
         return found
 
-    def _identifiers(self, call_id: str, segment: TranscriptSegment) -> list[Observation]:
+    def _payments(self, call_id: str, segment: TranscriptSegment) -> list[Observation]:
         found: list[Observation] = []
-        for match in OTHER_ID_RE.finditer(segment.text):
-            identifier = match.group(1)
-            if len(identifier) < 4 or not re.search(r"\d", identifier):
+        for start, end, surface in find_phrases(segment.text, PAYMENT_PHRASES):
+            method = PAYMENT_METHOD_BY_PHRASE[surface.casefold()]
+            found.append(
+                self._emit(
+                    call_id,
+                    segment,
+                    ObservationKind.PAYMENT_METHODS,
+                    start,
+                    end,
+                    "payment",
+                    confidence.LEXICON,
+                    normalize_phrase,
+                    payment_method=method,
+                )
+            )
+        return found
+
+    def _spoofed_authority(self, call_id: str, segment: TranscriptSegment) -> list[Observation]:
+        return [
+            self._emit(
+                call_id,
+                segment,
+                ObservationKind.SPOOFED_AUTHORITY_CLAIMS,
+                match.start(),
+                match.end(),
+                "spoof",
+                confidence.SPOOF,
+                normalize_phrase,
+            )
+            for match in SPOOF_RE.finditer(segment.text)
+        ]
+
+    def _pretext(self, call_id: str, segment: TranscriptSegment) -> list[Observation]:
+        found: list[Observation] = []
+        for match in PURPOSE_RE.finditer(segment.text):
+            category = PURPOSE_CATEGORIES.get(match.group(1).casefold())
+            if category is None:
                 continue
             found.append(
                 self._emit(
                     call_id,
                     segment,
-                    ObservationKind.OTHER,
+                    ObservationKind.PRETEXT_CATEGORY,
                     match.start(1),
                     match.end(1),
-                    "identifier",
-                    confidence.OTHER_ID,
+                    "pretext",
+                    confidence.PRETEXT,
+                    normalize_phrase,
+                    pretext_category=category,
+                )
+            )
+        return found
+
+    def _identifiers(self, call_id: str, segment: TranscriptSegment) -> list[Observation]:
+        found: list[Observation] = []
+        for match in IDENTIFIER_RE.finditer(segment.text):
+            identifier = match.group(2)
+            if len(identifier) < 4 or not re.search(r"\d", identifier):
+                continue
+            label = match.group(1).casefold()
+            if label == "badge":
+                kind = ObservationKind.OTHER
+                score = confidence.OTHER_ID
+                rule = "badge"
+            else:
+                kind = ObservationKind.CASE_OR_REFERENCE_IDS
+                score = confidence.CASE_ID
+                rule = "case_or_reference"
+            found.append(
+                self._emit(
+                    call_id,
+                    segment,
+                    kind,
+                    match.start(2),
+                    match.end(2),
+                    rule,
+                    score,
                     normalize_identifier,
                 )
             )
@@ -409,9 +508,16 @@ class DeterministicExtractor:
         rule: str,
         score: float,
         normalize: Normalizer,
+        payment_method: PaymentMethod | None = None,
+        pretext_category: PretextCategory | None = None,
     ) -> Observation:
         value = segment.text[char_start:char_end]
-        normalized = normalize(value)
+        if payment_method is not None:
+            normalized = payment_method.value
+        elif pretext_category is not None:
+            normalized = pretext_category.value
+        else:
+            normalized = normalize(value)
         start_timestamp, end_timestamp = span_timestamps(segment, char_start, char_end)
         observation_id = stable_id(
             "obs",
@@ -430,6 +536,8 @@ class DeterministicExtractor:
             char_start=char_start,
             char_end=char_end,
             confidence=score,
+            payment_method=payment_method,
+            pretext_category=pretext_category,
         )
 
 

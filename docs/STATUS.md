@@ -4,26 +4,54 @@ ATLAS owns the full status-doc structure. This file only carries Sherlock's hand
 
 ## HANDOFF — Sherlock → Loki
 
-During a live call, elicit the observation fields in this order. Infrastructure and cash-out come first. Pitch color comes last because callers usually volunteer it.
+Elicit in this order during a live call. The field column is the goal id for goals_completed and goals_remaining.
 
 | Rank | Field | Why Loki should elicit it |
 | --- | --- | --- |
-| 1 | `callback_numbers` | Direct callable infrastructure if the session drops. |
-| 2 | `payment_methods` | Cash-out rail that types the scam and the money path. |
-| 3 | `urls` | Campaign site or payment page, often unique to a kit. |
-| 4 | `domains` | Spoken or partial host when they will not give a full URL. |
-| 5 | `email_addresses` | Contact point for documents, receipts, or follow-up. |
-| 6 | `requested_information` | The data they are trying to harvest. |
-| 7 | `claimed_company` | Who they want the target to believe is calling. |
-| 8 | `claimed_department` | The pretext desk inside that organization. |
-| 9 | `claimed_agent` | The alias or persona name they are using. |
-| 10 | `fees` | The amount they want paid and the advance-fee ask. |
-| 11 | `loan_amounts` | The offered or approved principal they are pitching. |
-| 12 | `rates` | The interest rate or APR attached to the offer. |
-| 13 | `other` | Case, badge, ticket, or reference identifiers for clustering. |
-| 14 | `spoken_numbers` | Any other phone number they mention. |
-| 15 | `transfer_events` | Accept a transfer and mark the handoff to a closer. |
-| 16 | `script_phrases` | Let the pitch play; these cluster campaigns but are rarely elicited. |
-| 17 | `urgency_language` | Ask how soon they need a decision so the deadline is explicit. |
+| 1 | `pretext_category` | Ask why they are calling and store the coarse pretext class. |
+| 2 | `claimed_company` | Who they want the target to believe is calling. |
+| 3 | `loan_amounts` | The offered or approved principal they are pitching. |
+| 3 | `rates` | The interest rate or APR attached to the offer. |
+| 3 | `fees` | The amount they want paid and the advance-fee ask. |
+| 4 | `callback_numbers` | Direct number to reach the operation if the line drops. |
+| 4 | `spoken_numbers` | Any other phone number they mention. |
+| 4 | `case_or_reference_ids` | Ticket, case, claim, or confirmation identifiers. |
+| 5 | `claimed_agent` | The alias or persona name they are using. |
+| 5 | `claimed_department` | The pretext desk inside that organization. |
+| 6 | `domains` | Spoken or partial host when they will not give a full URL. |
+| 6 | `urls` | Campaign site or payment page. |
+| 6 | `email_addresses` | Mailbox for documents or later messages. |
+| 7 | `payment_methods` | Cash-out rail, stored with the payment_method enum. |
+| 7 | `remote_access_tools` | Remote-control software they want installed. |
+| 8 | `requested_information` | The data they are trying to harvest. |
+| 9 | `script_phrases` | Let the pitch play so campaign lines are recorded. |
+| 9 | `urgency_language` | Time pressure that is not itself a legal or account threat. |
+| 9 | `threat_or_consequence_language` | Arrest, account freeze, or lawsuit language. |
+| 9 | `transfer_events` | A live handoff to another caller. |
+| 9 | `spoofed_authority_claims` | The spoken claim that they represent an authority. |
+| 10 | `follow_up_promises` | A promise to call back, send a link, or follow up later. |
+| 11 | `other` | Badge numbers and identifiers that are not case or reference ids. |
 
-Ask in words that produce a literal span: a phone number in digits, a full URL, a dotted host, an email address, or a dollar amount next to "fee" or "loan". Sherlock's current extractor records those surface forms. Paraphrases, numbers spoken as words, and hosts spoken as "dot com" stay empty until model extraction is connected. See `docs/INTELLIGENCE.md`.
+Rank 11 is the catch-all field, not one of the ten elicit priorities.
+
+### Goal ids
+
+Use the field strings above verbatim in `goals_completed` and `goals_remaining`. They are `ObservationKind` values. Do not invent parallel names.
+
+`pretext_category` enum, stored on that observation and repeated in `normalized_value`: `tax`, `bank`, `warranty`, `debt`, `prize`, `tech_support`, `government`, `utility`, `other`. The free-text purpose is the observation `value` (the spoken purpose span), not a second goal id.
+
+`payment_method` enum, only on `payment_methods`: `gift_card`, `wire`, `crypto`, `remote_access`, `bank_verify`, `other`.
+
+### Ownership
+
+Sherlock owns typed Observation, Inference, and Attribution, each observation grounded in a transcript span plus confidence. Loki does not emit those records and does not set an extraction confidence.
+
+Optional soft handoff only, unverified breadcrumbs Sherlock may later check against the transcript:
+
+```json
+"elicited_hints": [
+  {"goal": "callback_numbers", "surface_text": "call this number", "turn_index": 3}
+]
+```
+
+`goal` is an `ObservationKind` value. Hints are not observations. Asking for a literal number, URL, host, email, or dollar amount still matters: the deterministic extractor only records obvious surface forms. See `docs/INTELLIGENCE.md`.

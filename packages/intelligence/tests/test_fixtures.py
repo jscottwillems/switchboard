@@ -26,6 +26,7 @@ EXPECTED_INFERENCE_KINDS = {
     InferenceKind.PRESSURE_TACTIC,
     InferenceKind.OFFER_TERMS,
     InferenceKind.CALLBACK_CHANNEL,
+    InferenceKind.THREATENED_CONSEQUENCE,
 }
 
 
@@ -62,6 +63,23 @@ def test_obvious_indicator_precision_and_recall(fixture_rows: list[dict[str, obj
         )
         gold = Counter((item["kind"], item["segment_id"], item["value"]) for item in row["gold"])
         assert pred == gold, row["call_id"]
+        by_signature = {
+            (item.kind.value, item.transcript_segment_id, item.value): item for item in bundle.observations
+        }
+        for item in row["gold"]:
+            observation = by_signature[(item["kind"], item["segment_id"], item["value"])]
+            if "payment_method" in item:
+                assert observation.payment_method is not None
+                assert observation.payment_method.value == item["payment_method"]
+            else:
+                assert observation.payment_method is None
+            if "pretext_category" in item:
+                assert observation.pretext_category is not None
+                assert observation.pretext_category.value == item["pretext_category"]
+                assert observation.normalized_value == item["pretext_category"]
+            else:
+                assert observation.pretext_category is None
+        assert bundle.elicited_hints == []
         true_positive += sum((pred & gold).values())
         predicted += sum(pred.values())
         gold_total += sum(gold.values())

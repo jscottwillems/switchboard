@@ -12,12 +12,38 @@ from switchboard_intelligence.schemas.common import (
 )
 
 
+class PretextCategory(str, Enum):
+    """Coarse purpose class for a `pretext_category` observation."""
+
+    TAX = "tax"
+    BANK = "bank"
+    WARRANTY = "warranty"
+    DEBT = "debt"
+    PRIZE = "prize"
+    TECH_SUPPORT = "tech_support"
+    GOVERNMENT = "government"
+    UTILITY = "utility"
+    OTHER = "other"
+
+
+class PaymentMethod(str, Enum):
+    """Cash-out rail for a `payment_methods` observation."""
+
+    GIFT_CARD = "gift_card"
+    WIRE = "wire"
+    CRYPTO = "crypto"
+    REMOTE_ACCESS = "remote_access"
+    BANK_VERIFY = "bank_verify"
+    OTHER = "other"
+
+
 class ObservationKind(str, Enum):
     """Indicator kinds Sherlock stores.
 
-    Add a member when an indicator becomes first-class. Until then, put
-    unmatched identifiers on `other`. String values are the cross-language
-    contract; regenerate TypeScript after changing them.
+    String values are the goal ids Loki may put in `goals_completed` and
+    `goals_remaining`. Add a member when an indicator becomes first-class.
+    Until then, put unmatched identifiers on `other`. Regenerate TypeScript
+    after changing them.
     """
 
     CLAIMED_COMPANY = "claimed_company"
@@ -36,6 +62,12 @@ class ObservationKind(str, Enum):
     SCRIPT_PHRASES = "script_phrases"
     URGENCY_LANGUAGE = "urgency_language"
     TRANSFER_EVENTS = "transfer_events"
+    PRETEXT_CATEGORY = "pretext_category"
+    CASE_OR_REFERENCE_IDS = "case_or_reference_ids"
+    THREAT_OR_CONSEQUENCE_LANGUAGE = "threat_or_consequence_language"
+    REMOTE_ACCESS_TOOLS = "remote_access_tools"
+    SPOOFED_AUTHORITY_CLAIMS = "spoofed_authority_claims"
+    FOLLOW_UP_PROMISES = "follow_up_promises"
     OTHER = "other"
 
 
@@ -64,11 +96,31 @@ class Observation(BaseModel):
     char_start: int = Field(ge=0)
     char_end: int = Field(ge=0)
     confidence: Confidence
+    payment_method: PaymentMethod | None = None
+    pretext_category: PretextCategory | None = None
 
     @model_validator(mode="after")
-    def span_is_ordered(self) -> "Observation":
+    def span_and_facets(self) -> "Observation":
         if self.end_timestamp < self.start_timestamp:
             raise ValueError("end_timestamp must be greater than or equal to start_timestamp")
         if self.char_end < self.char_start:
             raise ValueError("char_end must be greater than or equal to char_start")
+        self._check_facet(
+            self.kind is ObservationKind.PAYMENT_METHODS,
+            self.payment_method,
+            "payment_method",
+        )
+        self._check_facet(
+            self.kind is ObservationKind.PRETEXT_CATEGORY,
+            self.pretext_category,
+            "pretext_category",
+        )
         return self
+
+    def _check_facet(self, required: bool, facet: Enum | None, field_name: str) -> None:
+        if required and facet is None:
+            raise ValueError(f"{self.kind.value} observations require {field_name}")
+        if not required and facet is not None:
+            raise ValueError(f"{field_name} does not belong on kind {self.kind.value}")
+        if facet is not None and self.normalized_value != facet.value:
+            raise ValueError(f"normalized_value must equal {field_name}")
