@@ -1,4 +1,7 @@
 import hmac
+import threading
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, Header, Request
 from fastapi.responses import JSONResponse
@@ -8,9 +11,31 @@ from switchboard_observability import log_info
 from switchboard_schemas.api import ErrorBody, ExtractRequest, ExtractResponse, HealthResponse
 from switchboard_schemas.common import CONTRACT_VERSION
 
+from switchboard_intelligence.extractor_worker import extractor_worker_enabled, serve_extractor
 from switchboard_intelligence.settings import get_settings
 
-app = FastAPI(title="Switchboard Intelligence", version=CONTRACT_VERSION)
+
+@asynccontextmanager
+async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    stop = threading.Event()
+    thread: threading.Thread | None = None
+    if extractor_worker_enabled():
+        thread = threading.Thread(
+            target=serve_extractor,
+            args=(stop,),
+            name="intelligence.extractor",
+            daemon=True,
+        )
+        thread.start()
+    try:
+        yield
+    finally:
+        stop.set()
+        if thread is not None:
+            thread.join(timeout=2.0)
+
+
+app = FastAPI(title="Switchboard Intelligence", version=CONTRACT_VERSION, lifespan=_lifespan)
 _extractor = E164FindingExtractor()
 _settings = get_settings()
 log_info(

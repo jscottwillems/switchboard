@@ -271,6 +271,16 @@ Auth: internal token. Request `ExtractRequest`: `call_session_id` and `segments`
 
 This route exists so agents can test an extractor without the bus. The production path is the Redis consumer, not this POST. The route calls `E164FindingExtractor`. A segment whose text contains an E.164 token yields one `proposed` finding of kind `callback_number` citing that segment. A segment without one yields nothing. `NullFindingExtractor` remains the empty port for tests. A finding must cite at least one segment id.
 
+### Extractor consumer
+
+`switchboard_intelligence.extractor_worker` reads consumer group `intelligence.extractor` on `switchboard.events` through `switchboard_intelligence.deps.event_bus`. The loop starts with the intelligence process when `DATABASE_URL` and `REDIS_URL` are set. `SWITCHBOARD_EXTRACTOR_WORKER=0` leaves it off. The extract route above stays available either way.
+
+`speech.segment.final` is adapted to one in-memory `TranscriptSegment` and passed to `FindingExtractor.extract`. The process does not insert `obs.transcript_segment`. Each finding is inserted in `interp.intelligence_finding` and published as `intelligence.finding.proposed`. The proposed event's `confidence` is the finding's confidence. `stt_confidence` stays on the speech payload and is not copied onto the finding.
+
+A final segment with no E.164 inserts nothing and publishes nothing. Any other event type, including `speech.segment.partial` and `telephony.call.completed`, is acknowledged and ignored. An extractor exception is logged with `log_info` as `extractor_failed` and acknowledged. The log fields are the event id, event type, call session id, and a fixed reason. Transcript text and the exception message are not logged. The media socket is a different process and is not closed by that exception.
+
+Finding ids are the UUIDv5 from the extractor. The proposed event id is a UUIDv5 of the finding id, so a redelivery publishes a duplicate rather than a second stream entry. A failed insert is left pending. A failed publish is left pending after the row commit so the same event id can be published again.
+
 ## In-process ports
 
 These are not HTTP APIs.

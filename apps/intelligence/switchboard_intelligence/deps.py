@@ -1,6 +1,7 @@
 """Composition root for the extractor, the correlator, and their consumer group.
 
-SB-010 reads `ConsumerGroup.INTELLIGENCE_EXTRACTOR` and writes findings.
+SB-010 reads `ConsumerGroup.INTELLIGENCE_EXTRACTOR` in
+`switchboard_intelligence.extractor_worker` and writes findings.
 SB-012 reads `ConsumerGroup.INTELLIGENCE_CORRELATOR` and writes attribution.
 """
 
