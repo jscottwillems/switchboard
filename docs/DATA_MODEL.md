@@ -127,13 +127,13 @@ Python writes go through `packages/repositories`:
 
 | Port | Who calls it | Tables |
 | --- | --- | --- |
-| `TelephonyObsStore` | API voice webhook | active `ops.operator_number` lookup, idempotent `obs.call_session` insert, append-only `obs.webhook_receipt` |
+| `TelephonyObsStore` | API voice webhook and status callback | active `ops.operator_number` lookup, idempotent `obs.call_session` insert, forward `apply_state`, append-only `obs.webhook_receipt` |
 | `observation_writer` | API projector | `ops` read, `obs.*`, `interp.conversation_turn` |
 | `finding_writer` | intelligence extractor | `interp.intelligence_finding` |
 | `attribution_writer` | intelligence correlator | `attr.campaign`, `attr.campaign_attribution` |
 | `read_models` | API call read routes | fetch helpers for every table above. `GET /v1/calls` and call detail use this port |
 
-`insert_ringing` is idempotent on `(carrier, external_call_id)` and does not change the stored caller number. New findings are inserted as `proposed` and have no campaign column. `set_status` on a finding updates `status` only.
+`insert_ringing` is idempotent on `(carrier, external_call_id)` and does not change the stored caller number. Status callbacks call `apply_call_state`, which uses `CallSessionRepository.apply_state`. A callback whose status is already stored does not replace `answered_at` or `ended_at`. New findings are inserted as `proposed` and have no campaign column. `set_status` on a finding updates `status` only.
 
 ## Redis keys
 

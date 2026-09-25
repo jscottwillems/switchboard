@@ -1,16 +1,19 @@
-"""Connection-scoped observation port used by the mock voice webhook.
+"""Connection-scoped observation port used by the mock voice webhook and status callback.
 
-Method names match the voice webhook: active operator lookup, idempotent ringing
-insert, and an append-only receipt. The same connection commits both writes.
-Repeat `(carrier, external_call_id)` returns the stored session id and does not
-change the caller number.
+Method names match those routes: active operator lookup, idempotent ringing
+insert, a forward call-state update, and an append-only receipt. The same
+connection commits the writes that share it. Repeat `(carrier, external_call_id)`
+returns the stored session id and does not change the caller number.
+`apply_call_state` delegates to `CallSessionRepository.apply_state`.
 """
 
 from collections.abc import Iterator
 from contextlib import contextmanager
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
+from switchboard_schemas.enums import CallState
 from switchboard_schemas.observations import CallSession
 
 from switchboard_repositories.connection import DictConnection, connect
@@ -61,3 +64,31 @@ class TelephonyObsStore:
             call_session_id=call_session_id,
         )
         return receipt.id
+
+    def get_call_session(
+        self,
+        conn: DictConnection,
+        carrier: str,
+        external_call_id: str,
+    ) -> CallSession | None:
+        return PostgresCallSessions(conn).get_by_carrier_call(carrier, external_call_id)
+
+    def apply_call_state(
+        self,
+        conn: DictConnection,
+        session_id: UUID,
+        *,
+        state: CallState,
+        answered_at: datetime | None = None,
+        ended_at: datetime | None = None,
+        end_reason: str | None = None,
+    ) -> CallSession:
+        """Move a session forward. The repository keeps the first answered and ended timestamps."""
+
+        return PostgresCallSessions(conn).apply_state(
+            session_id,
+            state=state,
+            answered_at=answered_at,
+            ended_at=ended_at,
+            end_reason=end_reason,
+        )
