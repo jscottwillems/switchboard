@@ -142,17 +142,20 @@ def test_stop_then_forward(client: TestClient) -> None:
         assert socket.receive_json()["type"] == "ready"
         socket.send_json({"type": "stop"})
         assert socket.receive_json()["type"] == "media_ended"
-    forwarded = client.post(f"/calls/{call_id}/forward", json={"destination": "+15558675309"})
-    assert forwarded.status_code == 200
-    assert forwarded.json()["state"] == "forwarded"
-    assert forwarded.json()["forward_destination"] == "+15558675309"
-    names = [event["name"] for event in client.get(f"/calls/{call_id}/events").json()]
+        forwarded = client.post(f"/calls/{call_id}/forward", json={"destination": "+15558675309"})
+        assert forwarded.status_code == 200
+        assert forwarded.json()["state"] == "forwarded"
+        assert forwarded.json()["forward_destination"] == "+15558675309"
+    detail = client.get(f"/calls/{call_id}").json()
+    assert detail["session"]["state"] == "completed"
+    names = [event["name"] for event in detail["events"]]
     assert names == [
         "call.received",
         "call.connected",
         "call.media.started",
         "call.media.ended",
         "call.forwarded",
+        "call.completed",
     ]
 
 

@@ -4,7 +4,7 @@
 
 The telephony vertical slice is implemented on one FastAPI process: signed webhook, `CallSession`, media WebSocket, fixed-tone reply, hangup, mock simulator, and a Twilio adapter. Dashboard, speech, and campaign correlation are not in this repo yet.
 
-## HANDOFF — BELL — 2026-09-25T20:38:23Z
+## HANDOFF — BELL — 2026-09-25T20:42:30Z
 
 Completed:
 - TelephonyProvider port with receive_call, open_media_stream, forward_call, terminate_call, and get_call_status, plus provider-specific answer and status parsing.
@@ -35,7 +35,7 @@ Tests:
 - pytest covers signed webhook → session → media observe → fixed reply → hangup, bad signatures, forward, status failure, disconnect, concurrent in-memory sessions, Twilio TwiML plus media frames, and the simulator CLI against a live uvicorn process.
 
 Dependencies:
-- Python 3.12, FastAPI, Pydantic v2, uvicorn, httpx, websockets. No Twilio SDK, Redis, or Postgres.
+- Python 3.12, FastAPI, Pydantic v2, uvicorn, anyio, httpx, websockets. No Twilio SDK, Redis, or Postgres.
 
 Blocking issues:
 - None for the local simulator path.

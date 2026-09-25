@@ -55,7 +55,8 @@ def test_signed_voice_webhook_returns_stream_twiml() -> None:
         twilio_auth_token=TOKEN,
         log_level="WARNING",
     )
-    client = TestClient(create_app(settings))
+    transport = RecordingTransport()
+    client = TestClient(create_app(settings, twilio_transport=transport))
     body = urlencode(PARAMS).encode()
     signature = twilio_signature(auth_token=TOKEN, url=URL, params=PARAMS)
     response = client.post(
@@ -103,6 +104,7 @@ def test_signed_voice_webhook_returns_stream_twiml() -> None:
     assert "call.media.started" in [event["name"] for event in detail["events"]]
     assert detail["session"]["state"] == "completed"
     assert detail["events"][-1]["name"] == "call.completed"
+    assert transport.calls[-1]["data"] == {"Status": "completed"}
 
 
 def test_bad_twilio_signature_is_rejected() -> None:

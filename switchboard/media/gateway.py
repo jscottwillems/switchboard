@@ -1,5 +1,6 @@
 """Websocket gateway. Vendor frames stay inside the framer."""
 
+import anyio
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
 from switchboard.errors import FrameDecodeError, InvalidTransition, NotFoundError
@@ -43,6 +44,7 @@ class MediaGateway:
         await websocket.accept()
         framer = self._framers[provider_name]
         bound: str | None = None
+        close_reason = "websocket_disconnect"
         try:
             while True:
                 incoming = await websocket.receive()
@@ -83,13 +85,19 @@ class MediaGateway:
                         if bound is None:
                             await self._send(websocket, framer, ErrorOutbound(detail="hangup requires an active call"))
                             continue
+                        close_reason = reason
                         await self._finish(websocket, framer, bound, reason)
                         return
                     case _ as unmatched:
                         raise RuntimeError(f"unhandled media command: {unmatched!r}")
         except WebSocketDisconnect:
+            pass
+        finally:
+            # The ASGI server may cancel this task as the socket closes. A shielded
+            # scope lets hangup finish so the session does not stay in media_ended.
             if bound is not None:
-                await self._lifecycle.hangup(bound, "websocket_disconnect")
+                with anyio.CancelScope(shield=True):
+                    await self._lifecycle.hangup(bound, close_reason)
 
     async def _on_start(
         self,
