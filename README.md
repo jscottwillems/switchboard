@@ -51,10 +51,25 @@ docker compose up --build
 
 | URL | Process |
 | --- | --- |
-| http://localhost:5173 | Dashboard |
-| http://localhost:8000/health | API |
+| http://localhost:5173 | Dashboard (browser and home-screen icon) |
+| http://localhost:8000/health | API, for curl on this computer |
 | http://localhost:8001/health | Media gateway |
 | http://localhost:8002/health | Intelligence |
+
+Open the dashboard in a desktop browser at `http://localhost:5173`. The page calls same-origin `/v1`. The dashboard container proxies that prefix to the API. A phone does not use `http://localhost:8000`, because on the phone that name is the phone.
+
+### Phone on the same Wi-Fi
+
+No TestFlight build and no native iOS app. Use Safari.
+
+1. On the computer running compose, note a LAN address (`hostname -I` on Linux, or the Wi-Fi address in system settings).
+2. Allow inbound TCP `5173` on that computer if a firewall is on.
+3. On the iPhone, join the same Wi-Fi and open `http://<lan-ip>:5173` in Safari. Example: `http://192.168.1.20:5173`.
+4. Share sheet → Add to Home Screen. The icon comes from the web app manifest and `apple-touch-icon`. The start URL is `/dashboard/live`.
+
+The service worker is registered for the ops UI only. Safari installs it in a secure context (`https`, or `localhost` on the computer). A plain `http://<lan-ip>` page can still be added to the home screen; the worker registration fails there until the stack is served over HTTPS. This compose file does not terminate TLS.
+
+Operator authentication is still open. Sentinel owns it. Do not put this stack on an untrusted network. The dashboard is not access control, and this is not a production-hardened deployment.
 
 The compose file sets `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` for local development only. A signed mock webhook:
 
@@ -62,7 +77,7 @@ The compose file sets `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` for local development o
 sh scripts/mock_inbound_call.sh
 ```
 
-The API returns a `connect_stream` instruction and stores the session when `to_e164` is an active operator number. `GET /v1/calls` and `GET /v1/calls/{id}` return those stored rows. `GET /v1/campaigns` and `GET /v1/campaigns/{id}` return stored campaigns. The dashboard campaign screens stay on mock fixtures.
+The API returns a `connect_stream` instruction and stores the session when `to_e164` is an active operator number. `GET /v1/calls` and `GET /v1/calls/{id}` return those stored rows. The live board lists sessions whose `state` is `in_progress`. A new mock call stays `ringing` until a signed `POST /v1/telephony/status/mock` with `"status": "in_progress"`. `GET /v1/campaigns` and `GET /v1/campaigns/{id}` return stored campaigns. The dashboard campaign, system, and report screens stay on mock fixtures.
 
 ## Dashboard
 
@@ -74,9 +89,9 @@ npm install
 npm run dev
 ```
 
-`npm run dev` proxies `/v1` to `http://127.0.0.1:8000` when `VITE_API_BASE_URL` is unset. Set `VITE_API_BASE_URL=http://localhost:8000` to call the API directly. The production build defaults that base to `http://localhost:8000`. The live board polls every 5 seconds (`VITE_LIVE_POLL_MS`).
+`npm run dev` proxies `/v1` to `http://127.0.0.1:8000` when `VITE_API_BASE_URL` is unset. `npm run preview` does the same for a production build on port 4173. Leave the base unset for same-origin requests. Set `VITE_API_BASE_URL` only to call another origin, and add that origin to `SWITCHBOARD_CORS_ORIGINS`. The live board polls every 5 seconds (`VITE_LIVE_POLL_MS`).
 
-Open `http://localhost:5173`. Routes: `/dashboard/live`, `/dashboard/calls`, `/dashboard/calls/:id`, `/dashboard/campaigns`, `/dashboard/campaigns/:id`, `/dashboard/system`, `/dashboard/reports`, `/dashboard/reports/:reportId`.
+Open `http://localhost:5173` for the Vite dev server, or the compose URL above for the nginx image. Routes: `/dashboard/live`, `/dashboard/calls`, `/dashboard/calls/:id`, `/dashboard/campaigns`, `/dashboard/campaigns/:id`, `/dashboard/system`, `/dashboard/reports`, `/dashboard/reports/:reportId`.
 
 `npm run typecheck` and `npm run build` run in that directory. Shapes the screens need, and the fields the read API does not return yet, are listed in [docs/FRONTEND_DATA_REQUIREMENTS.md](docs/FRONTEND_DATA_REQUIREMENTS.md).
 
@@ -88,6 +103,6 @@ make test
 make test-mvp-smoke
 ```
 
-`make test-mvp-smoke` is the mock vertical slice: signed voice webhook, fixture audio, speak-back, `callback_number` finding, and `GET /v1/calls` plus `GET /v1/calls/{id}`. It needs the same Postgres and Redis as `make test`.
+`make test-mvp-smoke` is the mock vertical slice: signed voice webhook, fixture audio, speak-back, `callback_number` finding, a signed status callback to `in_progress`, and `GET /v1/calls` plus `GET /v1/calls/{id}`. It needs the same Postgres and Redis as `make test`.
 
 Python 3.12 and Node 22 are the local baselines. Copy `.env.example` to `.env` for host processes. Those values are development defaults.

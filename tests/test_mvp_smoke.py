@@ -2,7 +2,8 @@
 
 `make test-mvp-smoke` runs this module. No live carrier, STT, or TTS account.
 The dashboard is not opened; `GET /v1/calls` and `GET /v1/calls/{id}` are the
-read path RADAR polls.
+read path RADAR polls. A signed status callback then marks the session
+`in_progress`, which is the live-board filter.
 """
 
 import base64
@@ -169,6 +170,22 @@ def test_mock_vertical_slice(redis_url: str) -> None:
     assert body.turns[1].strategy_id == FIXED_STRATEGY_ID
     assert body.attributions == []
 
+    _answer()
+    _drain(projector.poll, "projector-answered")
+
+    live = api.get("/v1/calls")
+    assert live.status_code == 200
+    live_page = CallListResponse.model_validate(live.json())
+    listed_row = next(item for item in live_page.items if item.id == call_session_id)
+    assert listed_row.state is CallState.IN_PROGRESS
+
+    answered = api.get(f"/v1/calls/{call_session_id}")
+    assert answered.status_code == 200
+    answered_body = CallDetailResponse.model_validate(answered.json())
+    assert answered_body.session.id == call_session_id
+    assert answered_body.session.state is CallState.IN_PROGRESS
+    assert answered_body.session.answered_at is not None
+
 
 def _voice() -> dict[str, object]:
     response = api.post(
@@ -199,6 +216,22 @@ def _webhook() -> tuple[UUID, str]:
     token = instruction["stream_token"]
     assert isinstance(token, str) and token != ""
     return call_session_id, token
+
+
+def _answer() -> None:
+    """Bell status route: answered. The projector does not apply this transition."""
+
+    response = api.post(
+        "/v1/telephony/status/mock",
+        json={
+            "provider_call_id": PROVIDER_CALL_ID,
+            "status": CallState.IN_PROGRESS.value,
+            "timestamp": "2026-09-26T00:00:30Z",
+        },
+        headers={MOCK_SIGNATURE_HEADER: MOCK_SIGNATURE_VALUE},
+    )
+    assert response.status_code == 200
+    assert response.json() == {"accepted": True}
 
 
 def _stream(call_session_id: UUID, token: str) -> None:

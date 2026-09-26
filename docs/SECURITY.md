@@ -42,7 +42,7 @@ Postgres and Redis are not exposed to the caller. In the local compose file thei
 - Audio frames are not written to Redis, Postgres, or logs in the MVP.
 - Logs pass through `safe_fields`. Dropped keys include `audio`, `authorization`, `payload`, `payload_b64`, `raw_body`, `stream_token`, and `token`.
 - Validation errors return `invalid_request` and do not echo the submitted body.
-- Dashboard access is operator-only before any deployment beyond localhost. The skeleton has no login. Do not publish port 5173 or 8000 to an untrusted network as if that were access control.
+- Dashboard access is operator-only before any deployment beyond a trusted LAN. The skeleton has no login. The compose dashboard proxies `/v1` to the API so a browser can use one origin. That proxy is not authentication. Do not publish port 5173 or 8000 to an untrusted network as if that were access control.
 - Secrets come from the environment. The repository holds `.env.example` with local values only. The local Postgres password `switchboard` is a development default, not a production secret.
 - Caller numbers are confidential. They may be spoofed victim numbers. They are not demo data for screenshots outside the operator team.
 - Findings stay `proposed` until an explicit accept or reject. Acceptance is not inferred from confidence.
