@@ -2,7 +2,7 @@ PYTHON ?= python3
 PYTHONPATH := .:packages/schemas:packages/telephony:packages/conversation:packages/classification:packages/observability:packages/events:packages/repositories:apps/api:apps/media_gateway:apps/intelligence
 export PYTHONPATH
 
-.PHONY: test install-dev
+.PHONY: test install-dev test-mvp-smoke
 
 install-dev:
 	$(PYTHON) -m pip install --upgrade pip
@@ -13,3 +13,7 @@ install-dev:
 # Requires Postgres at DATABASE_URL and Redis at REDIS_URL. The suite applies apps/api/migrations.
 test:
 	$(PYTHON) -m pytest -q
+
+# One mock vertical slice: webhook, fixture STT, speak-back, finding, call reads.
+test-mvp-smoke:
+	$(PYTHON) -m pytest -q -m mvp_smoke

@@ -85,6 +85,9 @@ Without Docker, install and test the contracts:
 ```sh
 make install-dev
 make test
+make test-mvp-smoke
 ```
+
+`make test-mvp-smoke` is the mock vertical slice: signed voice webhook, fixture audio, speak-back, `callback_number` finding, and `GET /v1/calls` plus `GET /v1/calls/{id}`. It needs the same Postgres and Redis as `make test`.
 
 Python 3.12 and Node 22 are the local baselines. Copy `.env.example` to `.env` for host processes. Those values are development defaults.
