@@ -81,7 +81,7 @@ Response:
 }
 ```
 
-`VoiceInstruction.action` is `connect_stream`, `hangup`, or `reject`. `stream_url` and `stream_token` are required together for `connect_stream` and forbidden otherwise. The token is not embedded in `stream_url`. The carrier adapter adds `?token=`.
+`VoiceInstruction.action` is `connect_stream`, `hangup`, or `reject`. `stream_url` and `stream_token` are required together for `connect_stream` and forbidden otherwise. The token is not embedded in `stream_url`. The carrier adapter adds `?token=`. The local default is `ws://localhost:8001/v1/streams`. When the opt-in ingress proxies that socket, `MEDIA_GATEWAY_PUBLIC_WS` is `wss://<public-host>/v1/streams`. The ingress does not proxy it yet.
 
 Mock session ids are UUIDv5(`SWITCHBOARD_ID_NAMESPACE`, `mock:{provider_call_id}`).
 

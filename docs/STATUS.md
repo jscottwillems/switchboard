@@ -1,6 +1,6 @@
 # Status
 
-Contract version **0.1.0**. Updated by SENTINEL on 2026-09-26.
+Contract version **0.1.0**. Updated by ATLAS on 2026-09-26.
 
 The authoritative docs exist, the repository layout exists, and the shared schemas exist. The mock vertical slice is `make test-mvp-smoke`: a signed voice webhook, fixture audio, speak-back, a `callback_number` finding, and the call read API. ECHO has landed media parsing, token checks, mock STT finals, deterministic mock TTS, hot-path timing, and speak-back on the socket (SB-004, SB-005, SB-006, SB-008, SB-020). Call list and detail read stored rows (SB-018). Status callbacks update session state and publish telephony events (SB-003). The extractor consumes `speech.segment.final` into a finding and `intelligence.finding.proposed` (SB-010). The correlator consumes that proposal. Two sessions that share a `callback_number` E.164 open one `hypothesized` campaign and one attribution per session (SB-011, SB-012). The API projector stores that final and `conversation.turn.recorded`. The ops dashboard polls those call routes unless `VITE_OPS_DATA=mock` (SB-013). Campaign list and detail read stored `attr.campaign` rows. The dashboard campaign screens stay on fixtures.
 
@@ -19,7 +19,7 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | Call on the dashboard | The Vue app polls `GET /v1/calls` and loads `GET /v1/calls/{id}` with `X-Switchboard-Operator-Token` unless `VITE_OPS_DATA=mock` |
 | Campaign on the read API | `GET /v1/campaigns` lists stored campaigns, newest `created_at` then `id`. `GET /v1/campaigns/{id}` returns that `Campaign`. The dashboard campaign screens stay on fixtures |
 
-`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. `GET /v1/campaigns` and `GET /v1/campaigns/{id}` read `attr.campaign` through the same port. An unknown campaign id is `404 campaign_not_found`. The media gateway publishes `speech.segment.final`, `conversation.response.selected`, and `conversation.turn.recorded` for the mock STT fixture and does not open Postgres. The API projector consumes the final and the turn events into `obs.transcript_segment` and `interp.conversation_turn`. The intelligence extractor consumes `speech.segment.final`, writes `interp.intelligence_finding`, and publishes `intelligence.finding.proposed`. The intelligence correlator consumes `intelligence.finding.proposed`. A second session with the same `callback_number` E.164 inserts one `hypothesized` `attr.campaign` and one `attr.campaign_attribution` per session, then publishes `campaign.opened` and `campaign.attribution.proposed`. The dashboard polls the call read API and does not open Postgres or Redis. Those fetches send `X-Switchboard-Operator-Token` from `VITE_OPERATOR_TOKEN`. Read routes reject a missing token with `401 operator_unauthorized` unless `SWITCHBOARD_ENV` is `dev` and `SWITCHBOARD_DEV_OPERATOR_BYPASS=1`. Campaign screens stay on the fixture adapter. `VITE_OPS_DATA=mock` keeps the fixture adapter.
+`docker-compose.yml` describes the local topology and stays plain HTTP. `docker-compose.ingress.yml` is opt-in HTTPS in front of the dashboard origin. It does not publish Postgres or Redis, and it does not start with `docker compose up`. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. `GET /v1/campaigns` and `GET /v1/campaigns/{id}` read `attr.campaign` through the same port. An unknown campaign id is `404 campaign_not_found`. The media gateway publishes `speech.segment.final`, `conversation.response.selected`, and `conversation.turn.recorded` for the mock STT fixture and does not open Postgres. The API projector consumes the final and the turn events into `obs.transcript_segment` and `interp.conversation_turn`. The intelligence extractor consumes `speech.segment.final`, writes `interp.intelligence_finding`, and publishes `intelligence.finding.proposed`. The intelligence correlator consumes `intelligence.finding.proposed`. A second session with the same `callback_number` E.164 inserts one `hypothesized` `attr.campaign` and one `attr.campaign_attribution` per session, then publishes `campaign.opened` and `campaign.attribution.proposed`. The dashboard polls the call read API and does not open Postgres or Redis. Those fetches send `X-Switchboard-Operator-Token` from `VITE_OPERATOR_TOKEN`. Read routes reject a missing token with `401 operator_unauthorized` unless `SWITCHBOARD_ENV` is `dev` and `SWITCHBOARD_DEV_OPERATOR_BYPASS=1`. Campaign screens stay on the fixture adapter. `VITE_OPS_DATA=mock` keeps the fixture adapter.
 
 ## Ownership map
 
@@ -42,7 +42,7 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | `apps/dashboard` | RADAR | Read API only |
 | Evidence manifest | CLERK | No app directory yet. `SB-019` adds the model |
 | Auth, tokens, abuse resistance | SENTINEL | Cross-cutting. Do not fork a second webhook stack |
-| `docker-compose.yml` | ATLAS | |
+| `docker-compose.yml`, `docker-compose.ingress.yml` | ATLAS | Ingress file is opt-in HTTPS. Default compose stays LAN HTTP |
 
 An agent does not take over another owner's directory to "finish" their subsystem. Cross-cutting contract edits include ATLAS (or the schema owner) in the same change.
 
@@ -1197,3 +1197,55 @@ Shared operator token on the read API and the dashboard HTTP client. No login sc
 - RADAR: when campaign screens leave the mock adapter, send `operatorAuthHeaders()` on those fetches too.
 - Leave per-operator login and SSO out until a later ticket. Do not treat this header as a session.
 - SB-014 is still the open Redis token tripwire.
+
+## HANDOFF — ATLAS — 2026-09-26T02:05:00Z
+
+Opt-in HTTPS in front of the dashboard origin so a phone can get a secure context. Default `docker compose up` stays LAN HTTP. No login, SSO, or new product bot.
+
+### Completed
+
+- `docker-compose.ingress.yml` is not read by `docker compose up`. Profiles `tunnel`, `tunnel-named`, `https`, and `https-public` start the edge. Caddy `2.11.4` terminates TLS for a LAN IP (internal CA) or a public DNS name (automatic HTTPS). `cloudflared` `2026.9.0` publishes only `http://edge_tunnel:80` for a Cloudflare quick tunnel or a named tunnel (`TUNNEL_TOKEN` / `CLOUDFLARE_TUNNEL_TOKEN`). No inbound ports on the tunnel profiles.
+- The edge proxies the dashboard origin. `/v1/internal`, `/v1/telephony`, and `/v1/streams` are `404`. Postgres and Redis are not upstreams. With the ingress file loaded, Postgres, Redis, the API, the media gateway, intelligence, and port `5173` bind to `127.0.0.1` (`!override`, Compose v2.24+). Desktop curl to localhost still works.
+- `MEDIA_GATEWAY_PUBLIC_WS` still defaults to `ws://localhost:8001/v1/streams`. The public value, after the stream path is proxied to `media_gateway:8001`, is `wss://<public-host>/v1/streams`. That block is commented in `deploy/ingress/routes.caddy` and is not mounted as the active route. Carrier webhooks are the same kind of later edit, and only after `SWITCHBOARD_DEV_WEBHOOK_BYPASS` is unset and `SWITCHBOARD_ENV` is not `dev`. `/v1/internal` stays off the edge.
+- Compose reads `SWITCHBOARD_OPERATOR_TOKEN`, `SWITCHBOARD_INTERNAL_TOKEN`, and `MEDIA_GATEWAY_PUBLIC_WS` from the environment. Unset, they stay `dev-operator-token`, `dev-internal-token`, and `ws://localhost:8001/v1/streams`. The dashboard build arg uses the same operator token. `SWITCHBOARD_CORS_ORIGINS` stays `http://localhost:5173`.
+- Dashboard nginx keeps an `X-Forwarded-Proto` the edge already set. A direct LAN HTTP request with no header still uses `$scheme`.
+- README, SECURITY, and ARCHITECTURE record the run steps, what is exposed, the rotation, the Vite-inlined token, and that this is not per-operator login.
+
+### Files changed
+
+- `docker-compose.yml`, `docker-compose.ingress.yml`
+- `deploy/ingress/Caddyfile.lan`, `deploy/ingress/Caddyfile.public`, `deploy/ingress/Caddyfile.tunnel`, `deploy/ingress/routes.caddy`
+- `apps/dashboard/nginx.conf`
+- `.env.example`, `apps/dashboard/.env.example`, `.gitignore`
+- `tests/test_ingress_compose.py`
+- `README.md`, `docs/SECURITY.md`, `docs/ARCHITECTURE.md`, `docs/API_CONTRACTS.md`, `docs/STATUS.md`
+
+### Interfaces added-changed
+
+- No new HTTP routes, event types, or tables.
+- Nginx forwards `X-Forwarded-Proto` from the edge when the header is present.
+- The carrier `stream_url` default is unchanged. A public media edge must set `wss://`.
+
+### Tests
+
+- `tests/test_ingress_compose.py`: default compose has no profiles and keeps `5173:80`, `5432:5432`, and `ws://localhost:8001/v1/streams`. The ingress file loopback-binds data and app ports, profiles the edge, and does not publish Postgres or Redis. Active Caddy routes deny internal, telephony, and streams, and proxy only `dashboard:80`. README and SECURITY still warn to rotate the placeholder, that Vite inlines the token, and that this is not a login.
+- `make test`: 199 passed, 1 skipped. The skip is the SB-014 Redis token tripwire. Postgres at `DATABASE_URL` and Redis at `REDIS_URL`.
+- `make test-mvp-smoke`: 1 passed.
+- Caddy `2.11.4` `validate` accepted all three Caddyfiles. An empty `SWITCHBOARD_PUBLIC_HOST` and an empty ACME email fail to adapt. `nginx -t` reported the dashboard config syntax as ok.
+
+### Dependencies
+
+- Images `caddy:2.11.4-alpine` and `cloudflare/cloudflared:2026.9.0`, only when a profile is set. No new Python or npm packages.
+- Docker Compose v2.24 or newer for `!override`.
+
+### Blocking issues
+
+- This environment had no Docker daemon, so the compose stack was not booted and a phone did not open a live tunnel URL.
+- A quick tunnel hostname changes every start and is a public URL. The operator token in the bundle is still visible to anyone who can load the page. That is not per-operator login.
+- `SB-014` Redis stream tokens remain the open tripwire.
+
+### Recommended next work
+
+- Rotate `dev-operator-token` and `dev-internal-token` before sharing a tunnel or public hostname, and rebuild the dashboard image.
+- Leave `/v1/internal` off the edge. Add `/v1/telephony` only with the dev webhook bypass unset and `SWITCHBOARD_ENV` not `dev`. Add `/v1/streams` only together with `MEDIA_GATEWAY_PUBLIC_WS=wss://<public-host>/v1/streams`.
+- Leave per-operator login and SSO out. SB-014 is still the open Redis token tripwire.

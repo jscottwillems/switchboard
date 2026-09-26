@@ -1,0 +1,10 @@
+# HTTP origin for cloudflared. Cloudflare terminates TLS.
+# This listener is not published on the host.
+{
+	admin off
+}
+
+:80 {
+	encode gzip
+	import routes.caddy
+}

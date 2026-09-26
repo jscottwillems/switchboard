@@ -1,0 +1,13 @@
+# Automatic HTTPS for a DNS name that points at this host.
+# Ports 80 and 443 must be reachable. SWITCHBOARD_ACME_EMAIL must be set.
+# An IP address or a name you do not control belongs on the LAN file or the tunnel.
+{
+	admin off
+	default_sni {$SWITCHBOARD_PUBLIC_HOST}
+	email {$SWITCHBOARD_ACME_EMAIL}
+}
+
+{$SWITCHBOARD_PUBLIC_HOST} {
+	encode gzip
+	import routes.caddy
+}

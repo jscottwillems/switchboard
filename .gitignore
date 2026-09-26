@@ -13,3 +13,5 @@ node_modules/
 .env
 .DS_Store
 apps/dashboard/dist/
+deploy/ingress/certs/
+switchboard-local-root.crt

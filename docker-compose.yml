@@ -1,5 +1,9 @@
 name: switchboard
 
+# Plain HTTP for this computer and a phone on the same LAN.
+# HTTPS is opt-in and lives in docker-compose.ingress.yml.
+# `docker compose up` does not start it.
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -36,14 +40,15 @@ services:
     environment:
       SWITCHBOARD_ENV: dev
       SWITCHBOARD_DEV_WEBHOOK_BYPASS: "1"
-      SWITCHBOARD_INTERNAL_TOKEN: dev-internal-token
-      # Local placeholder. The dashboard build arg must match. Not a production secret.
-      # Bypass stays unset so phone LAN reads still present this token.
-      SWITCHBOARD_OPERATOR_TOKEN: dev-operator-token
+      # Local placeholder. Override in .env before any shared URL. Not a production secret.
+      SWITCHBOARD_INTERNAL_TOKEN: ${SWITCHBOARD_INTERNAL_TOKEN:-dev-internal-token}
+      # The dashboard build arg must match. Bypass stays unset so reads still present this token.
+      SWITCHBOARD_OPERATOR_TOKEN: ${SWITCHBOARD_OPERATOR_TOKEN:-dev-operator-token}
       # Direct browser calls to port 8000. The dashboard origin proxies /v1, so a
       # phone does not need its LAN address on this list. Do not use *.
       SWITCHBOARD_CORS_ORIGINS: http://localhost:5173
-      MEDIA_GATEWAY_PUBLIC_WS: ws://localhost:8001/v1/streams
+      # Local carrier URL. A public media edge must set wss:// in .env. See docker-compose.ingress.yml.
+      MEDIA_GATEWAY_PUBLIC_WS: ${MEDIA_GATEWAY_PUBLIC_WS:-ws://localhost:8001/v1/streams}
       DATABASE_URL: postgresql://switchboard:switchboard@postgres:5432/switchboard
       REDIS_URL: redis://redis:6379/0
     ports:
@@ -73,7 +78,7 @@ services:
     environment:
       REDIS_URL: redis://redis:6379/0
       API_BASE_URL: http://api:8000
-      SWITCHBOARD_INTERNAL_TOKEN: dev-internal-token
+      SWITCHBOARD_INTERNAL_TOKEN: ${SWITCHBOARD_INTERNAL_TOKEN:-dev-internal-token}
       STREAM_TOKEN_VALIDATE_TIMEOUT_S: "2"
     ports:
       - "8001:8001"
@@ -100,7 +105,7 @@ services:
       context: .
       dockerfile: apps/intelligence/Dockerfile
     environment:
-      SWITCHBOARD_INTERNAL_TOKEN: dev-internal-token
+      SWITCHBOARD_INTERNAL_TOKEN: ${SWITCHBOARD_INTERNAL_TOKEN:-dev-internal-token}
       DATABASE_URL: postgresql://switchboard:switchboard@postgres:5432/switchboard
       REDIS_URL: redis://redis:6379/0
     ports:
@@ -129,8 +134,8 @@ services:
       dockerfile: apps/dashboard/Dockerfile
       args:
         VITE_API_BASE_URL: ""
-        # Baked into the JS bundle. Must match the API token above.
-        VITE_OPERATOR_TOKEN: dev-operator-token
+        # Baked into the JS bundle. Must match SWITCHBOARD_OPERATOR_TOKEN. Rebuild after it changes.
+        VITE_OPERATOR_TOKEN: ${SWITCHBOARD_OPERATOR_TOKEN:-dev-operator-token}
     ports:
       - "5173:80"
     depends_on:

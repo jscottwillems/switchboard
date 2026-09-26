@@ -26,7 +26,7 @@ flowchart LR
 | Carrier webhook | Provider HTTP body | Signature check, then Switchboard models |
 | Media socket | Audio and media JSON | Token check, then ports inside the gateway |
 | Internal HTTP | Token issue, token validate, extract | `X-Switchboard-Internal-Token` |
-| Dashboard | Browser on the operator network | Read API only |
+| Dashboard | Browser on the operator network, or the opt-in HTTPS edge | Read API only. The edge does not publish Postgres or Redis |
 
 Postgres and Redis are not exposed to the caller. In the local compose file their ports are published on localhost for development. A shared deployment does not publish them.
 
@@ -43,7 +43,7 @@ Postgres and Redis are not exposed to the caller. In the local compose file thei
 - Audio frames are not written to Redis, Postgres, or logs in the MVP.
 - Logs pass through `safe_fields`. Dropped keys include `audio`, `authorization`, `payload`, `payload_b64`, `raw_body`, `stream_token`, and `token`.
 - Validation errors return `invalid_request` and do not echo the submitted body.
-- Dashboard access is operator-only before any deployment beyond a trusted LAN. API-mode fetches send `X-Switchboard-Operator-Token` from `VITE_OPERATOR_TOKEN`. The compose dashboard proxies `/v1` to the API so a browser can use one origin and forwards that header. The proxy is not a substitute for the token. There is no per-operator login. Do not publish port 5173 or 8000 with the placeholder token.
+- Dashboard access is operator-only before any deployment beyond a trusted LAN. API-mode fetches send `X-Switchboard-Operator-Token` from `VITE_OPERATOR_TOKEN`. The compose dashboard proxies `/v1` to the API so a browser can use one origin and forwards that header. The proxy is not a substitute for the token. There is no per-operator login. Vite inlines `VITE_OPERATOR_TOKEN` into the dashboard bundle. Anyone who can load that JavaScript can present the token. Rotate `SWITCHBOARD_OPERATOR_TOKEN` and `SWITCHBOARD_INTERNAL_TOKEN` off the repository placeholders before any shared URL, and rebuild the dashboard image. Do not publish port 5173 or 8000 with the placeholder token. Do not set `SWITCHBOARD_CORS_ORIGINS` to `*`. The opt-in ingress below is still this shared secret, not a login.
 - Secrets come from the environment. The repository holds `.env.example` with local values only. The local Postgres password `switchboard` is a development default, not a production secret.
 - Caller numbers are confidential. They may be spoofed victim numbers. They are not demo data for screenshots outside the operator team.
 - Findings stay `proposed` until an explicit accept or reject. Acceptance is not inferred from confidence.
@@ -77,10 +77,30 @@ Transcript text is stored and displayed as text. It is not rendered as HTML that
 | `SWITCHBOARD_INTERNAL_TOKEN` | `dev-internal-token` | A random secret |
 | `SWITCHBOARD_OPERATOR_TOKEN` | `dev-operator-token` | A random secret, not the placeholder |
 | `SWITCHBOARD_DEV_OPERATOR_BYPASS` | Unset | Unset |
-| `VITE_OPERATOR_TOKEN` | `dev-operator-token` (dashboard build arg) | The same secret as `SWITCHBOARD_OPERATOR_TOKEN`. Rebuild the dashboard after it changes |
+| `VITE_OPERATOR_TOKEN` | `dev-operator-token` (dashboard build arg) | The same secret as `SWITCHBOARD_OPERATOR_TOKEN`. Vite inlines it. Rebuild the dashboard after it changes |
 | Postgres password | `switchboard` | A real secret, not in git |
 | Redis | No AUTH | AUTH and network policy |
 | Mock signature | `dev` | Provider verifier, fail closed |
+| `MEDIA_GATEWAY_PUBLIC_WS` | `ws://localhost:8001/v1/streams` | `wss://<public-host>/v1/streams` only after that path is on the ingress. Never `ws://` on a public host |
+| Ingress | Not started | Opt-in `docker-compose.ingress.yml`. Still not per-operator login |
+
+## Opt-in public ingress
+
+`docker compose up` stays plain HTTP on the developer machine. `docker-compose.ingress.yml` is the HTTPS path. It terminates TLS in front of the dashboard origin (Caddy on ports 80/443, or a Cloudflare tunnel that publishes only that origin). The phone keeps one origin. The dashboard nginx proxies `/v1` and forwards `X-Switchboard-Operator-Token`.
+
+The ingress is fail closed:
+
+- Profiles gate Caddy and cloudflared. No profile means those processes do not start. Loading the file still rebinds the app and data host ports to `127.0.0.1`. LAN HTTP on port `5173` is the default compose file alone.
+- The edge proxies the operator UI and the read routes the UI calls. `/v1/internal`, `/v1/telephony`, and `/v1/streams` answer `404`.
+- Postgres and Redis are not edge upstreams. With the ingress file loaded, their host ports and the API, media, intelligence, and plain dashboard ports bind to `127.0.0.1` only.
+- CORS stays `http://localhost:5173` for a browser that calls port 8000 directly. The phone does not need a second origin. `*` is not a value this stack sets.
+- Placeholder tokens are not production secrets. Rotate `SWITCHBOARD_OPERATOR_TOKEN` and `SWITCHBOARD_INTERNAL_TOKEN` before sharing a tunnel or public hostname. Rebuild the dashboard after the operator token changes. The new operator token is still visible in the bundle.
+- `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` remains the local default for curl to localhost. The public edge does not route `/v1/telephony`. Do not add that route until the bypass is unset and `SWITCHBOARD_ENV` is not `dev`.
+- `MEDIA_GATEWAY_PUBLIC_WS` stays `ws://localhost:8001/v1/streams` until `/v1/streams` is proxied to the media gateway. The public value is `wss://<public-host>/v1/streams`.
+- A quick tunnel URL is public. Possession of the URL is enough to load the board and read the inlined token. That is not per-operator login.
+- Caddy's admin API is off. The tunnel token is an environment variable, not a file in git.
+
+Run steps and the later webhook and media blocks are in the README.
 
 ## Known skeleton gaps
 
@@ -182,7 +202,7 @@ Residuals, left **open**:
 | Attacker | Anyone who can open the operator UI or call the read API |
 | Required control | Operator authentication before any deployment beyond localhost. Transcript and finding text render as text. The UI does not dial numbers or open URLs from findings. |
 
-**This pass.** **Closed** for the shared operator token on the read API and the dashboard HTTP client. Missing, blank, or wrong credentials are `401 operator_unauthorized`. Outside `SWITCHBOARD_ENV=dev`, `SWITCHBOARD_DEV_OPERATOR_BYPASS` is ignored. The token is a shared secret in the dashboard build (`VITE_OPERATOR_TOKEN`). Anyone who can read that JavaScript can present it. That is the LAN credential, not a per-operator login. Do not publish port 5173 or 8000 with the placeholder token.
+**This pass.** **Closed** for the shared operator token on the read API and the dashboard HTTP client. Missing, blank, or wrong credentials are `401 operator_unauthorized`. Outside `SWITCHBOARD_ENV=dev`, `SWITCHBOARD_DEV_OPERATOR_BYPASS` is ignored. The token is a shared secret in the dashboard build (`VITE_OPERATOR_TOKEN`). Anyone who can read that JavaScript can present it. That is the LAN credential, not a per-operator login. Do not publish port 5173 or 8000 with the placeholder token. The opt-in ingress in front of the dashboard does not add a second credential.
 
 ### Authentication
 
