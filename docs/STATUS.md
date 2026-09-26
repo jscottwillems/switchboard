@@ -874,6 +874,56 @@ SB-013. The ops dashboard reads stored calls from the API. Campaigns, system, an
 - A list field for `external_call_id`, or a history column that stops expecting it, if operators need the carrier id without opening the call.
 - SENTINEL: operator authentication before any shared deployment of port 8000 or the dashboard.
 
+## HANDOFF — WATSON — 2026-09-26T00:04:49Z
+
+SB-012. `intelligence.finding.proposed` is consumed by `intelligence.correlator`. A shared `callback_number` E.164 becomes one `attr.campaign` row, one `attr.campaign_attribution` per call, `campaign.opened`, and `campaign.attribution.proposed`. This change does not edit the extractor and does not add a `FindingKind` or a campaign column.
+
+### Completed
+
+- `CorrelatorConsumer` in `apps/intelligence/switchboard_intelligence/correlator_worker.py` reads `ConsumerGroup.INTELLIGENCE_CORRELATOR` through `switchboard_intelligence.deps.event_bus`. `intelligence.finding.proposed` loads the stored finding and every other `callback_number` row with that exact value (`FindingRepository.list_callback_numbers`). `propose_callback_campaigns` replays those rows through a fresh `ExactCallbackCorrelator`.
+- One session stays unmatched. A second session with the same E.164 inserts one `hypothesized` campaign and one attribution per session through `attribution_writer` (`campaigns().insert`, `attributions().insert`). Distinct values do not merge. Other event types, and findings that are not `callback_number`, are acknowledged and do not write `attr.*`.
+- `campaign.opened` and `campaign.attribution.proposed` are published with `EventBus.publish` after the insert commits. The envelope `call_session_id` is the finding event that triggered the write. `causation_id` is that event's id. Campaign and attribution ids are the correlator's UUIDv5s. The opened event id is UUIDv5 of the campaign id. The attribution event id is UUIDv5 of the attribution id.
+- A second handle of the same delivery, and a re-append of the same `event_id` after ack, leave one campaign, two attributions, one opened event, and two attribution events. `EventBus.ack` drops the re-append before `handle` runs again. Inserts use `ON CONFLICT DO NOTHING`.
+- A missing finding row leaves the entry pending (`correlator_finding_missing`). A failed insert or publish leaves it pending (`correlator_write_failed`). A correlator exception is logged as `correlator_failed` and acknowledged. Logs do not include the callback value.
+- The intelligence process starts this loop from its FastAPI lifespan when `DATABASE_URL` and `REDIS_URL` are set. `SWITCHBOARD_CORRELATOR_WORKER=0` leaves it off. Pytest leaves it off unless that flag is `1`. The extractor loop is unchanged.
+
+### Files changed
+
+- `apps/intelligence/switchboard_intelligence/correlator_worker.py`, `main.py`, `deps.py`
+- `packages/repositories/switchboard_repositories/ports.py`, `postgres_interp.py` (`list_callback_numbers` only)
+- `tests/test_correlator_consumer.py`
+- `docs/API_CONTRACTS.md`, `docs/DATA_MODEL.md`, `docs/STATUS.md`
+
+### Interfaces added-changed
+
+- `CorrelatorConsumer.poll` / `handle`, `propose_callback_campaigns`, `campaign_opened_envelope`, `attribution_proposed_envelope`, `serve_correlator`, `correlator_worker_enabled`.
+- `FindingRepository.list_callback_numbers(value)` reads existing `interp.intelligence_finding` columns. No migration. No campaign column.
+- No change to `ExactCallbackCorrelator` ids or to `E164FindingExtractor`. No schema field changes.
+
+### Tests
+
+- `tests/test_correlator_consumer.py`. Two finals that share `+15551234567` yield one `hypothesized` campaign, two attributions citing the stored finding ids, one `campaign.opened`, and two `campaign.attribution.proposed`. The first final alone writes no attribution. Distinct numbers write none. Handling the opening event twice, then re-appending its `event_id`, does not add rows or campaign events. A pretext proposal is acknowledged. A callback proposal with no stored finding stays pending.
+- Stored campaign and attribution ids match `propose_callback_campaigns` on the same findings.
+- `make test`: 167 passed, 2 skipped. The skips are the existing SB-014 and operator-auth tripwires. This run is on main `62e8ed2` plus SB-011.
+
+### Dependencies
+
+- SB-011 `ExactCallbackCorrelator` and its UUIDv5 campaign and attribution ids.
+- SB-010 `intelligence.finding.proposed` and the stored `interp.intelligence_finding` row. The consumer does not insert the finding or the call session.
+- SB-016 `EventBus` and SB-017 `attribution_writer` / `finding_writer`.
+
+### Blocking issues
+
+- None for SB-012. A missing finding row holds later entries for this consumer group until the row exists. That matches the extractor's missing-session behavior.
+- No transactional outbox. A crash after the attr commit and before a successful publish is recovered by redelivery because the campaign event ids are stable (ADR-011).
+- `attr.campaign` is not removed when `obs.call_session` is truncated. The id is per E.164, so a later match inserts attributions onto that campaign. Campaign list routes are still stubs.
+
+### Recommended next work
+
+- ATLAS: campaign read routes can return the `attr.campaign` rows this consumer inserts. Do not put `campaign_id` on findings.
+- RADAR SB-013 can keep treating campaign linkage as attribution, not as a column on the transcript.
+- Do not move a campaign to `corroborated` from this exact-match rule.
+
 ## HANDOFF — SHERLOCK — 2026-09-26T00:11:01Z
 
 ### Completed

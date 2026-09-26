@@ -135,7 +135,7 @@ Python writes go through `packages/repositories`:
 | `attribution_writer` | intelligence correlator | `attr.campaign`, `attr.campaign_attribution` |
 | `read_models` | API call read routes | fetch helpers for every table above. `GET /v1/calls` and call detail use this port |
 
-`insert_ringing` is idempotent on `(carrier, external_call_id)` and does not change the stored caller number. Status callbacks call `apply_call_state`, which uses `CallSessionRepository.apply_state`. A callback whose status is already stored does not replace `answered_at` or `ended_at`. New findings are inserted as `proposed` and have no campaign column. `set_status` on a finding updates `status` only.
+`insert_ringing` is idempotent on `(carrier, external_call_id)` and does not change the stored caller number. Status callbacks call `apply_call_state`, which uses `CallSessionRepository.apply_state`. A callback whose status is already stored does not replace `answered_at` or `ended_at`. New findings are inserted as `proposed` and have no campaign column. `set_status` on a finding updates `status` only. The correlator reads `callback_number` rows with an equal `value` through `list_callback_numbers` before it inserts `attr.*`. That read does not add a campaign column.
 
 ## Redis keys
 

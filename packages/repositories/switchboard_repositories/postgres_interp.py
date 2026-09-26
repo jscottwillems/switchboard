@@ -2,7 +2,7 @@
 
 from uuid import UUID
 
-from switchboard_schemas.enums import FindingStatus
+from switchboard_schemas.enums import FindingKind, FindingStatus
 from switchboard_schemas.interpretations import ConversationTurn, IntelligenceFinding
 
 from switchboard_repositories.columns import CONVERSATION_TURN_COLUMNS, FINDING_COLUMNS
@@ -152,6 +152,23 @@ class PostgresFindings:
             ORDER BY created_at ASC, id ASC
             """,
             (call_session_id,),
+        ).fetchall()
+        return [finding_from_row(row) for row in rows]
+
+    def list_callback_numbers(self, value: str) -> list[IntelligenceFinding]:
+        """Every `callback_number` row with this exact value, oldest first.
+
+        No new column. The correlator decides which of these rows match.
+        """
+
+        rows = self._conn.execute(
+            f"""
+            SELECT {FINDING_COLUMNS}
+            FROM interp.intelligence_finding
+            WHERE kind = %s AND value = %s
+            ORDER BY created_at ASC, id ASC
+            """,
+            (FindingKind.CALLBACK_NUMBER.value, value),
         ).fetchall()
         return [finding_from_row(row) for row in rows]
 

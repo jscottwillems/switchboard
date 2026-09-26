@@ -2,7 +2,8 @@
 
 SB-010 reads `ConsumerGroup.INTELLIGENCE_EXTRACTOR` in
 `switchboard_intelligence.extractor_worker` and writes findings.
-SB-012 reads `ConsumerGroup.INTELLIGENCE_CORRELATOR` and writes attribution.
+SB-012 reads `ConsumerGroup.INTELLIGENCE_CORRELATOR` in
+`switchboard_intelligence.correlator_worker` and writes attribution.
 """
 
 from collections.abc import Iterator
