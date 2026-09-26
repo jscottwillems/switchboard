@@ -37,6 +37,8 @@ services:
       SWITCHBOARD_ENV: dev
       SWITCHBOARD_DEV_WEBHOOK_BYPASS: "1"
       SWITCHBOARD_INTERNAL_TOKEN: dev-internal-token
+      # Direct browser calls to port 8000. The dashboard origin proxies /v1, so a
+      # phone does not need its LAN address on this list. Do not use *.
       SWITCHBOARD_CORS_ORIGINS: http://localhost:5173
       MEDIA_GATEWAY_PUBLIC_WS: ws://localhost:8001/v1/streams
       DATABASE_URL: postgresql://switchboard:switchboard@postgres:5432/switchboard
@@ -123,9 +125,9 @@ services:
       context: .
       dockerfile: apps/dashboard/Dockerfile
       args:
-        VITE_API_BASE_URL: http://localhost:8000
+        VITE_API_BASE_URL: ""
     ports:
-      - "5173:5173"
+      - "5173:80"
     depends_on:
       api:
         condition: service_healthy

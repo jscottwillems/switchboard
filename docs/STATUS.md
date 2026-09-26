@@ -1051,6 +1051,53 @@ SB-011 and SB-012 from pull request 20 are rebased onto main `e55cb7d` and inclu
 - ATLAS: read routes for `GET /v1/campaigns` and `GET /v1/campaigns/{id}` from `attr.campaign` and `attr.campaign_attribution` through `read_models`. Do not put `campaign_id` on findings. Do not move a campaign to `corroborated` from the exact-callback rule.
 - Leave pull request 6 closed as superseded by this exact-callback path. Do not merge it.
 
+## HANDOFF — ATLAS — 2026-09-26T01:17:04Z
+
+Browser and home-screen ops UI. No native iOS project, no TestFlight target, and no new carrier or speech vendor.
+
+### Completed
+
+- `tests/test_mvp_smoke.py` still runs the voice webhook, fixture audio, speak-back, and `callback_number` finding. After that path the detail route is `ringing`. A signed `POST /v1/telephony/status/mock` with `status: in_progress` then uses the existing Bell status route. `GET /v1/calls` includes that session id with `state: in_progress`, which is the filter the live board applies. Detail shows the same state and a set `answered_at`. The projector only acknowledges `telephony.call.answered`. It does not write the session again.
+- The dashboard calls same-origin `/v1` when `VITE_API_BASE_URL` is unset, including the production build. `npm run dev` and `npm run preview` still proxy `/v1` to `http://127.0.0.1:8000`. The compose image is nginx: it serves the built UI and proxies `/v1` to `http://api:8000`. Host port `5173` maps to container port `80`. The image build arg `VITE_API_BASE_URL` is empty, so a phone does not call `http://localhost:8000`.
+- `SWITCHBOARD_CORS_ORIGINS` stays `http://localhost:5173` for a browser that calls port 8000 directly. The phone path does not need the LAN address on that list.
+- The ops UI has a web app manifest, PNG icons, an apple touch icon, and `public/sw.js`. The worker caches the shell and leaves `/v1` on the network. It registers only in a production build.
+
+### Files changed
+
+- `tests/test_mvp_smoke.py`, `Makefile`
+- `apps/dashboard/Dockerfile`, `apps/dashboard/nginx.conf`, `apps/dashboard/index.html`, `apps/dashboard/vite.config.ts`
+- `apps/dashboard/src/data/apiConfig.ts`, `apps/dashboard/src/main.ts`, `apps/dashboard/src/pwa.ts`, `apps/dashboard/public/sw.js`, `apps/dashboard/public/manifest.webmanifest`, `apps/dashboard/public/icons/`
+- `docker-compose.yml`, `apps/api/switchboard_api/settings.py`
+- `.env.example`, `apps/dashboard/.env.example`
+- `README.md`, `docs/ARCHITECTURE.md`, `docs/API_CONTRACTS.md`, `docs/SECURITY.md`, `docs/STATUS.md`
+
+### Interfaces added-changed
+
+- `apiBaseUrl()` is empty when `VITE_API_BASE_URL` is unset. There is no production default of `http://localhost:8000`.
+- No new HTTP routes, event types, or tables. Status remains `POST /v1/telephony/status/{provider}`.
+
+### Tests
+
+- `make test-mvp-smoke` covers the `in_progress` list row.
+- `make test`, dashboard `npm run typecheck`, and `npm run build` are the rest of this slice.
+
+### Dependencies
+
+- The dashboard image runtime is `nginx:1.27-alpine`. No new npm or Python packages.
+
+### Blocking issues
+
+- Operator authentication is still open. The same-origin proxy is not access control. Do not treat a LAN deploy as production-hardened.
+- Safari installs the service worker in a secure context. This compose stack is HTTP. Add to Home Screen on a LAN IP still uses the manifest and the apple touch icon. The worker registration fails on that origin until TLS is terminated.
+- Campaign, system, and report screens stay on mock fixtures. No Clerk report API was added.
+- The gateway still does not publish `media.stream.started`. The live-board state in this slice comes from the status callback.
+
+### Recommended next work
+
+- SENTINEL: operator authentication before any shared deployment.
+- TLS in front of the dashboard if an iPhone must register the service worker.
+- ECHO can publish `media.stream.started` so an answered session does not depend only on the status callback.
+
 ## HANDOFF — ATLAS — 2026-09-26T01:22:48Z
 
 Campaign list and detail read stored `attr.campaign` rows. The dashboard campaign screens stay on the mock adapter.

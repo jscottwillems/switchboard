@@ -24,6 +24,8 @@ def _flag(name: str) -> bool:
 
 @lru_cache
 def get_settings() -> Settings:
+    # Comma-separated origins for a browser that calls this process directly.
+    # The dashboard proxy keeps the ops UI same-origin, so a phone LAN address is not listed here.
     origins = os.environ.get("SWITCHBOARD_CORS_ORIGINS", "http://localhost:5173")
     return Settings(
         env=os.environ.get("SWITCHBOARD_ENV", "dev"),

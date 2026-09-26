@@ -142,7 +142,7 @@ flowchart TB
 | `intelligence` | 8002 | internal extract, later bus consumers |
 | `dashboard` | 5173 | operator browser |
 
-The browser talks to `http://localhost:8000`. Containers talk to each other by service name. Compose sets `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` only on the API container so a local curl works. That flag is ignored unless `SWITCHBOARD_ENV=dev`. See `docs/SECURITY.md`.
+The operator browser talks to the dashboard origin (`http://localhost:5173` on the desktop, or `http://<lan-ip>:5173` from a phone on the same network). That container serves the built UI and proxies `/v1` to the API, so the page does not call `localhost` from the phone. Containers talk to each other by service name. Port 8000 remains the direct API for curl on the host. Compose sets `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` only on the API container so a local curl works. That flag is ignored unless `SWITCHBOARD_ENV=dev`. See `docs/SECURITY.md`. There is no operator login.
 
 The voice webhook writes `obs.webhook_receipt` and `obs.call_session` through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. The API projector writes `obs.transcript_segment` from `speech.segment.final` and `interp.conversation_turn` from `conversation.turn.recorded`. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows, plus the related layers on the detail route, through `read_models`. Publish does not wait on a projector transaction. A Redis failure leaves the committed session in place. Process startup does not connect. `GET /health` probes Postgres and Redis only when `SWITCHBOARD_HEALTH_PROBES=1`. The media gateway can publish events and does not open Postgres. The dashboard does not open either client.
 

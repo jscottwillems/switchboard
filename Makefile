@@ -14,6 +14,6 @@ install-dev:
 test:
 	$(PYTHON) -m pytest -q
 
-# One mock vertical slice: webhook, fixture STT, speak-back, finding, call reads.
+# One mock vertical slice: webhook, fixture STT, speak-back, finding, answered status, call reads.
 test-mvp-smoke:
 	$(PYTHON) -m pytest -q -m mvp_smoke
