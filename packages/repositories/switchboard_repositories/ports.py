@@ -172,7 +172,7 @@ class AttributionWriter(Protocol):
 
 
 class ReadModels(Protocol):
-    """Fetch side used by the read API. SB-018 binds routes to this port."""
+    """Fetch side used by the read API. Call and campaign routes bind to this port."""
 
     def operator_numbers(self) -> OperatorNumberRepository: ...
 

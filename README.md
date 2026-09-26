@@ -62,7 +62,7 @@ The compose file sets `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` for local development o
 sh scripts/mock_inbound_call.sh
 ```
 
-The API returns a `connect_stream` instruction and stores the session when `to_e164` is an active operator number. `GET /v1/calls` and `GET /v1/calls/{id}` return those stored rows. Campaign routes still return an empty list or `404`.
+The API returns a `connect_stream` instruction and stores the session when `to_e164` is an active operator number. `GET /v1/calls` and `GET /v1/calls/{id}` return those stored rows. `GET /v1/campaigns` and `GET /v1/campaigns/{id}` return stored campaigns. The dashboard campaign screens stay on mock fixtures.
 
 ## Dashboard
 

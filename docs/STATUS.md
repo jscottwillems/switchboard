@@ -2,7 +2,7 @@
 
 Contract version **0.1.0**. Updated by ATLAS on 2026-09-26.
 
-The authoritative docs exist, the repository layout exists, and the shared schemas exist. The mock vertical slice is `make test-mvp-smoke`: a signed voice webhook, fixture audio, speak-back, a `callback_number` finding, and the call read API. ECHO has landed media parsing, token checks, mock STT finals, deterministic mock TTS, hot-path timing, and speak-back on the socket (SB-004, SB-005, SB-006, SB-008, SB-020). Call list and detail read stored rows (SB-018). Status callbacks update session state and publish telephony events (SB-003). The extractor consumes `speech.segment.final` into a finding and `intelligence.finding.proposed` (SB-010). The correlator consumes that proposal. Two sessions that share a `callback_number` E.164 open one `hypothesized` campaign and one attribution per session (SB-011, SB-012). The API projector stores that final and `conversation.turn.recorded`. The ops dashboard polls those call routes unless `VITE_OPS_DATA=mock` (SB-013). Campaign reads still advertise the contracts and stop there.
+The authoritative docs exist, the repository layout exists, and the shared schemas exist. The mock vertical slice is `make test-mvp-smoke`: a signed voice webhook, fixture audio, speak-back, a `callback_number` finding, and the call read API. ECHO has landed media parsing, token checks, mock STT finals, deterministic mock TTS, hot-path timing, and speak-back on the socket (SB-004, SB-005, SB-006, SB-008, SB-020). Call list and detail read stored rows (SB-018). Status callbacks update session state and publish telephony events (SB-003). The extractor consumes `speech.segment.final` into a finding and `intelligence.finding.proposed` (SB-010). The correlator consumes that proposal. Two sessions that share a `callback_number` E.164 open one `hypothesized` campaign and one attribution per session (SB-011, SB-012). The API projector stores that final and `conversation.turn.recorded`. The ops dashboard polls those call routes unless `VITE_OPS_DATA=mock` (SB-013). Campaign list and detail read stored `attr.campaign` rows. The dashboard campaign screens stay on fixtures.
 
 ## What runs today
 
@@ -17,8 +17,9 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | Transcript stored | `api.projector` inserts `obs.transcript_segment` from `speech.segment.final` and `interp.conversation_turn` from `conversation.turn.recorded` |
 | Intelligence extracted | `intelligence.extractor` writes `interp.intelligence_finding` and publishes `intelligence.finding.proposed` for an E.164 in `speech.segment.final`. `POST /v1/internal/extract` still proposes the same finding without the bus |
 | Call on the dashboard | The Vue app polls `GET /v1/calls` and loads `GET /v1/calls/{id}` unless `VITE_OPS_DATA=mock` |
+| Campaign on the read API | `GET /v1/campaigns` lists stored campaigns, newest `created_at` then `id`. `GET /v1/campaigns/{id}` returns that `Campaign`. The dashboard campaign screens stay on fixtures |
 
-`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. Campaign routes still return an empty list and `404`. The media gateway publishes `speech.segment.final`, `conversation.response.selected`, and `conversation.turn.recorded` for the mock STT fixture and does not open Postgres. The API projector consumes the final and the turn events into `obs.transcript_segment` and `interp.conversation_turn`. The intelligence extractor consumes `speech.segment.final`, writes `interp.intelligence_finding`, and publishes `intelligence.finding.proposed`. The intelligence correlator consumes `intelligence.finding.proposed`. A second session with the same `callback_number` E.164 inserts one `hypothesized` `attr.campaign` and one `attr.campaign_attribution` per session, then publishes `campaign.opened` and `campaign.attribution.proposed`. `GET /v1/campaigns` still returns an empty list and `GET /v1/campaigns/{id}` still returns `404`. The dashboard polls the read API and does not open Postgres or Redis. `VITE_OPS_DATA=mock` keeps the fixture adapter.
+`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. `GET /v1/campaigns` and `GET /v1/campaigns/{id}` read `attr.campaign` through the same port. An unknown campaign id is `404 campaign_not_found`. The media gateway publishes `speech.segment.final`, `conversation.response.selected`, and `conversation.turn.recorded` for the mock STT fixture and does not open Postgres. The API projector consumes the final and the turn events into `obs.transcript_segment` and `interp.conversation_turn`. The intelligence extractor consumes `speech.segment.final`, writes `interp.intelligence_finding`, and publishes `intelligence.finding.proposed`. The intelligence correlator consumes `intelligence.finding.proposed`. A second session with the same `callback_number` E.164 inserts one `hypothesized` `attr.campaign` and one `attr.campaign_attribution` per session, then publishes `campaign.opened` and `campaign.attribution.proposed`. The dashboard polls the call read API and does not open Postgres or Redis. Campaign screens stay on the fixture adapter. `VITE_OPS_DATA=mock` keeps the fixture adapter.
 
 ## Ownership map
 
@@ -1049,3 +1050,48 @@ SB-011 and SB-012 from pull request 20 are rebased onto main `e55cb7d` and inclu
 
 - ATLAS: read routes for `GET /v1/campaigns` and `GET /v1/campaigns/{id}` from `attr.campaign` and `attr.campaign_attribution` through `read_models`. Do not put `campaign_id` on findings. Do not move a campaign to `corroborated` from the exact-callback rule.
 - Leave pull request 6 closed as superseded by this exact-callback path. Do not merge it.
+
+## HANDOFF — ATLAS — 2026-09-26T01:22:48Z
+
+Campaign list and detail read stored `attr.campaign` rows. The dashboard campaign screens stay on the mock adapter.
+
+### Completed
+
+- `GET /v1/campaigns` reads `attr.campaign` through `open_read_models` (`PostgresCampaigns.list_page`). Newest `created_at`, then `id`. `limit` stays 1–200, default 50. An empty table is `items: []`, `next_cursor: null`. A cursor that does not decode is `422 invalid_request`, and the cursor value is not echoed.
+- `GET /v1/campaigns/{id}` returns the stored `Campaign`. An unknown id is `404 campaign_not_found` with message `No campaign exists with that id.` The body is the contract `Campaign` (`record_layer`, `id`, `label`, `status`, `summary`, `created_at`, `updated_at`). It does not add call counts or other gap fields. Attributions stay on `GET /v1/calls/{id}/attributions`.
+- A hypothesized campaign from two sessions that share a `callback_number` is inserted with `propose_callback_campaigns` and `attribution_writer`, then returned by the list and the detail route. One session alone leaves the list empty. No new `FindingKind`. Findings still have no campaign column. Status stays `hypothesized`.
+- Pytest's observation reset now also truncates `attr.campaign`. Truncating `obs.call_session` alone leaves the campaign row, because the foreign key points from the attribution to the session. The empty-list check needs the campaign table cleared between tests.
+- The dashboard was not bound. `docs/FRONTEND_DATA_REQUIREMENTS.md` still keeps campaign screens on the mock adapter because those screens need gap columns the route does not return.
+
+### Files changed
+
+- `apps/api/switchboard_api/routes/campaigns.py`
+- `packages/repositories/switchboard_repositories/ports.py` (read-model comment only)
+- `tests/test_campaign_reads.py`
+- `tests/postgres_support.py`
+- `docs/API_CONTRACTS.md`, `docs/STATUS.md`, `docs/FRONTEND_DATA_REQUIREMENTS.md`, `README.md`
+
+### Interfaces added-changed
+
+- No new schema fields, event types, tables, or repository methods. The routes call `ReadModels.campaigns().list_page` and `ReadModels.campaigns().get`.
+
+### Tests
+
+- `tests/test_campaign_reads.py`: empty list, unknown id, limit and cursor rejection, newest-`created_at` paging, and a hypothesized campaign from two shared-callback sessions. The call attribution route returns each session's `CampaignAttribution`.
+- `make test`: 189 passed, 2 skipped. The skips are the existing SB-014 and operator-auth tripwires. Main at `b63751f` was 184 passed, 2 skipped. Postgres at `DATABASE_URL` and Redis at `REDIS_URL`.
+
+### Dependencies
+
+- SB-017 `PostgresCampaigns.list_page` and `get`, and `open_read_models`.
+- SB-011 / SB-012 `propose_callback_campaigns` for the hypothesized fixture. The route does not call the correlator.
+- No new packages.
+
+### Blocking issues
+
+- None for the campaign read routes.
+- The dashboard campaign pages still use fixtures. A stored campaign id on a call detail link still opens the mock campaign page.
+
+### Recommended next work
+
+- RADAR: bind `fetchCampaigns` and `fetchCampaignDetail` to these routes when the gap columns (`call_count`, activity, timeline prose) can stay off the wire. `campaign_label` on a call can come from `Campaign.label` once that bind exists.
+- Do not put `campaign_id` on findings. Do not move a campaign to `corroborated` from the exact-callback rule.

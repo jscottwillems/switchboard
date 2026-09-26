@@ -50,7 +50,7 @@ Derived display values, still not wire fields:
 
 - `duration_ms` is `ended_at - started_at`, or elapsed since `started_at` while the call is open.
 - `engagement_duration_ms` is `ended_at - answered_at` when both exist, elapsed since `answered_at` while the call is open, and null when `answered_at` is absent. List rows are always null.
-- `campaign_id` is the first `CampaignAttribution.campaign_id` on detail. `campaign_label` stays null. `GET /v1/campaigns` is still a stub, so the adapter does not call it.
+- `campaign_id` is the first `CampaignAttribution.campaign_id` on detail. `campaign_label` stays null. `GET /v1/campaigns` returns stored `Campaign` rows and `GET /v1/campaigns/{id}` returns `Campaign`. The adapter still does not call them, because the campaign screens need the gap columns below.
 - `classification.label` is `unknown` with null confidence.
 - `conversation_state` and `pipeline` are null, so the dialogue tag and the latency strip stay hidden.
 - `timeline`, `state_transitions`, `paired_reads`, `correlation_notes`, and `key_finding_ids` are empty.
