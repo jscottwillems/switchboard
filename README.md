@@ -49,6 +49,8 @@ Machine-readable fields live in `packages/schemas` (Pydantic). `packages/schemas
 docker compose up --build
 ```
 
+That command is LAN HTTP. It does not start the HTTPS ingress.
+
 | URL | Process |
 | --- | --- |
 | http://localhost:5173 | Dashboard (browser and home-screen icon) |
@@ -67,9 +69,73 @@ No TestFlight build and no native iOS app. Use Safari.
 3. On the iPhone, join the same Wi-Fi and open `http://<lan-ip>:5173` in Safari. Example: `http://192.168.1.20:5173`.
 4. Share sheet → Add to Home Screen. The icon comes from the web app manifest and `apple-touch-icon`. The start URL is `/dashboard/live`.
 
-The service worker is registered for the ops UI only. Safari installs it in a secure context (`https`, or `localhost` on the computer). A plain `http://<lan-ip>` page can still be added to the home screen; the worker registration fails there until the stack is served over HTTPS. This compose file does not terminate TLS.
+The service worker is registered for the ops UI only. Safari installs it in a secure context (`https`, or `localhost` on the computer). A plain `http://<lan-ip>` page can still be added to the home screen; the worker registration fails there until the stack is served over HTTPS. The default compose file does not terminate TLS. Leave `docker-compose.ingress.yml` out of that command. The next section is the opt-in path that does terminate TLS, and loading that file binds port `5173` to localhost.
 
-Read routes require `X-Switchboard-Operator-Token`. Compose sets `SWITCHBOARD_OPERATOR_TOKEN=dev-operator-token` on the API and bakes the same placeholder into the dashboard as `VITE_OPERATOR_TOKEN`. The page sends that header on API-mode fetches. `VITE_OPS_DATA=mock` does not. `SWITCHBOARD_DEV_OPERATOR_BYPASS` is unset, so reads require the token even when `SWITCHBOARD_ENV=dev`. Change both values together before any shared URL, and rebuild the dashboard image after changing the Vite value. The placeholder is for this computer and a phone on the same LAN. Do not publish this stack with that token. There is no login screen.
+Read routes require `X-Switchboard-Operator-Token`. Compose defaults `SWITCHBOARD_OPERATOR_TOKEN` to `dev-operator-token` on the API and bakes the same value into the dashboard as `VITE_OPERATOR_TOKEN`. Set `SWITCHBOARD_OPERATOR_TOKEN` in `.env` to override both, then rebuild the dashboard image. The page sends that header on API-mode fetches. `VITE_OPS_DATA=mock` does not. `SWITCHBOARD_DEV_OPERATOR_BYPASS` is unset, so reads require the token even when `SWITCHBOARD_ENV=dev`. The placeholder is for this computer and a phone on the same LAN. There is no login screen. Vite inlines the token into the JavaScript bundle. Anyone who can load the dashboard can read it and call the read API. Rotating the placeholder stops the well-known value from working. It does not create per-operator login.
+
+### HTTPS for a phone secure context
+
+`docker-compose.ingress.yml` puts TLS in front of the dashboard origin so the phone still uses one host. The page keeps calling same-origin `/v1`. Postgres and Redis are not on that edge. The ingress file also binds the API, media gateway, intelligence, Postgres, Redis, and port `5173` to `127.0.0.1` only. Desktop curl to `http://localhost:8000` still works. Use one profile. Docker Compose v2.24 or newer is required (`!override` replaces the default port publishes). Do not set `SWITCHBOARD_CORS_ORIGINS` to `*`.
+
+Before a tunnel URL or any other shared URL, rotate the placeholders. They are in this repository.
+
+```sh
+openssl rand -hex 32
+```
+
+Put one value in `.env` as `SWITCHBOARD_OPERATOR_TOKEN` and a second as `SWITCHBOARD_INTERNAL_TOKEN`. For `npm run dev`, set the same operator value as `VITE_OPERATOR_TOKEN` in `apps/dashboard/.env`. Then start the stack with `--build` so the dashboard image picks up the operator token. `SWITCHBOARD_DEV_OPERATOR_BYPASS` stays unset. This is still a shared secret in the bundle, not a login.
+
+The quick tunnel is the path that does not need a VPS, a domain, or an inbound port. Cloudflare assigns an ephemeral `https://*.trycloudflare.com` name. Safari trusts that certificate, so the service worker can register. The name changes every start. Add to Home Screen again after a restart. Anyone who has the URL can open the board.
+
+```sh
+COMPOSE_PROFILES=tunnel docker compose -f docker-compose.yml -f docker-compose.ingress.yml up --build
+```
+
+The URL is in the tunnel logs:
+
+```sh
+COMPOSE_PROFILES=tunnel docker compose -f docker-compose.yml -f docker-compose.ingress.yml logs -f tunnel
+```
+
+On the iPhone, open that `https://` URL, then Share sheet → Add to Home Screen. The start URL is still `/dashboard/live`.
+
+A named tunnel keeps one hostname. Create the tunnel in Cloudflare, set its origin to `http://edge_tunnel:80`, and put the token in `.env` as `CLOUDFLARE_TUNNEL_TOKEN`. Do not commit the token.
+
+```sh
+COMPOSE_PROFILES=tunnel-named docker compose -f docker-compose.yml -f docker-compose.ingress.yml up --build
+```
+
+Same-Wi-Fi HTTPS without Cloudflare uses Caddy's internal CA. Set `SWITCHBOARD_PUBLIC_HOST` to the computer's LAN IP, with no scheme and no port. Allow inbound TCP `80` and `443`.
+
+```sh
+SWITCHBOARD_PUBLIC_HOST=192.168.1.20 COMPOSE_PROFILES=https docker compose -f docker-compose.yml -f docker-compose.ingress.yml up --build
+```
+
+Send the local root to the phone and open it. Settings → Profile Downloaded → Install, then Settings → General → About → Certificate Trust Settings → enable full trust for that root. Open `https://192.168.1.20` (the same host you set). An untrusted certificate is not a secure context, and the service worker will not install.
+
+```sh
+COMPOSE_PROFILES=https docker compose -f docker-compose.yml -f docker-compose.ingress.yml exec edge cat /data/caddy/pki/authorities/local/root.crt > switchboard-local-root.crt
+```
+
+If the phone already trusts an mkcert root, replace `tls internal` in `deploy/ingress/Caddyfile.lan` with `tls /certs/cert.pem /certs/key.pem` and mount those files into the `edge` service at `/certs`. Do not commit the key.
+
+A public DNS name and open ports `80` and `443` can use automatic HTTPS. Point the name at this computer first. Set `SWITCHBOARD_ACME_EMAIL` to a real mailbox.
+
+```sh
+SWITCHBOARD_PUBLIC_HOST=board.example.com SWITCHBOARD_ACME_EMAIL=ops@example.com COMPOSE_PROFILES=https-public docker compose -f docker-compose.yml -f docker-compose.ingress.yml up --build
+```
+
+The phone opens `https://board.example.com`. No VPS is required when the hostname reaches this machine, either through the tunnel or through ports `80` and `443`.
+
+What the edge serves:
+
+| Path | Ingress |
+| --- | --- |
+| Dashboard and `/v1/calls`, `/v1/campaigns` | Proxied to the dashboard origin |
+| `/v1/internal`, `/v1/telephony`, `/v1/streams` | `404`. Not exposed |
+| Postgres, Redis, port `8000`, port `8001`, port `8002` | Not on the edge. Loopback only while this file is in use |
+
+`MEDIA_GATEWAY_PUBLIC_WS` stays `ws://localhost:8001/v1/streams` until carrier media is on this edge. When you enable it, delete the `/v1/streams` deny in `deploy/ingress/routes.caddy`, proxy that path to `media_gateway:8001`, and set `MEDIA_GATEWAY_PUBLIC_WS=wss://<public-host>/v1/streams`. Do not publish `ws://` on a public host. Carrier webhooks are the same kind of later edit: proxy `/v1/telephony` to `api:8000` only after `SWITCHBOARD_DEV_WEBHOOK_BYPASS` is unset and `SWITCHBOARD_ENV` is not `dev`. Leave `/v1/internal` off the edge. The commented blocks in `deploy/ingress/routes.caddy` are that later edit. They are not active.
 
 The compose file sets `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` for local development only. A signed mock webhook:
 

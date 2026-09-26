@@ -1,0 +1,15 @@
+# LAN HTTPS in front of the dashboard origin.
+# The certificate comes from Caddy's internal CA (tls internal).
+# Safari will not treat this origin as a secure context until the phone
+# trusts that root. A public DNS name on this file does not get a public
+# certificate. Use Caddyfile.public or the tunnel profile for that.
+{
+	admin off
+	default_sni {$SWITCHBOARD_PUBLIC_HOST}
+}
+
+{$SWITCHBOARD_PUBLIC_HOST} {
+	tls internal
+	encode gzip
+	import routes.caddy
+}

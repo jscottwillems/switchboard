@@ -1,0 +1,40 @@
+# Operator UI and the read API the page calls on this same origin.
+# Fail closed: internal token routes, carrier webhooks, and the media socket
+# are not upstreams. Postgres and Redis are not upstreams.
+# Do not add Access-Control-Allow-Origin *.
+
+@not_on_edge path /v1/internal /v1/internal/* /v1/telephony /v1/telephony/* /v1/streams /v1/streams/*
+handle @not_on_edge {
+	respond "not exposed" 404
+}
+
+handle {
+	reverse_proxy dashboard:80 {
+		header_up Host {host}
+		header_up X-Forwarded-Proto https
+	}
+}
+
+# Later, on this same host, after you delete the matching path above:
+#
+# Carrier webhooks. Unset SWITCHBOARD_DEV_WEBHOOK_BYPASS and set
+# SWITCHBOARD_ENV to a non-dev name first. The dev bypass is not a public
+# authenticator. Cap the body at the edge (the API cap is 1 MiB).
+#
+# handle /v1/telephony /v1/telephony/* {
+# 	request_body {
+# 		max_size 1MiB
+# 	}
+# 	reverse_proxy api:8000
+# }
+#
+# Carrier media. Proxy the socket to the gateway, then set the API to
+# MEDIA_GATEWAY_PUBLIC_WS=wss://<public-host>/v1/streams
+# A public host must not be given ws://. The token stays out of the path.
+#
+# handle /v1/streams /v1/streams/* {
+# 	reverse_proxy media_gateway:8001
+# }
+#
+# Leave /v1/internal off this edge. The gateway calls the API on the
+# compose network, not through the public host.

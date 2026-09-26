@@ -1,0 +1,112 @@
+# Opt-in HTTPS in front of the dashboard origin.
+# `docker compose up` does not read this file.
+#
+# Profiles (use one):
+#   tunnel        Cloudflare quick tunnel. No inbound ports. Ephemeral https URL.
+#   tunnel-named  Cloudflare named tunnel. Set CLOUDFLARE_TUNNEL_TOKEN. No inbound ports.
+#   https         LAN TLS (Caddy internal CA) on host ports 80 and 443.
+#   https-public  Automatic HTTPS when SWITCHBOARD_PUBLIC_HOST is a public DNS name.
+#
+# With this file, Postgres, Redis, the API, the media gateway, intelligence,
+# and the plain dashboard port are published on 127.0.0.1 only. Containers
+# still reach Postgres and Redis by service name. They are not tunnel or
+# Caddy upstreams.
+#
+# The image entrypoint for cloudflared is already `cloudflared --no-autoupdate`.
+
+services:
+  postgres:
+    ports: !override
+      - "127.0.0.1:5432:5432"
+
+  redis:
+    ports: !override
+      - "127.0.0.1:6379:6379"
+
+  api:
+    ports: !override
+      - "127.0.0.1:8000:8000"
+
+  media_gateway:
+    ports: !override
+      - "127.0.0.1:8001:8001"
+
+  intelligence:
+    ports: !override
+      - "127.0.0.1:8002:8002"
+
+  dashboard:
+    ports: !override
+      - "127.0.0.1:5173:80"
+
+  edge:
+    image: caddy:2.11.4-alpine
+    profiles: ["https"]
+    restart: unless-stopped
+    environment:
+      SWITCHBOARD_PUBLIC_HOST: ${SWITCHBOARD_PUBLIC_HOST:-}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/ingress/Caddyfile.lan:/etc/caddy/Caddyfile:ro
+      - ./deploy/ingress/routes.caddy:/etc/caddy/routes.caddy:ro
+      - switchboard_caddy_data:/data
+      - switchboard_caddy_config:/config
+    depends_on:
+      - dashboard
+
+  edge_public:
+    image: caddy:2.11.4-alpine
+    profiles: ["https-public"]
+    restart: unless-stopped
+    environment:
+      SWITCHBOARD_PUBLIC_HOST: ${SWITCHBOARD_PUBLIC_HOST:-}
+      SWITCHBOARD_ACME_EMAIL: ${SWITCHBOARD_ACME_EMAIL:-}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/ingress/Caddyfile.public:/etc/caddy/Caddyfile:ro
+      - ./deploy/ingress/routes.caddy:/etc/caddy/routes.caddy:ro
+      - switchboard_caddy_data:/data
+      - switchboard_caddy_config:/config
+    depends_on:
+      - dashboard
+
+  edge_tunnel:
+    image: caddy:2.11.4-alpine
+    profiles: ["tunnel", "tunnel-named"]
+    restart: unless-stopped
+    expose:
+      - "80"
+    volumes:
+      - ./deploy/ingress/Caddyfile.tunnel:/etc/caddy/Caddyfile:ro
+      - ./deploy/ingress/routes.caddy:/etc/caddy/routes.caddy:ro
+    depends_on:
+      - dashboard
+
+  tunnel:
+    image: cloudflare/cloudflared:2026.9.0
+    profiles: ["tunnel"]
+    restart: unless-stopped
+    environment:
+      TUNNEL_TRANSPORT_PROTOCOL: http2
+    command: tunnel --url http://edge_tunnel:80
+    depends_on:
+      - edge_tunnel
+
+  tunnel_named:
+    image: cloudflare/cloudflared:2026.9.0
+    profiles: ["tunnel-named"]
+    restart: unless-stopped
+    environment:
+      TUNNEL_TRANSPORT_PROTOCOL: http2
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    command: tunnel run
+    depends_on:
+      - edge_tunnel
+
+volumes:
+  switchboard_caddy_data:
+  switchboard_caddy_config:
