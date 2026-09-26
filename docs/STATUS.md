@@ -1079,7 +1079,7 @@ Browser and home-screen ops UI. No native iOS project, no TestFlight target, and
 ### Tests
 
 - `make test-mvp-smoke`: 1 passed. After the finding, detail is still `ringing`. The signed status callback then makes `GET /v1/calls` return that id with `state: in_progress`, and detail has `answered_at` set.
-- `make test`: 170 passed, 2 skipped. The skips are the existing SB-014 and operator-auth tripwires.
+- `make test`: 189 passed, 2 skipped, after rebasing onto `6976a0d`. The skips are the existing SB-014 and operator-auth tripwires.
 - `apps/dashboard`: `npm run typecheck` and `npm run build` passed. The production bundle does not contain `localhost:8000`.
 - A local nginx on port 5173 served `dist` and proxied `/v1` to the API, using the same locations as `apps/dashboard/nginx.conf`. `nginx -t` accepted that file. The browser live board showed `+15551212000` as in progress. Those requests were `GET /v1/calls` and `GET /v1/calls/{id}` on port 5173. Docker Compose was not started in this environment.
 
