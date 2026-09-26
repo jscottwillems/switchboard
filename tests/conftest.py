@@ -7,11 +7,14 @@ from switchboard_api.memory_tokens import reset_token_store
 from switchboard_api.settings import get_settings
 from switchboard_api.webhook_edge import reset_webhook_edge
 from switchboard_media.budgets import reset_limits
+from tests.operator_support import OPERATOR_TOKEN
 from tests.postgres_support import apply_migrations, truncate_observations
 
 os.environ["SWITCHBOARD_ENV"] = "dev"
 os.environ["SWITCHBOARD_DEV_WEBHOOK_BYPASS"] = "0"
+os.environ["SWITCHBOARD_DEV_OPERATOR_BYPASS"] = "0"
 os.environ["SWITCHBOARD_INTERNAL_TOKEN"] = "test-internal-token"
+os.environ["SWITCHBOARD_OPERATOR_TOKEN"] = OPERATOR_TOKEN
 os.environ["SWITCHBOARD_CORS_ORIGINS"] = "http://localhost:5173"
 os.environ["MEDIA_GATEWAY_PUBLIC_WS"] = "ws://localhost:8001/v1/streams"
 os.environ["DATABASE_URL"] = "postgresql://switchboard:switchboard@localhost:5432/switchboard"
@@ -37,6 +40,8 @@ def _reset_runtime() -> Iterator[None]:
     yield
     os.environ["SWITCHBOARD_ENV"] = "dev"
     os.environ["SWITCHBOARD_DEV_WEBHOOK_BYPASS"] = "0"
+    os.environ["SWITCHBOARD_DEV_OPERATOR_BYPASS"] = "0"
+    os.environ["SWITCHBOARD_OPERATOR_TOKEN"] = OPERATOR_TOKEN
     os.environ["DATABASE_URL"] = _DATABASE_URL
     os.environ["REDIS_URL"] = _REDIS_URL
     os.environ.pop("SWITCHBOARD_HEALTH_PROBES", None)

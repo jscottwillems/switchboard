@@ -52,6 +52,7 @@ app.add_middleware(
         "Content-Type",
         "X-Switchboard-Internal-Token",
         "X-Switchboard-Mock-Signature",
+        "X-Switchboard-Operator-Token",
     ],
 )
 register_error_handlers(app)

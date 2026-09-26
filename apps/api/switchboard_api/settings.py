@@ -10,9 +10,11 @@ class Settings:
     env: str
     contract_version: str
     internal_token: str
+    operator_token: str
     cors_origins: tuple[str, ...]
     media_gateway_public_ws: str
     dev_webhook_bypass: bool
+    dev_operator_bypass: bool
     health_probes: bool
     database_url: str
     redis_url: str
@@ -31,12 +33,14 @@ def get_settings() -> Settings:
         env=os.environ.get("SWITCHBOARD_ENV", "dev"),
         contract_version=os.environ.get("SWITCHBOARD_CONTRACT_VERSION", "0.1.0"),
         internal_token=os.environ.get("SWITCHBOARD_INTERNAL_TOKEN", ""),
+        operator_token=os.environ.get("SWITCHBOARD_OPERATOR_TOKEN", "").strip(),
         cors_origins=tuple(origin.strip() for origin in origins.split(",") if origin.strip()),
         media_gateway_public_ws=os.environ.get(
             "MEDIA_GATEWAY_PUBLIC_WS",
             "ws://localhost:8001/v1/streams",
         ),
         dev_webhook_bypass=_flag("SWITCHBOARD_DEV_WEBHOOK_BYPASS"),
+        dev_operator_bypass=_flag("SWITCHBOARD_DEV_OPERATOR_BYPASS"),
         health_probes=_flag("SWITCHBOARD_HEALTH_PROBES"),
         database_url=os.environ.get(
             "DATABASE_URL",

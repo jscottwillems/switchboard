@@ -69,7 +69,7 @@ No TestFlight build and no native iOS app. Use Safari.
 
 The service worker is registered for the ops UI only. Safari installs it in a secure context (`https`, or `localhost` on the computer). A plain `http://<lan-ip>` page can still be added to the home screen; the worker registration fails there until the stack is served over HTTPS. This compose file does not terminate TLS.
 
-Operator authentication is still open. Sentinel owns it. Do not put this stack on an untrusted network. The dashboard is not access control, and this is not a production-hardened deployment.
+Read routes require `X-Switchboard-Operator-Token`. Compose sets `SWITCHBOARD_OPERATOR_TOKEN=dev-operator-token` on the API and bakes the same placeholder into the dashboard as `VITE_OPERATOR_TOKEN`. The page sends that header on API-mode fetches. `VITE_OPS_DATA=mock` does not. `SWITCHBOARD_DEV_OPERATOR_BYPASS` is unset, so reads require the token even when `SWITCHBOARD_ENV=dev`. Change both values together before any shared URL, and rebuild the dashboard image after changing the Vite value. The placeholder is for this computer and a phone on the same LAN. Do not publish this stack with that token. There is no login screen.
 
 The compose file sets `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` for local development only. A signed mock webhook:
 

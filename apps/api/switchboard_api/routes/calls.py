@@ -1,8 +1,11 @@
-"""Call read routes. Rows come from `packages/repositories` via `open_read_models`."""
+"""Call read routes. Rows come from `packages/repositories` via `open_read_models`.
+
+Every route on this router requires the operator token (`require_operator`).
+"""
 
 from uuid import UUID
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
 
 from switchboard_repositories import InvalidCursor
 from switchboard_repositories.ports import ReadModels
@@ -18,8 +21,13 @@ from switchboard_schemas.observations import CallSession
 
 from switchboard_api.deps import open_read_models
 from switchboard_api.errors import ApiError
+from switchboard_api.operator_auth import require_operator
 
-router = APIRouter(prefix="/v1/calls", tags=["calls"])
+router = APIRouter(
+    prefix="/v1/calls",
+    tags=["calls"],
+    dependencies=[Depends(require_operator)],
+)
 
 _CALL_NOT_FOUND = "No call session exists with that id."
 _INVALID_REQUEST = "Request failed validation."

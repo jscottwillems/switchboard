@@ -1,4 +1,4 @@
-import { apiBaseUrl } from '@/data/apiConfig'
+import { apiBaseUrl, operatorAuthHeaders } from '@/data/apiConfig'
 import type {
   CallDetailResponse,
   CallListResponse,
@@ -301,7 +301,9 @@ async function getJson(path: string): Promise<{ status: number; body: unknown }>
   const url = `${apiBaseUrl()}${path}`
   let response: Response
   try {
-    response = await fetch(url, { headers: { Accept: 'application/json' } })
+    response = await fetch(url, {
+      headers: { Accept: 'application/json', ...operatorAuthHeaders() },
+    })
   } catch {
     throw new CallsReadError('calls_unreachable', 'calls_unreachable: the read API did not respond.')
   }

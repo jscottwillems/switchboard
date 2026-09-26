@@ -5,8 +5,9 @@ import { mockOpsDataPort } from '@/mocks/mockAdapter'
 
 /**
  * Stores talk only to OpsDataPort.
- * `VITE_OPS_DATA=mock` keeps fixtures for offline UI work.
- * Any other value, including unset, reads GET /v1/calls.
+ * `VITE_OPS_DATA=mock` keeps fixtures for offline UI work and does not send a token.
+ * Any other value, including unset, reads GET /v1/calls and sends
+ * `X-Switchboard-Operator-Token` from `VITE_OPERATOR_TOKEN`.
  */
 export const opsDataSource = opsDataMode()
 

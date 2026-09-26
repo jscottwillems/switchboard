@@ -1,6 +1,6 @@
 # Status
 
-Contract version **0.1.0**. Updated by ATLAS on 2026-09-26.
+Contract version **0.1.0**. Updated by SENTINEL on 2026-09-26.
 
 The authoritative docs exist, the repository layout exists, and the shared schemas exist. The mock vertical slice is `make test-mvp-smoke`: a signed voice webhook, fixture audio, speak-back, a `callback_number` finding, and the call read API. ECHO has landed media parsing, token checks, mock STT finals, deterministic mock TTS, hot-path timing, and speak-back on the socket (SB-004, SB-005, SB-006, SB-008, SB-020). Call list and detail read stored rows (SB-018). Status callbacks update session state and publish telephony events (SB-003). The extractor consumes `speech.segment.final` into a finding and `intelligence.finding.proposed` (SB-010). The correlator consumes that proposal. Two sessions that share a `callback_number` E.164 open one `hypothesized` campaign and one attribution per session (SB-011, SB-012). The API projector stores that final and `conversation.turn.recorded`. The ops dashboard polls those call routes unless `VITE_OPS_DATA=mock` (SB-013). Campaign list and detail read stored `attr.campaign` rows. The dashboard campaign screens stay on fixtures.
 
@@ -16,10 +16,10 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | TTS and audio to caller | The socket sends `MockTts` audio as `media`. Inbound speech during outbound sends `clear` |
 | Transcript stored | `api.projector` inserts `obs.transcript_segment` from `speech.segment.final` and `interp.conversation_turn` from `conversation.turn.recorded` |
 | Intelligence extracted | `intelligence.extractor` writes `interp.intelligence_finding` and publishes `intelligence.finding.proposed` for an E.164 in `speech.segment.final`. `POST /v1/internal/extract` still proposes the same finding without the bus |
-| Call on the dashboard | The Vue app polls `GET /v1/calls` and loads `GET /v1/calls/{id}` unless `VITE_OPS_DATA=mock` |
+| Call on the dashboard | The Vue app polls `GET /v1/calls` and loads `GET /v1/calls/{id}` with `X-Switchboard-Operator-Token` unless `VITE_OPS_DATA=mock` |
 | Campaign on the read API | `GET /v1/campaigns` lists stored campaigns, newest `created_at` then `id`. `GET /v1/campaigns/{id}` returns that `Campaign`. The dashboard campaign screens stay on fixtures |
 
-`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. `GET /v1/campaigns` and `GET /v1/campaigns/{id}` read `attr.campaign` through the same port. An unknown campaign id is `404 campaign_not_found`. The media gateway publishes `speech.segment.final`, `conversation.response.selected`, and `conversation.turn.recorded` for the mock STT fixture and does not open Postgres. The API projector consumes the final and the turn events into `obs.transcript_segment` and `interp.conversation_turn`. The intelligence extractor consumes `speech.segment.final`, writes `interp.intelligence_finding`, and publishes `intelligence.finding.proposed`. The intelligence correlator consumes `intelligence.finding.proposed`. A second session with the same `callback_number` E.164 inserts one `hypothesized` `attr.campaign` and one `attr.campaign_attribution` per session, then publishes `campaign.opened` and `campaign.attribution.proposed`. The dashboard polls the call read API and does not open Postgres or Redis. Campaign screens stay on the fixture adapter. `VITE_OPS_DATA=mock` keeps the fixture adapter.
+`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. `GET /v1/campaigns` and `GET /v1/campaigns/{id}` read `attr.campaign` through the same port. An unknown campaign id is `404 campaign_not_found`. The media gateway publishes `speech.segment.final`, `conversation.response.selected`, and `conversation.turn.recorded` for the mock STT fixture and does not open Postgres. The API projector consumes the final and the turn events into `obs.transcript_segment` and `interp.conversation_turn`. The intelligence extractor consumes `speech.segment.final`, writes `interp.intelligence_finding`, and publishes `intelligence.finding.proposed`. The intelligence correlator consumes `intelligence.finding.proposed`. A second session with the same `callback_number` E.164 inserts one `hypothesized` `attr.campaign` and one `attr.campaign_attribution` per session, then publishes `campaign.opened` and `campaign.attribution.proposed`. The dashboard polls the call read API and does not open Postgres or Redis. Those fetches send `X-Switchboard-Operator-Token` from `VITE_OPERATOR_TOKEN`. Read routes reject a missing token with `401 operator_unauthorized` unless `SWITCHBOARD_ENV` is `dev` and `SWITCHBOARD_DEV_OPERATOR_BYPASS=1`. Campaign screens stay on the fixture adapter. `VITE_OPS_DATA=mock` keeps the fixture adapter.
 
 ## Ownership map
 
@@ -1144,3 +1144,56 @@ Campaign list and detail read stored `attr.campaign` rows. The dashboard campaig
 
 - RADAR: bind `fetchCampaigns` and `fetchCampaignDetail` to these routes when the gap columns (`call_count`, activity, timeline prose) can stay off the wire. `campaign_label` on a call can come from `Campaign.label` once that bind exists.
 - Do not put `campaign_id` on findings. Do not move a campaign to `corroborated` from the exact-callback rule.
+
+## HANDOFF — SENTINEL — 2026-09-26T01:45:00Z
+
+Shared operator token on the read API and the dashboard HTTP client. No login screen, OAuth, or per-operator session.
+
+### Completed
+
+- `switchboard_api.operator_auth.require_operator` gates `GET /v1/calls`, call detail, transcript, findings, attributions, `GET /v1/campaigns`, and `GET /v1/campaigns/{id}`. The primary header is `X-Switchboard-Operator-Token`. `Authorization: Bearer <token>` is accepted only when that header is absent or blank. Comparison uses `hmac.compare_digest` against `SWITCHBOARD_OPERATOR_TOKEN`.
+- A missing, blank, or wrong token is `401 operator_unauthorized`. An unset or blank secret fails closed the same way, including when `SWITCHBOARD_ENV` is not `dev`. `SWITCHBOARD_DEV_OPERATOR_BYPASS=1` skips the check only when `SWITCHBOARD_ENV` is exactly `dev`. Health, carrier webhooks, and internal routes are not gated by this credential. The API process stays up when the secret is missing.
+- The dashboard API client sends the header from `VITE_OPERATOR_TOKEN`. `VITE_OPS_DATA=mock` does not call the read API. Compose sets the local placeholder `dev-operator-token` on the API and as the dashboard image build arg. The dev operator bypass is unset, so phone LAN use still presents the token.
+- `tests/test_runtime_gaps.py::test_read_api_requires_operator_authentication` now asserts the gate. The SB-014 Redis token tripwire is unchanged.
+
+### Files changed
+
+- `apps/api/switchboard_api/operator_auth.py`, `settings.py`, `main.py`, `routes/calls.py`, `routes/campaigns.py`
+- `apps/dashboard/src/data/apiConfig.ts`, `readApi.ts`, `client.ts`, `env.d.ts`, `Dockerfile`, `nginx.conf`, `.env.example`
+- `packages/observability/switchboard_observability/log.py` (`operator_token` redaction key)
+- `docker-compose.yml`, `.env.example`
+- `tests/operator_support.py`, `tests/test_operator_auth.py`, `tests/test_runtime_gaps.py`, `tests/conftest.py`, and the read-route TestClient headers in `tests/test_api.py`, `tests/test_call_reads.py`, `tests/test_campaign_reads.py`, `tests/test_mvp_smoke.py`
+- `docs/API_CONTRACTS.md`, `docs/SECURITY.md`, `docs/STATUS.md`, `docs/ARCHITECTURE.md`, `docs/FRONTEND_DATA_REQUIREMENTS.md`, `README.md`
+
+### Interfaces added-changed
+
+- `require_operator`, `OPERATOR_TOKEN_HEADER`.
+- Settings fields `operator_token` and `dev_operator_bypass`.
+- Error code `operator_unauthorized` on the gated reads.
+- Dashboard `operatorToken()` and `operatorAuthHeaders()`.
+- No schema, event, or table changes.
+
+### Tests
+
+- `tests/test_operator_auth.py`: missing token `401`, wrong token `401`, matching header `200` on an empty list, unknown id `404` with the token, Bearer accepted, non-Bearer rejected, header wins over Bearer, non-dev with a blank token fails closed even when the bypass flag is set, dev bypass is ignored outside `dev` and honored in `dev`, health and webhooks and internal routes stay on their own credentials.
+- `tests/test_runtime_gaps.py::test_read_api_requires_operator_authentication`: both routers depend on `require_operator`. In `production` with the bypass flag set, missing and wrong tokens are `401 operator_unauthorized` and the matching token is `200`.
+- Existing call, campaign, and smoke clients send `X-Switchboard-Operator-Token: test-operator-token`. Env tests call `get_settings.cache_clear()`.
+- `make test`: 195 passed, 1 skipped. The skip is the SB-014 Redis token tripwire. Postgres at `DATABASE_URL` and Redis at `REDIS_URL`.
+- Dashboard `npm run typecheck` passed. A browser on the Vite dev server sent `X-Switchboard-Operator-Token: dev-operator-token` on `GET /v1/calls?limit=200` and received `200`. The live board showed no in-progress calls. Call history showed "No calls yet." Campaigns stayed on the fixture labels and did not call `GET /v1/campaigns`.
+
+### Dependencies
+
+- No new packages. The dashboard header is the existing `fetch` client.
+
+### Blocking issues
+
+- None for this gate. The shared secret is in the dashboard bundle. Anyone who can load that JavaScript can present it. That is the LAN credential, not a per-operator login.
+- `SB-014` Redis stream tokens remain the open tripwire.
+- Campaign, system, and report screens still use the mock adapter, so they do not send the header. The campaign HTTP routes still require it.
+
+### Recommended next work
+
+- Replace `dev-operator-token` before any shared URL, and rebuild the dashboard image so `VITE_OPERATOR_TOKEN` matches.
+- RADAR: when campaign screens leave the mock adapter, send `operatorAuthHeaders()` on those fetches too.
+- Leave per-operator login and SSO out until a later ticket. Do not treat this header as a session.
+- SB-014 is still the open Redis token tripwire.
