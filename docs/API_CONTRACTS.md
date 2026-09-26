@@ -291,6 +291,14 @@ A final segment with no E.164 inserts nothing and publishes nothing. Any other e
 
 Finding ids are the UUIDv5 from the extractor. The proposed event id is a UUIDv5 of the finding id, so a redelivery publishes a duplicate rather than a second stream entry. A failed insert is left pending. A failed publish is left pending after the row commit so the same event id can be published again.
 
+### Correlator consumer
+
+`switchboard_intelligence.correlator_worker` reads consumer group `intelligence.correlator` on `switchboard.events` through `switchboard_intelligence.deps.event_bus`. The loop starts with the intelligence process when `DATABASE_URL` and `REDIS_URL` are set. `SWITCHBOARD_CORRELATOR_WORKER=0` leaves it off. The extract route above stays available either way.
+
+`intelligence.finding.proposed` with kind `callback_number` loads that finding and every other `callback_number` row with the same E.164 (`list_callback_numbers`). Those rows are replayed through `ExactCallbackCorrelator.propose`. One session does not open a campaign. A second session with the same number inserts one `hypothesized` `attr.campaign` and one `attr.campaign_attribution` per session, then publishes `campaign.opened` and `campaign.attribution.proposed`. Distinct numbers do not merge. Any other event type is acknowledged and ignored.
+
+Campaign and attribution ids are the correlator's UUIDv5s. `campaign.opened` uses a UUIDv5 of the campaign id. `campaign.attribution.proposed` uses a UUIDv5 of the attribution id. A redelivery publishes those same ids. The bus does not append a second entry. A missing finding row, a failed insert, or a failed publish leaves the source entry pending. The envelope `call_session_id` is the call on the finding event that triggered the write.
+
 ### API projector
 
 `switchboard_api.projector` reads consumer group `api.projector` on `switchboard.events` through `switchboard_api.deps.get_event_bus`. The loop starts with the API process when `DATABASE_URL` and `REDIS_URL` are set in the environment. `SWITCHBOARD_PROJECTOR_WORKER=0` leaves it off. Pytest leaves it off unless that flag is `1`.
@@ -311,7 +319,7 @@ These are not HTTP APIs.
 | `SttPort.push_audio(payload) -> list[SttEvent]` | `apps/media_gateway` | ECHO | `MockStt` returns one final for the fixture frame and `[]` otherwise |
 | `TtsPort.synthesize(text) -> bytes` | `apps/media_gateway` | ECHO | `MockTts` returns one deterministic `audio/pcmu` frame for non-empty text |
 | `FindingExtractor.extract(segments)` | `packages/classification` | SHERLOCK | `E164FindingExtractor` proposes `callback_number`. `NullFindingExtractor` returns `[]` |
-| `CampaignCorrelator.propose(CorrelationInput)` | `packages/classification` | WATSON | `NullCampaignCorrelator` returns `[]` |
+| `CampaignCorrelator.propose(CorrelationInput)` | `packages/classification` | WATSON | `ExactCallbackCorrelator` opens one `hypothesized` campaign when two calls share a `callback_number` E.164, with one attribution per call citing that call's finding ids. A number no other call shares stays unlinked. Distinct values do not merge. `correlator_worker` replays it from stored findings and writes `attr.*`. `NullCampaignCorrelator` returns `[]` |
 
 `respond_to_audio` in `apps/media_gateway/switchboard_media/hotpath.py` is the hot-path order: STT, then selector, then TTS. It emits stage durations through `log_info`. The WebSocket calls it after a final, passing the finals from `recognize_frame`.
 
