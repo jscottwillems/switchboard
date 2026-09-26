@@ -24,7 +24,9 @@ MOCK_TTS_FRAME_BYTES = MOCK_TTS_SAMPLE_RATE_HZ * MOCK_TTS_FRAME_MS // 1000
 # One 20 ms PCMU frame of 0xFF. The mock does not decode it.
 # Any other payload, including a shorter run of 0xFF, returns no transcript.
 MOCK_STT_FIXTURE_FRAME = b"\xff" * MOCK_TTS_FRAME_BYTES
-MOCK_STT_FINAL_TEXT = "fixture caller segment"
+# The phrase is stable. The trailing E.164 is the literal callback the
+# extractor cites. It is not decoded from the PCMU bytes.
+MOCK_STT_FINAL_TEXT = "fixture caller segment +15551234567"
 MOCK_STT_CONFIDENCE = 1.0
 MOCK_STT_START_OFFSET_MS = 0
 MOCK_STT_END_OFFSET_MS = MOCK_TTS_FRAME_MS

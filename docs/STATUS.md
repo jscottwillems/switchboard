@@ -1,8 +1,8 @@
 # Status
 
-Contract version **0.1.0**. Updated by ATLAS on 2026-09-25.
+Contract version **0.1.0**. Updated by ATLAS on 2026-09-26.
 
-The authoritative docs exist, the repository layout exists, and the shared schemas exist. The first-milestone phone call is not implemented. ECHO has landed media parsing, token checks, mock STT finals, deterministic mock TTS, hot-path timing, and speak-back on the socket (SB-004, SB-005, SB-006, SB-008, SB-020). Call list and detail read stored rows (SB-018). Status callbacks update session state and publish telephony events (SB-003). The extractor consumes `speech.segment.final` into a finding and `intelligence.finding.proposed` (SB-010). The ops dashboard polls those call routes unless `VITE_OPS_DATA=mock` (SB-013). Campaign reads still advertise the contracts and stop there.
+The authoritative docs exist, the repository layout exists, and the shared schemas exist. The mock vertical slice is `make test-mvp-smoke`: a signed voice webhook, fixture audio, speak-back, a `callback_number` finding, and the call read API. ECHO has landed media parsing, token checks, mock STT finals, deterministic mock TTS, hot-path timing, and speak-back on the socket (SB-004, SB-005, SB-006, SB-008, SB-020). Call list and detail read stored rows (SB-018). Status callbacks update session state and publish telephony events (SB-003). The extractor consumes `speech.segment.final` into a finding and `intelligence.finding.proposed` (SB-010). The API projector stores that final and `conversation.turn.recorded`. The ops dashboard polls those call routes unless `VITE_OPS_DATA=mock` (SB-013). Campaign reads still advertise the contracts and stop there.
 
 ## What runs today
 
@@ -11,14 +11,14 @@ The authoritative docs exist, the repository layout exists, and the shared schem
 | Test call reaches a webhook | `POST /v1/telephony/voice/mock` accepts a signed or dev-bypass body |
 | Call session created | Enrolled `POST /v1/telephony/voice/mock` inserts `obs.call_session` (UUIDv5) in `ringing`. `POST /v1/telephony/status/mock` moves that row forward |
 | Audio streamed | WebSocket checks the token with the API, parses `start` / `media` / `stop`, and counts binary frames as audio. Each accepted frame is passed to mock STT. A non-empty final is answered with selector, TTS, and outbound `media` |
-| Speech recognized | `MockStt` maps one fixture frame to one final `SttEvent`. The gateway publishes `speech.segment.final`. Other frames publish nothing |
+| Speech recognized | `MockStt` maps one fixture frame to one final `SttEvent` whose text is `fixture caller segment +15551234567`. The gateway publishes `speech.segment.final`. Other frames publish nothing |
 | Response selected | After a final, the socket calls `FixedResponseSelector` and publishes `conversation.response.selected` |
 | TTS and audio to caller | The socket sends `MockTts` audio as `media`. Inbound speech during outbound sends `clear` |
-| Transcript stored | No projector |
+| Transcript stored | `api.projector` inserts `obs.transcript_segment` from `speech.segment.final` and `interp.conversation_turn` from `conversation.turn.recorded` |
 | Intelligence extracted | `intelligence.extractor` writes `interp.intelligence_finding` and publishes `intelligence.finding.proposed` for an E.164 in `speech.segment.final`. `POST /v1/internal/extract` still proposes the same finding without the bus |
 | Call on the dashboard | The Vue app polls `GET /v1/calls` and loads `GET /v1/calls/{id}` unless `VITE_OPS_DATA=mock` |
 
-`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. Campaign routes still return an empty list and `404`. The media gateway publishes `speech.segment.final`, `conversation.response.selected`, and `conversation.turn.recorded` for the mock STT fixture and does not open Postgres. The intelligence extractor consumes `speech.segment.final`, writes `interp.intelligence_finding`, and publishes `intelligence.finding.proposed`. The dashboard polls the read API and does not open Postgres or Redis. `VITE_OPS_DATA=mock` keeps the fixture adapter.
+`docker-compose.yml` describes the local topology. The voice webhook writes sessions through `packages/repositories` and publishes `telephony.call.received` through `packages/events`. Status callbacks update that session through `TelephonyObsStore.apply_call_state` and publish `telephony.call.answered`, `telephony.call.completed`, or `telephony.call.failed` through the same bus. `GET /v1/calls` and `GET /v1/calls/{id}` read those rows through `read_models`. Campaign routes still return an empty list and `404`. The media gateway publishes `speech.segment.final`, `conversation.response.selected`, and `conversation.turn.recorded` for the mock STT fixture and does not open Postgres. The API projector consumes the final and the turn events into `obs.transcript_segment` and `interp.conversation_turn`. The intelligence extractor consumes `speech.segment.final`, writes `interp.intelligence_finding`, and publishes `intelligence.finding.proposed`. The dashboard polls the read API and does not open Postgres or Redis. `VITE_OPS_DATA=mock` keeps the fixture adapter.
 
 ## Ownership map
 
@@ -857,3 +857,60 @@ SB-013. The ops dashboard reads stored calls from the API. Campaigns, system, an
 
 - A later LOKI change can reference this fixture once a scenario corpus exists on main.
 - WATSON and CLERK are unchanged.
+
+## HANDOFF — ATLAS — 2026-09-26T00:13:13Z
+
+Mock vertical slice. `make test-mvp-smoke` is the one entrypoint. It drives the mock carrier only. No Watson, Clerk, or Sentinel subsystem was added.
+
+### Completed
+
+- The API projector (`api.projector`) inserts `obs.transcript_segment` from `speech.segment.final` (`source: stt`, `provider: mock-stt`) and `interp.conversation_turn` from `conversation.turn.recorded`. `conversation.response.selected` is acknowledged and does not insert a row. Telephony events are acknowledged and not inserted again, because the webhook and the status callback already wrote the session. A failed insert stays pending. Transcript text is not logged.
+- `speech.segment.final` has no `media_stream_id`. The projector reuses an `obs.media_stream` already stored for the call, or inserts one with `external_stream_id` `unscoped`, encoding `audio/pcmu`, and sample rate 8000 so the transcript foreign key can be written.
+- The projector loop starts with the API process when `DATABASE_URL` and `REDIS_URL` are set. `SWITCHBOARD_PROJECTOR_WORKER=0` leaves it off. Pytest leaves it off unless that flag is `1`.
+- `MockStt` fixture text is now `fixture caller segment +15551234567`. The frame is still 160 bytes of `0xFF`. The number is not decoded from the samples. Sherlock's existing extractor cites that literal E.164. The socket, selector, and TTS were not rewritten.
+
+### Files changed
+
+- `apps/api/switchboard_api/projector.py`, `main.py`
+- `apps/media_gateway/switchboard_media/ports.py` (fixture text only)
+- `tests/test_projector.py`, `tests/test_mvp_smoke.py`
+- `Makefile`, `pytest.ini`, `README.md`
+- `docs/API_CONTRACTS.md`, `docs/DATA_MODEL.md`, `docs/ARCHITECTURE.md`, `docs/STATUS.md`
+
+### Interfaces added-changed
+
+- `ProjectorConsumer`, `serve_projector`, `projector_worker_enabled`, `unscoped_media_stream_id`.
+- No new schema fields, event types, or tables.
+- `make test-mvp-smoke` runs `pytest -m mvp_smoke`.
+
+### Tests
+
+Each hop in `tests/test_mvp_smoke.py::test_mock_vertical_slice`:
+
+1. Webhook. A repeat `POST /v1/telephony/voice/mock` for `provider_call_id` `mvp-smoke-1` returns the same session. The id is UUIDv5(`SWITCHBOARD_ID_NAMESPACE`, `mock:mvp-smoke-1`), which is `a2570395-595c-50c3-b09d-3d284f85cc0d`. State on the detail route is `ringing`.
+2. Media. The socket checks that token on `POST /v1/internal/stream-tokens/validate` and accepts `MOCK_STT_FIXTURE_FRAME`. The bus entry `speech.segment.final` has text `fixture caller segment +15551234567`.
+3. Speak-back. The socket writes one `media` frame equal to `MockTts` of `Could you repeat that?`. The bus then has `conversation.turn.recorded`, `conversation.response.selected` (`strategy_id` `fixed.v1`), and the honeypot `conversation.turn.recorded`.
+4. Extractor. `ExtractorConsumer.poll` writes one finding and publishes `intelligence.finding.proposed`. The payload `kind` is `callback_number` and `value` is `+15551234567`.
+5. Read API. `GET /v1/calls` lists `a2570395-595c-50c3-b09d-3d284f85cc0d`. `GET /v1/calls/{id}` returns one observation transcript whose text contains `+15551234567`, and one interpretation finding with `kind` `callback_number`, `status` `proposed`, `value` `+15551234567`, citing that segment id. The two turns are caller then honeypot.
+
+`make test-mvp-smoke`: 1 passed. `make test`: 169 passed, 2 skipped. The skips are the existing SB-014 and operator-auth tripwires. Main before this change was 161 passed, 2 skipped. Postgres at `DATABASE_URL` and Redis at `REDIS_URL`. The smoke uses Redis db 15. Docker Compose was not executed.
+
+The dashboard browser was not opened. The read routes above are what RADAR polls. An `in_progress` row is not produced here, because this call stays `ringing` until a status callback, so the live board would not show it.
+
+### Dependencies
+
+- No new packages. The projector uses `EventBus` and `observation_writer`.
+- The fixture text change is the seam that lets SB-010 fire on the real mock socket. ECHO's frame mapping is otherwise unchanged.
+
+### Blocking issues
+
+- The gateway still does not publish `media.stream.started`. The `unscoped` stream row is the stand-in that satisfies `obs.transcript_segment.media_stream_id`.
+- Campaign routes are still empty. This slice does not start SB-012.
+- Operator authentication on the read API is still open.
+- A crash between the finding commit and `intelligence.finding.proposed` is still the ADR-011 gap. Redelivery uses the stable proposed event id.
+
+### Recommended next work
+
+- ECHO can publish `media.stream.started` and `media.stream.stopped` so the projector can store the carrier stream id instead of `unscoped`.
+- WATSON SB-012 can consume `intelligence.finding.proposed` from this slice. Two calls that share `+15551234567` are the correlator fixture.
+- SENTINEL: operator authentication before any shared deployment of port 8000.

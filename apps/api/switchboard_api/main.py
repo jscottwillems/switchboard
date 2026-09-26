@@ -1,11 +1,37 @@
+import threading
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from switchboard_observability import log_info
 
 from switchboard_api.errors import register_error_handlers
+from switchboard_api.projector import projector_worker_enabled, serve_projector
 from switchboard_api.routes import calls, campaigns, health, internal, telephony
 from switchboard_api.settings import get_settings
+
+
+@asynccontextmanager
+async def _lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    stop = threading.Event()
+    thread: threading.Thread | None = None
+    if projector_worker_enabled():
+        thread = threading.Thread(
+            target=serve_projector,
+            args=(stop,),
+            name="api.projector",
+            daemon=True,
+        )
+        thread.start()
+    try:
+        yield
+    finally:
+        stop.set()
+        if thread is not None:
+            thread.join(timeout=2.0)
+
 
 settings = get_settings()
 log_info(
@@ -15,7 +41,7 @@ log_info(
     redis_configured=bool(settings.redis_url),
 )
 
-app = FastAPI(title="Switchboard API", version=settings.contract_version)
+app = FastAPI(title="Switchboard API", version=settings.contract_version, lifespan=_lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=list(settings.cors_origins),

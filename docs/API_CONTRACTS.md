@@ -218,7 +218,7 @@ Audio bytes are counted for the life of the socket, passed to `SttPort.push_audi
 | `MOCK_STT_FIXTURE_FRAME`, 160 bytes of `0xFF` (one 20 ms `audio/pcmu` frame) | One final `SttEvent` |
 | any other payload, including empty | `[]` |
 
-That final event has text `fixture caller segment`, `is_final` true, `stt_confidence` `1.0`, `start_offset_ms` `0`, and `end_offset_ms` `20`. `stt_confidence` is the mock provider's exact-match score. It is not a Switchboard interpretation confidence.
+That final event has text `fixture caller segment +15551234567`, `is_final` true, `stt_confidence` `1.0`, `start_offset_ms` `0`, and `end_offset_ms` `20`. The trailing token is a literal E.164 so the mock slice can propose `callback_number`. It is not decoded from the PCMU bytes. `stt_confidence` is the mock provider's exact-match score. It is not a Switchboard interpretation confidence.
 
 The socket calls `recognize_frame` for each accepted audio frame. Each final with non-empty text is published as `speech.segment.final` through `switchboard_media.events.event_bus`. `build_envelope` fills `producer: media_gateway`. The payload is `SpeechSegmentPayload` with `speaker: caller` and `is_final: true`. `sequence` starts at `0` on the socket and advances only after a publish that is not `failed`. A Redis failure is `PublishResult.failed`. It does not raise and it does not close the socket. The audio bytes are not fields on the envelope.
 
@@ -290,6 +290,14 @@ This route exists so agents can test an extractor without the bus. The productio
 A final segment with no E.164 inserts nothing and publishes nothing. Any other event type, including `speech.segment.partial` and `telephony.call.completed`, is acknowledged and ignored. An extractor exception is logged with `log_info` as `extractor_failed` and acknowledged. The log fields are the event id, event type, call session id, and a fixed reason. Transcript text and the exception message are not logged. The media socket is a different process and is not closed by that exception.
 
 Finding ids are the UUIDv5 from the extractor. The proposed event id is a UUIDv5 of the finding id, so a redelivery publishes a duplicate rather than a second stream entry. A failed insert is left pending. A failed publish is left pending after the row commit so the same event id can be published again.
+
+### API projector
+
+`switchboard_api.projector` reads consumer group `api.projector` on `switchboard.events` through `switchboard_api.deps.get_event_bus`. The loop starts with the API process when `DATABASE_URL` and `REDIS_URL` are set in the environment. `SWITCHBOARD_PROJECTOR_WORKER=0` leaves it off. Pytest leaves it off unless that flag is `1`.
+
+`speech.segment.final` is inserted as `obs.transcript_segment` with `source: stt` and `provider: mock-stt`. `stt_confidence` is copied onto that row only. The speech payload has no `media_stream_id`. If the call has no `obs.media_stream` yet, the projector inserts one with `external_stream_id` `unscoped`, encoding `audio/pcmu`, and sample rate 8000, and points the segment at it. A stream already stored for the call is reused. `conversation.turn.recorded` is inserted as `interp.conversation_turn`. `conversation.response.selected` is acknowledged and does not insert a row; the honeypot turn is the recorded event.
+
+Telephony events are acknowledged and not inserted again. The voice webhook and the status callback already wrote the session. `speech.segment.partial` is acknowledged and not stored. A failed insert is left pending. Transcript text is not logged.
 
 ## In-process ports
 

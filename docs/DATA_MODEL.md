@@ -69,6 +69,8 @@ Append-only. `payload` is the raw JSON object. `signature_valid` is true, false,
 
 There is no Switchboard confidence column on this table.
 
+`speech.segment.final` does not carry `media_stream_id`. The projector points the segment at an `obs.media_stream` already stored for the call. When none exists, it inserts one row with `external_stream_id` `unscoped`, encoding `audio/pcmu`, and sample rate 8000 so the foreign key can be written. That row is not a second audio capture.
+
 ### ConversationTurn (`interp.conversation_turn`) — interpretation
 
 One row per turn index per call. `transcript_segment_ids` cites the observations the turn was built from. `strategy_id` is null on caller turns. `confidence` is required and is the selector's certainty about its own decision, or `1.0` for a caller turn that is only a grouping of finals.
