@@ -42,7 +42,9 @@ def apply_migrations() -> None:
 
 def truncate_observations() -> None:
     with psycopg.connect(database_url(), autocommit=True, connect_timeout=3) as conn:
-        conn.execute("TRUNCATE obs.webhook_receipt, obs.call_session CASCADE")
+        conn.execute(
+            "TRUNCATE obs.webhook_receipt, obs.call_session, attr.campaign CASCADE"
+        )
 
 
 def query_all(sql: str, params: tuple[object, ...] = ()) -> list[dict[str, Any]]:
