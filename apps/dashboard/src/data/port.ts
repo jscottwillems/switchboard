@@ -3,16 +3,15 @@ import type { OpenReportRequest, OpenReportResult, ReportIndexEntry } from '@/ty
 
 /**
  * The only data surface stores are allowed to use.
- * Replace the binding in src/data/client.ts with an HTTP adapter.
- * Call and campaign methods should then return the read models in docs/API_CONTRACTS.md.
- * Gap fields documented in docs/FRONTEND_DATA_REQUIREMENTS.md have no route yet.
+ * `src/data/client.ts` binds this port to the HTTP read API or the mock adapter.
+ * Call methods follow docs/API_CONTRACTS.md. Gap fields stay off the wire.
  */
 export interface OpsDataPort {
-  /** Live board. No GET /v1/live in 0.1.0. Mock filters in-progress sessions. */
+  /** In-progress rows from GET /v1/calls, with detail for transcript and findings. */
   fetchLiveCalls(): Promise<LiveCall[]>
-  /** Stand-in for GET /v1/calls. Includes gap fields the list columns need. */
+  /** GET /v1/calls. Summary rows omit fields that are only on the detail session. */
   fetchCallHistory(): Promise<CallSummary[]>
-  /** Stand-in for GET /v1/calls/{id}. Null stands in for 404 call_not_found. */
+  /** GET /v1/calls/{id}. Null stands in for 404 call_not_found. */
   fetchCallDetail(callId: string): Promise<CallDetail | null>
   /** Stand-in for GET /v1/campaigns. */
   fetchCampaigns(): Promise<CampaignSummary[]>

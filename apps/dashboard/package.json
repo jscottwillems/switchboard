@@ -7,6 +7,7 @@
     "dev": "vite",
     "generate:fixtures": "node scripts/generate-fixtures.mjs && node scripts/generate-report-fixtures.mjs",
     "check:fixtures": "node scripts/check-fixtures.mjs",
+    "check:read-map": "node --experimental-strip-types scripts/check-read-map.mts",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
     "build": "npm run check:fixtures && npm run typecheck && vite build",
     "preview": "vite preview --host 0.0.0.0 --port 4173"

@@ -161,14 +161,17 @@ export interface DashboardEvent {
 }
 
 export interface CallGaps {
-  conversation_state: ConversationState
-  conversation_state_record_layer: RecordLayer
+  /** Null when the read API has no dialogue beat. CallState stays on the session. */
+  conversation_state: ConversationState | null
+  conversation_state_record_layer: RecordLayer | null
   classification: ClassifiedValue
-  engagement_duration_ms: number
+  /** Null when `answered_at` is absent, including every `CallSessionSummary` row. */
+  engagement_duration_ms: number | null
   duration_ms: number
   campaign_id: string | null
   campaign_label: string | null
-  pipeline: PipelineLatency
+  /** Null when the read model has no hot-path sample. The latency strip stays hidden. */
+  pipeline: PipelineLatency | null
   timeline: TimelineEntry[]
   state_transitions: StateTransition[]
   paired_reads: PairedRead[]

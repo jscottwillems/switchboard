@@ -1,8 +1,14 @@
+import { opsDataMode } from '@/data/apiConfig'
+import { createHttpOpsDataPort } from '@/data/httpPort'
 import type { OpsDataPort } from '@/data/port'
 import { mockOpsDataPort } from '@/mocks/mockAdapter'
 
 /**
  * Stores talk only to OpsDataPort.
- * Replace this binding with an HTTP or WebSocket adapter when a backend exists.
+ * `VITE_OPS_DATA=mock` keeps fixtures for offline UI work.
+ * Any other value, including unset, reads GET /v1/calls.
  */
-export const opsData: OpsDataPort = mockOpsDataPort
+export const opsDataSource = opsDataMode()
+
+export const opsData: OpsDataPort =
+  opsDataSource === 'mock' ? mockOpsDataPort : createHttpOpsDataPort(mockOpsDataPort)

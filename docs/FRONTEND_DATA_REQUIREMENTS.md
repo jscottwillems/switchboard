@@ -2,7 +2,7 @@
 
 Contract version **0.1.0**. This is the operator UI's reading of `docs/API_CONTRACTS.md`, `docs/EVENTS.md`, `docs/DATA_MODEL.md`, and `packages/schemas`. It does not add backend fields.
 
-Screens load data only through `OpsDataPort` (`apps/dashboard/src/data/port.ts`). `apps/dashboard/src/data/client.ts` binds that port to the mock adapter. Replacing that export is the switch to HTTP. There is no dashboard WebSocket in 0.1.0.
+Screens load data only through `OpsDataPort` (`apps/dashboard/src/data/port.ts`). `apps/dashboard/src/data/client.ts` binds that port. `VITE_OPS_DATA=mock` uses the fixture adapter. Otherwise the call methods use the HTTP read API (`apps/dashboard/src/data/httpPort.ts`). Campaigns, system health, and reports stay on the mock adapter. There is no dashboard WebSocket in 0.1.0.
 
 JSON names are snake_case, matching the TypeScript mirror in `packages/schemas/ts`. Ids the contracts call UUIDs are UUID strings in the fixtures. Timestamps are timezone-aware ISO-8601. Confidence and `stt_confidence` are numbers in `[0, 1]` or null where the contract allows null.
 
@@ -23,9 +23,9 @@ JSON names are snake_case, matching the TypeScript mirror in `packages/schemas/t
 
 ## Port methods and the contract they stand in for
 
-| Port method | Contract route | Mock when missing |
+| Port method | Contract route | Mock when `VITE_OPS_DATA=mock` |
 | --- | --- | --- |
-| `fetchLiveCalls` | None. Live updates are polling of the read API (`SB-013`). | Sessions with `state: in_progress` |
+| `fetchLiveCalls` | `GET /v1/calls`, then `GET /v1/calls/{id}` for each `in_progress` row. Polled. | Sessions with `state: in_progress` |
 | `fetchCallHistory` | `GET /v1/calls` → `CallListResponse` | Finished sessions, plus gap columns |
 | `fetchCallDetail` | `GET /v1/calls/{id}` → `CallDetailResponse` | `null` stands in for `404 call_not_found` |
 | `fetchCampaigns` | `GET /v1/campaigns` → `CampaignListResponse` | `Campaign` plus gap columns |
@@ -35,6 +35,27 @@ JSON names are snake_case, matching the TypeScript mirror in `packages/schemas/t
 | `openReport` | None | CLERK-shaped body, or `not_found` / `format_unavailable` |
 
 `CallDetailResponse` is `session`, `media_streams`, `transcript`, `turns`, `findings`, `attributions`. The mock adds `events` and `gaps` beside that object. It does not put campaign ids, confidence, or strategy ids onto transcript segments.
+
+## HTTP binding (SB-013)
+
+When `VITE_OPS_DATA` is not `mock`:
+
+| Screen | Request | What the adapter fills |
+| --- | --- | --- |
+| Live | `GET /v1/calls?limit=200` paged by `next_cursor`, then `GET /v1/calls/{id}` for each `state: in_progress` row | Session, transcript, findings, and attributions from detail. `ringing` stays off the live board. |
+| History | The same list, newest `started_at` first, including every `CallState` | `CallSessionSummary` fields. `external_call_id`, `carrier`, `answered_at`, and `end_reason` are blank until detail. `key_findings` is empty. |
+| Detail | `GET /v1/calls/{id}` | The six contract layers. `events` is `[]`. A `404` with `error: call_not_found` is the empty state. Any other failure, including a refused connection (`calls_unreachable`), is the error banner. |
+
+Derived display values, still not wire fields:
+
+- `duration_ms` is `ended_at - started_at`, or elapsed since `started_at` while the call is open.
+- `engagement_duration_ms` is `ended_at - answered_at` when both exist, elapsed since `answered_at` while the call is open, and null when `answered_at` is absent. List rows are always null.
+- `campaign_id` is the first `CampaignAttribution.campaign_id` on detail. `campaign_label` stays null. `GET /v1/campaigns` is still a stub, so the adapter does not call it.
+- `classification.label` is `unknown` with null confidence.
+- `conversation_state` and `pipeline` are null, so the dialogue tag and the latency strip stay hidden.
+- `timeline`, `state_transitions`, `paired_reads`, `correlation_notes`, and `key_finding_ids` are empty.
+
+The list follows `next_cursor` at `limit=200` and stops with an error if that exceeds 20 pages. The live board polls on `VITE_LIVE_POLL_MS` (default 5000). A network failure does not fall through to fixtures. Use `VITE_OPS_DATA=mock` for offline UI work.
 
 ## Record layer
 
@@ -124,14 +145,14 @@ These are fields the UI renders that `docs/API_CONTRACTS.md` does not return. Th
 
 | Gap | Why the screen wants it | Contract today |
 | --- | --- | --- |
-| Live board as its own read | `/dashboard/live` needs the set of `in_progress` sessions without waiting for a full history page | No live route. `SB-013` polls `GET /v1/calls`. No WebSocket. |
-| `external_call_id` on the list | History shows the carrier id under the timestamp | `CallSessionSummary` omits it. It is on `CallSession` in the detail route. |
+| Live board as its own read | `/dashboard/live` needs the set of `in_progress` sessions without waiting for a full history page | No live route. SB-013 polls `GET /v1/calls` and loads detail per in-progress id. No WebSocket. |
+| `external_call_id` on the list | History shows the carrier id under the timestamp | `CallSessionSummary` omits it. The HTTP history row leaves it blank. It is on `CallSession` in the detail route. |
 | `conversation_state`, `state_transitions` | Dialogue beats (greeting, pretext, payment request, and the rest) | `CallState` is only `ringing`, `in_progress`, `completed`, `failed`. |
 | `classification` | Scam-family chip (`irs_impersonation`, `tech_support`, `bank_fraud`, `romance`, `utility_shutoff`, `unknown`) | No classification field on `CallSession` or `Campaign`. |
-| `duration_ms` | Duration column | Not stored. A finished call can derive it from `ended_at - started_at`. The column still wants a number for an in-progress row. |
-| `engagement_duration_ms` | Time in the pitch, excluding ring | No such column. |
-| `campaign_id`, `campaign_label` on a call row | Campaign link from the list and the live rail | The link is `CampaignAttribution`, not a column on the session. The list route does not return attributions. |
-| `pipeline` (`stt_ms`, `select_ms`, `tts_ms`, `e2e_ms`, `sampled_at`) | Latency strip. Select is the reply selector. | Not on `CallDetailResponse`. `SB-020` is hot-path timing, not a read model. Display budgets are UI-only. |
+| `duration_ms` | Duration column | Not stored. The HTTP adapter derives it from `ended_at - started_at`, or from now while the call is open. |
+| `engagement_duration_ms` | Time in the pitch, excluding ring | No such column. The HTTP adapter derives it only when `answered_at` is present, and leaves list rows null. |
+| `campaign_id`, `campaign_label` on a call row | Campaign link from the list and the live rail | The link is `CampaignAttribution`, not a column on the session. The list route does not return attributions, so history stays unlinked. Detail shows `campaign_id` from the first attribution and leaves `campaign_label` null. |
+| `pipeline` (`stt_ms`, `select_ms`, `tts_ms`, `e2e_ms`, `sampled_at`) | Latency strip. Select is the reply selector. | Not on `CallDetailResponse`. The HTTP adapter sets `pipeline` null and hides the strip. `SB-020` is hot-path timing, not a read model. Display budgets are UI-only. |
 | `events[].offset_ms` | Offset column on the event table | `EventEnvelope` has `occurred_at` only. |
 | `timeline[]` titles | Operator sentences next to an event name | Payloads are structured models, not a title/detail pair. |
 | `paired_reads` | Raw text beside a reading of that text | Observations are transcript rows. Interpretations are turns and findings. The side-by-side block is a view, not a table. `category` (`payment`, `identity`, `threat`, `tooling`, `script`, `callback`, `other`) is not `FindingKind`. |

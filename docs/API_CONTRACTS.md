@@ -325,4 +325,4 @@ App composition roots are `switchboard_api.deps`, `switchboard_media.events`, an
 
 ## Dashboard
 
-The Vue app calls `GET {VITE_API_BASE_URL}/v1/calls` once on load. Default base is `http://localhost:8000`. It uses the TypeScript mirror in `packages/schemas/ts`. It does not open Redis and it does not read Postgres. Live updates in the MVP are polling, owned by RADAR (`SB-013`). There is no dashboard WebSocket in 0.1.0.
+The Vue app polls `GET {VITE_API_BASE_URL}/v1/calls` for the live board and the call list, and loads `GET {VITE_API_BASE_URL}/v1/calls/{id}` for detail. Default base is `http://localhost:8000`. During `npm run dev`, an unset base is same-origin and the Vite server proxies `/v1` to `http://127.0.0.1:8000`. `VITE_OPS_DATA=mock` keeps the fixture adapter and does not call the network. The app uses the TypeScript mirror in `packages/schemas/ts`. It does not open Redis and it does not read Postgres. Live updates are polling (`SB-013`), default every 5 seconds (`VITE_LIVE_POLL_MS`). There is no dashboard WebSocket in 0.1.0. Campaign, system, and report screens stay on the mock adapter.

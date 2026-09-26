@@ -17,7 +17,8 @@ export function formatDay(day: string): string {
   return `${String(date.getUTCDate()).padStart(2, '0')} ${month}`
 }
 
-export function formatDuration(ms: number): string {
+export function formatDuration(ms: number | null): string {
+  if (ms === null) return '—'
   const total = Math.max(0, Math.floor(ms / 1000))
   const hours = Math.floor(total / 3600)
   const minutes = Math.floor((total % 3600) / 60)
@@ -30,6 +31,12 @@ export function formatDuration(ms: number): string {
 
 export function formatOffset(ms: number): string {
   return formatDuration(ms)
+}
+
+export function campaignCaption(id: string | null, label: string | null): string {
+  if (label) return label
+  if (id) return id
+  return 'No campaign'
 }
 
 export function formatPercent(value: number): string {

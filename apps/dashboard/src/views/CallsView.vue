@@ -5,7 +5,8 @@ import LoadError from '@/components/LoadError.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import StateTag from '@/components/StateTag.vue'
 import StatusPill from '@/components/StatusPill.vue'
-import { formatDuration, formatTimestamp } from '@/lib/format'
+import { opsDataSource } from '@/data/client'
+import { campaignCaption, formatDuration, formatTimestamp } from '@/lib/format'
 import { classificationLabel } from '@/lib/labels'
 import { useCallHistoryStore } from '@/stores/callHistory'
 import { CLASSIFICATIONS, type Classification } from '@/types/models'
@@ -15,6 +16,11 @@ const store = useCallHistoryStore()
 const query = ref('')
 const classification = ref<'all' | Classification>('all')
 const campaign = ref('all')
+
+const description =
+  opsDataSource === 'mock'
+    ? 'Finished sessions. Duration and engagement are operator gaps. Classification is not on CallSession.'
+    : 'Stored sessions from GET /v1/calls, newest started_at first. Carrier id, findings, and campaign links are on the call record.'
 
 onMounted(() => {
   void store.load()
@@ -64,8 +70,12 @@ function onCampaign(event: Event): void {
     <PageHeader
       kicker="History"
       title="Call history"
-      description="Finished sessions. Duration and engagement are operator gaps. Classification is not on CallSession."
+      :description="description"
     />
+    <div class="toolbar">
+      <p class="caption">{{ store.calls.length }} stored</p>
+      <button type="button" @click="store.load()">Refresh</button>
+    </div>
     <LoadError v-if="store.error" :message="store.error" @retry="store.load()" />
     <p v-if="store.loading && !store.loaded" class="empty">Loading call history…</p>
     <template v-else-if="store.loaded">
@@ -91,7 +101,8 @@ function onCampaign(event: Event): void {
         </label>
         <p class="caption">{{ filtered.length }} of {{ store.calls.length }}</p>
       </form>
-      <div class="table-wrap" data-testid="call-table">
+      <p v-if="store.calls.length === 0" class="empty" data-testid="calls-empty">No calls yet.</p>
+      <div v-else class="table-wrap" data-testid="call-table">
         <table>
           <thead>
             <tr>
@@ -110,7 +121,7 @@ function onCampaign(event: Event): void {
             <tr v-for="call in filtered" :key="call.session.id">
               <td>
                 <router-link :to="`/dashboard/calls/${call.session.id}`">{{ formatTimestamp(call.session.started_at) }}</router-link>
-                <div class="mono muted">{{ call.session.external_call_id }}</div>
+                <div v-if="call.session.external_call_id" class="mono muted">{{ call.session.external_call_id }}</div>
               </td>
               <td class="mono">{{ call.session.caller_number_e164 }}</td>
               <td class="mono">{{ formatDuration(call.gaps.duration_ms) }}</td>
@@ -119,12 +130,17 @@ function onCampaign(event: Event): void {
               <td><ClassificationTag :classification="call.gaps.classification" /></td>
               <td>
                 <router-link v-if="call.gaps.campaign_id" :to="`/dashboard/campaigns/${call.gaps.campaign_id}`">
-                  {{ call.gaps.campaign_label }}
+                  {{ campaignCaption(call.gaps.campaign_id, call.gaps.campaign_label) }}
                 </router-link>
                 <span v-else class="muted">Unlinked</span>
               </td>
               <td>
-                <StateTag :state="call.gaps.conversation_state" :layer="call.gaps.conversation_state_record_layer" />
+                <StateTag
+                  v-if="call.gaps.conversation_state"
+                  :state="call.gaps.conversation_state"
+                  :layer="call.gaps.conversation_state_record_layer ?? undefined"
+                />
+                <span v-else class="muted">—</span>
               </td>
               <td><IndicatorChips :items="call.key_findings" /></td>
             </tr>

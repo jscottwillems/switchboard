@@ -4,13 +4,16 @@ import IndicatorChips from '@/components/IndicatorChips.vue'
 import IntelligenceList from '@/components/IntelligenceList.vue'
 import LatencyStrip from '@/components/LatencyStrip.vue'
 import LoadError from '@/components/LoadError.vue'
+import MediaStreamTable from '@/components/MediaStreamTable.vue'
 import PageHeader from '@/components/PageHeader.vue'
 import ProvenanceBadge from '@/components/ProvenanceBadge.vue'
 import StateTag from '@/components/StateTag.vue'
 import StatusPill from '@/components/StatusPill.vue'
 import TranscriptLog from '@/components/TranscriptLog.vue'
+import TurnList from '@/components/TurnList.vue'
 import { useNow } from '@/composables/useNow'
-import { formatDuration, formatOffset, formatPercent, formatTimestamp } from '@/lib/format'
+import { opsDataSource } from '@/data/client'
+import { campaignCaption, formatDuration, formatOffset, formatPercent, formatTimestamp } from '@/lib/format'
 import { conversationStateLabel, eventTypeLabel, observationCategoryLabel } from '@/lib/labels'
 import { useCallDetailStore } from '@/stores/callDetail'
 import { computed, watch } from 'vue'
@@ -60,6 +63,11 @@ function payloadText(payload: Record<string, unknown>): string {
 function reload(): void {
   if (callId.value) void store.load(callId.value)
 }
+
+const sourceNote =
+  opsDataSource === 'mock'
+    ? 'Mock fixtures include operator gap columns beside the contract layers.'
+    : 'Dialogue beats, classification, latency, and the event log are not on CallDetailResponse.'
 </script>
 
 <template>
@@ -67,27 +75,35 @@ function reload(): void {
     <p v-if="store.loading" class="empty">Loading call {{ callId }}…</p>
     <LoadError v-else-if="store.error" :message="store.error" @retry="reload" />
     <div v-else-if="store.notFound" class="empty" data-testid="call-missing">
-      <h1>Call not in the mock catalog</h1>
-      <p>No fixture is loaded for {{ callId }}. The read API would return call_not_found.</p>
+      <h1>Call not found</h1>
+      <p>No call session exists with id {{ callId }} (call_not_found).</p>
       <router-link to="/dashboard/calls">Back to call history</router-link>
     </div>
     <template v-else-if="call">
       <PageHeader
         kicker="Call record"
         :title="call.session.caller_number_e164"
-        description="Session and transcript are observations. Turns and findings are interpretations. Attributions link the call to a campaign."
+        description="Session, media, and transcript are observations. Turns and findings are interpretations. Attributions link the call to a campaign."
       />
       <div class="detail-head">
         <div class="inline-tags">
           <StatusPill :status="call.session.state" />
-          <StateTag :state="call.gaps.conversation_state" :layer="call.gaps.conversation_state_record_layer" />
+          <StateTag
+            v-if="call.gaps.conversation_state"
+            :state="call.gaps.conversation_state"
+            :layer="call.gaps.conversation_state_record_layer ?? undefined"
+          />
           <ClassificationTag :classification="call.gaps.classification" />
         </div>
-        <p class="mono">{{ call.session.external_call_id }} · {{ call.session.id }}</p>
+        <p class="mono">
+          <template v-if="call.session.external_call_id">{{ call.session.external_call_id }} · </template>
+          {{ call.session.id }}
+        </p>
+        <p class="caption">{{ sourceNote }}</p>
         <div class="stage-actions">
           <router-link to="/dashboard/calls">All calls</router-link>
           <router-link v-if="call.gaps.campaign_id" :to="`/dashboard/campaigns/${call.gaps.campaign_id}`">
-            {{ call.gaps.campaign_label }}
+            {{ campaignCaption(call.gaps.campaign_id, call.gaps.campaign_label) }}
           </router-link>
           <router-link
             v-if="call.session.state === 'in_progress' || call.session.state === 'ringing'"
@@ -114,12 +130,13 @@ function reload(): void {
           <dt>Engagement</dt>
           <dd class="mono">
             {{ formatDuration(call.gaps.engagement_duration_ms) }}
-            <span v-if="!call.session.ended_at" class="muted">at load</span>
+            <span v-if="call.gaps.engagement_duration_ms !== null && !call.session.ended_at" class="muted">at load</span>
           </dd>
         </div>
       </dl>
       <p v-if="call.session.end_reason" class="caption">End reason: {{ call.session.end_reason }}</p>
       <LatencyStrip
+        v-if="call.gaps.pipeline"
         :stt-ms="call.gaps.pipeline.stt_ms"
         :select-ms="call.gaps.pipeline.select_ms"
         :tts-ms="call.gaps.pipeline.tts_ms"
@@ -127,29 +144,20 @@ function reload(): void {
         :sampled-at="call.gaps.pipeline.sampled_at"
       />
       <nav class="anchors" aria-label="Call sections">
-        <a href="#timeline">Timeline</a>
+        <a href="#media">Media</a>
         <a href="#transcript">Transcript</a>
+        <a href="#turns">Turns</a>
+        <a href="#intelligence">Findings</a>
+        <a href="#correlation">Attribution</a>
+        <a href="#timeline">Timeline</a>
         <a href="#states">States</a>
         <a href="#observations">Paired reads</a>
-        <a href="#correlation">Attribution</a>
         <a href="#technical">Events</a>
-        <a href="#intelligence">Findings</a>
       </nav>
 
-      <section id="timeline" class="section">
-        <h2>Call timeline</h2>
-        <p class="caption">Rows with an event name are bus events. A note is an operator gap, not an EventType.</p>
-        <ol class="timeline">
-          <li v-for="entry in call.gaps.timeline" :key="entry.id">
-            <span class="mono">{{ formatOffset(entry.offset_ms) }}</span>
-            <span class="kind">{{ entry.event_type ? eventTypeLabel(entry.event_type) : 'Note' }}</span>
-            <div>
-              <p class="item-title">{{ entry.title }}</p>
-              <p class="muted">{{ entry.detail }}</p>
-              <p v-if="entry.event_type" class="mono muted">{{ entry.event_type }}</p>
-            </div>
-          </li>
-        </ol>
+      <section id="media" class="section">
+        <h2>Media</h2>
+        <MediaStreamTable :streams="call.media_streams" />
       </section>
 
       <section id="transcript" class="section">
@@ -157,10 +165,25 @@ function reload(): void {
         <TranscriptLog :turns="call.transcript" />
       </section>
 
+      <section id="turns" class="section">
+        <h2>Turns</h2>
+        <TurnList :turns="call.turns" />
+      </section>
+
+      <section id="intelligence" class="section">
+        <h2>Findings</h2>
+        <p class="caption">
+          IntelligenceFinding rows are interpretations. They cite transcript segments. They are not transcript text.
+        </p>
+        <IndicatorChips v-if="keyFindings.length" :items="keyFindings" />
+        <IntelligenceList :items="call.findings" empty="No findings for this call." />
+      </section>
+
       <section id="states" class="section">
         <h2>Dialogue beats</h2>
         <p class="caption">This chain is not CallState. The session state is the pill in the header.</p>
-        <ol class="timeline">
+        <p v-if="call.gaps.state_transitions.length === 0" class="empty">No dialogue beats on this read.</p>
+        <ol v-else class="timeline">
           <li v-for="transition in call.gaps.state_transitions" :key="transition.id">
             <span class="mono">{{ formatOffset(transition.offset_ms) }}</span>
             <ProvenanceBadge :layer="transition.record_layer" />
@@ -181,7 +204,8 @@ function reload(): void {
         <p class="caption">
           Raw text is an observation. The reading beside it is an interpretation. This pairing is not a stored table.
         </p>
-        <div class="obs-list">
+        <p v-if="call.gaps.paired_reads.length === 0" class="empty">No paired reads on this read.</p>
+        <div v-else class="obs-list">
           <article v-for="observation in call.gaps.paired_reads" :key="observation.id" class="obs">
             <header>
               <span class="mono">{{ formatOffset(observation.offset_ms) }}</span>
@@ -219,7 +243,7 @@ function reload(): void {
               <ProvenanceBadge layer="attribution" />
               <span class="mono">{{ formatPercent(row.confidence) }}</span>
               <span class="mono">{{ row.method }} {{ row.method_version }}</span>
-              <router-link :to="`/dashboard/campaigns/${row.campaign_id}`">{{ call.gaps.campaign_label ?? row.campaign_id }}</router-link>
+              <router-link :to="`/dashboard/campaigns/${row.campaign_id}`">{{ campaignCaption(row.campaign_id, call.gaps.campaign_label) }}</router-link>
             </div>
             <p>{{ row.rationale }}</p>
             <div class="meter reason-meter">
@@ -251,10 +275,28 @@ function reload(): void {
         </ol>
       </section>
 
+      <section id="timeline" class="section">
+        <h2>Call timeline</h2>
+        <p class="caption">Rows with an event name are bus events. A note is an operator gap, not an EventType.</p>
+        <p v-if="call.gaps.timeline.length === 0" class="empty">No timeline notes on this read.</p>
+        <ol v-else class="timeline">
+          <li v-for="entry in call.gaps.timeline" :key="entry.id">
+            <span class="mono">{{ formatOffset(entry.offset_ms) }}</span>
+            <span class="kind">{{ entry.event_type ? eventTypeLabel(entry.event_type) : 'Note' }}</span>
+            <div>
+              <p class="item-title">{{ entry.title }}</p>
+              <p class="muted">{{ entry.detail }}</p>
+              <p v-if="entry.event_type" class="mono muted">{{ entry.event_type }}</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
       <section id="technical" class="section">
         <h2>Events</h2>
         <p class="caption">event_type values are the EventType taxonomy. offset_ms is not on EventEnvelope.</p>
-        <div class="table-wrap">
+        <p v-if="call.events.length === 0" class="empty">No event log on this read. CallDetailResponse does not include EventEnvelope rows.</p>
+        <div v-else class="table-wrap">
           <table>
             <thead>
               <tr>
@@ -279,12 +321,6 @@ function reload(): void {
         </div>
       </section>
 
-      <section id="intelligence" class="section">
-        <h2>Findings</h2>
-        <p class="caption">Key findings also shown on the history row. Status stays proposed until an operator accepts or rejects.</p>
-        <IndicatorChips :items="keyFindings" />
-        <IntelligenceList :items="call.findings" empty="No findings for this call." />
-      </section>
     </template>
   </section>
 </template>

@@ -8,7 +8,8 @@ import StateTag from '@/components/StateTag.vue'
 import StatusPill from '@/components/StatusPill.vue'
 import TranscriptLog from '@/components/TranscriptLog.vue'
 import { useNow } from '@/composables/useNow'
-import { formatDuration } from '@/lib/format'
+import { opsDataSource } from '@/data/client'
+import { campaignCaption, formatDuration } from '@/lib/format'
 import { classificationLabel } from '@/lib/labels'
 import { useLiveStore } from '@/stores/live'
 import { computed, onMounted, watch } from 'vue'
@@ -37,6 +38,11 @@ watch([() => store.calls, selectedId, () => store.loaded], () => {
 
 const selected = computed(() => store.calls.find((call) => call.session.id === selectedId.value) ?? null)
 
+const description =
+  opsDataSource === 'mock'
+    ? 'In-progress sessions. Elapsed time advances from started_at. Transcript segments and findings are the latest mock snapshot.'
+    : 'In-progress sessions polled from GET /v1/calls. Transcript segments and findings load from GET /v1/calls/{id}.'
+
 function elapsed(startedAt: string): number {
   return Math.max(0, now.value - Date.parse(startedAt))
 }
@@ -51,7 +57,7 @@ function selectCall(id: string): void {
     <PageHeader
       kicker="Live"
       title="Live calls"
-      description="In-progress sessions. Elapsed time advances from started_at. Transcript segments and findings are the latest mock snapshot."
+      :description="description"
     />
     <div class="toolbar">
       <p class="caption">{{ store.calls.length }} in progress</p>
@@ -76,18 +82,26 @@ function selectCall(id: string): void {
             <StatusPill :status="call.session.state" />
           </div>
           <p class="rail-number">{{ call.session.caller_number_e164 }}</p>
-          <StateTag :state="call.gaps.conversation_state" :layer="call.gaps.conversation_state_record_layer" />
+          <StateTag
+            v-if="call.gaps.conversation_state"
+            :state="call.gaps.conversation_state"
+            :layer="call.gaps.conversation_state_record_layer ?? undefined"
+          />
           <p class="rail-class">{{ classificationLabel(call.gaps.classification.label) }}</p>
-          <p class="muted">{{ call.gaps.campaign_label ?? 'No campaign' }}</p>
+          <p class="muted">{{ campaignCaption(call.gaps.campaign_id, call.gaps.campaign_label) }}</p>
         </button>
       </div>
       <article v-if="selected" class="stage" data-testid="live-detail">
         <header class="stage-head">
           <div>
-            <p class="mono">{{ selected.session.external_call_id }}</p>
+            <p v-if="selected.session.external_call_id" class="mono">{{ selected.session.external_call_id }}</p>
             <h2>{{ selected.session.caller_number_e164 }}</h2>
             <div class="inline-tags">
-              <StateTag :state="selected.gaps.conversation_state" :layer="selected.gaps.conversation_state_record_layer" />
+              <StateTag
+                v-if="selected.gaps.conversation_state"
+                :state="selected.gaps.conversation_state"
+                :layer="selected.gaps.conversation_state_record_layer ?? undefined"
+              />
               <ClassificationTag :classification="selected.gaps.classification" />
             </div>
           </div>
@@ -95,12 +109,13 @@ function selectCall(id: string): void {
             <p class="elapsed">{{ formatDuration(elapsed(selected.session.started_at)) }}</p>
             <p class="caption">Elapsed</p>
             <router-link v-if="selected.gaps.campaign_id" :to="`/dashboard/campaigns/${selected.gaps.campaign_id}`">
-              {{ selected.gaps.campaign_label }}
+              {{ campaignCaption(selected.gaps.campaign_id, selected.gaps.campaign_label) }}
             </router-link>
             <router-link :to="`/dashboard/calls/${selected.session.id}`">Open call record</router-link>
           </div>
         </header>
         <LatencyStrip
+          v-if="selected.gaps.pipeline"
           :stt-ms="selected.gaps.pipeline.stt_ms"
           :select-ms="selected.gaps.pipeline.select_ms"
           :tts-ms="selected.gaps.pipeline.tts_ms"
