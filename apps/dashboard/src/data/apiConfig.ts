@@ -9,6 +9,24 @@ export function opsDataMode(): OpsDataMode {
 }
 
 /**
+ * Shared operator credential baked in by Vite.
+ * Empty when unset. `VITE_OPS_DATA=mock` never calls the read API, so this
+ * value is unused on that path. Must match `SWITCHBOARD_OPERATOR_TOKEN`.
+ */
+export function operatorToken(): string {
+  const configured = import.meta.env.VITE_OPERATOR_TOKEN
+  if (typeof configured !== 'string') return ''
+  return configured.trim()
+}
+
+/** Primary read-API header. See docs/API_CONTRACTS.md. */
+export function operatorAuthHeaders(): Record<string, string> {
+  const token = operatorToken()
+  if (token === '') return {}
+  return { 'X-Switchboard-Operator-Token': token }
+}
+
+/**
  * Origin prepended to `/v1/calls`. Empty is same-origin.
  * Dev, preview, and the compose image proxy `/v1` to the API, so a phone
  * does not call `localhost`. Set `VITE_API_BASE_URL` only for a different

@@ -14,6 +14,7 @@ Error body (`ErrorBody`):
 | --- | --- | --- |
 | 401 | `webhook_unauthorized` | Carrier signature rejected |
 | 401 | `unauthorized` | Missing or wrong internal token |
+| 401 | `operator_unauthorized` | Missing, blank, or wrong operator token on a read route |
 | 403 | `number_not_enrolled` | `to_e164` is not an active operator number |
 | 404 | `call_not_found` | Unknown call session on a read route or a status callback |
 | 404 | `campaign_not_found` | Unknown campaign |
@@ -29,8 +30,8 @@ Error body (`ErrorBody`):
 | --- | --- |
 | Carrier webhook | Provider signature. Mock provider: header `X-Switchboard-Mock-Signature: dev`. Real verifiers land in `packages/telephony` |
 | Dev bypass | Honored only when `SWITCHBOARD_ENV=dev` and `SWITCHBOARD_DEV_WEBHOOK_BYPASS=1` together |
-| Internal routes | Header `X-Switchboard-Internal-Token` matched against `SWITCHBOARD_INTERNAL_TOKEN` |
-| Dashboard | No credential in the skeleton. SENTINEL adds operator auth before any shared deployment |
+| Internal routes | Header `X-Switchboard-Internal-Token` matched against `SWITCHBOARD_INTERNAL_TOKEN` with `hmac.compare_digest` |
+| Dashboard / operator reads | Header `X-Switchboard-Operator-Token` matched against `SWITCHBOARD_OPERATOR_TOKEN` with `hmac.compare_digest`. `Authorization: Bearer <token>` is accepted only when that header is absent or blank. A non-blank operator header wins if both are sent. Required on `GET /v1/calls`, `GET /v1/calls/{id}`, transcript, findings, attributions, `GET /v1/campaigns`, and `GET /v1/campaigns/{id}`. Missing, blank, or wrong token is `401 operator_unauthorized`. An unset or blank `SWITCHBOARD_OPERATOR_TOKEN` fails closed the same way in every environment. `SWITCHBOARD_DEV_OPERATOR_BYPASS=1` skips the check only when `SWITCHBOARD_ENV` is exactly `dev`. The dashboard sends the header from `VITE_OPERATOR_TOKEN` on API-mode fetches. `VITE_OPS_DATA=mock` does not call these routes |
 
 Internal routes are not published outside the compose network in a real deployment. The local compose file publishes them on localhost so agents can call them.
 
@@ -104,6 +105,8 @@ Response `StatusAccepted`: `{"accepted": true}`.
 A second callback for the same state returns `accepted: true` and leaves `answered_at` and `ended_at` in place. An unknown `provider_call_id` is `404 call_not_found`. A backward transition is `409 state_conflict`. Signature failure is `401 webhook_unauthorized` and does not change the session. A publish failure does not roll back the session. Accepted callbacks, unknown-call callbacks, and signature-rejected JSON objects insert `obs.webhook_receipt` with `event_type` `status`. A rejected signature does not trust `provider_call_id`, so that receipt's `call_session_id` is null.
 
 ### Read models
+
+These routes require the operator credential in the Authentication table. `GET /health`, carrier webhooks, and `/v1/internal/*` do not.
 
 | Method and path | Success body | Current behavior |
 | --- | --- | --- |
@@ -343,4 +346,4 @@ App composition roots are `switchboard_api.deps`, `switchboard_media.events`, an
 
 ## Dashboard
 
-The Vue app polls same-origin `GET /v1/calls` for the live board and the call list, and loads `GET /v1/calls/{id}` for detail, unless `VITE_API_BASE_URL` is set. An unset base is relative. `npm run dev` and `npm run preview` proxy `/v1` to `http://127.0.0.1:8000`. The compose dashboard image proxies `/v1` to `http://api:8000`. A set base is called directly, and that origin has to be listed in `SWITCHBOARD_CORS_ORIGINS`. `VITE_OPS_DATA=mock` keeps the fixture adapter and does not call the network. The app uses the TypeScript mirror in `packages/schemas/ts`. It does not open Redis and it does not read Postgres. Live updates are polling (`SB-013`), default every 5 seconds (`VITE_LIVE_POLL_MS`). There is no dashboard WebSocket in 0.1.0. Campaign, system, and report screens stay on the mock adapter. The live board keeps rows whose `state` is `in_progress`. A mock call stays `ringing` until `POST /v1/telephony/status/mock` with `status: in_progress`.
+The Vue app polls same-origin `GET /v1/calls` for the live board and the call list, and loads `GET /v1/calls/{id}` for detail, unless `VITE_API_BASE_URL` is set. An unset base is relative. `npm run dev` and `npm run preview` proxy `/v1` to `http://127.0.0.1:8000`. The compose dashboard image proxies `/v1` to `http://api:8000` and forwards `X-Switchboard-Operator-Token`. A set base is called directly, and that origin has to be listed in `SWITCHBOARD_CORS_ORIGINS`. API-mode fetches send `X-Switchboard-Operator-Token` from `VITE_OPERATOR_TOKEN` (`apps/dashboard/src/data/apiConfig.ts`). Vite inlines that value when the dev server starts and when the image is built, so it has to match `SWITCHBOARD_OPERATOR_TOKEN`, and the dashboard image has to be rebuilt after the build arg changes. The local placeholder is `dev-operator-token`. `VITE_OPS_DATA=mock` keeps the fixture adapter, does not send the header, and does not call the network. The app uses the TypeScript mirror in `packages/schemas/ts`. It does not open Redis and it does not read Postgres. Live updates are polling (`SB-013`), default every 5 seconds (`VITE_LIVE_POLL_MS`). There is no dashboard WebSocket in 0.1.0. Campaign, system, and report screens stay on the mock adapter. The live board keeps rows whose `state` is `in_progress`. A mock call stays `ringing` until `POST /v1/telephony/status/mock` with `status: in_progress`.

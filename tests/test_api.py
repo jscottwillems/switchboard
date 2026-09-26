@@ -10,7 +10,9 @@ from switchboard_api.settings import get_settings
 from switchboard_schemas.common import SWITCHBOARD_ID_NAMESPACE
 from switchboard_telephony import MOCK_SIGNATURE_HEADER, MOCK_SIGNATURE_VALUE
 
-client = TestClient(app)
+from tests.operator_support import OPERATOR_HEADERS
+
+client = TestClient(app, headers=OPERATOR_HEADERS)
 
 VOICE = {
     "provider_call_id": "demo-1",

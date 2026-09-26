@@ -37,6 +37,9 @@ services:
       SWITCHBOARD_ENV: dev
       SWITCHBOARD_DEV_WEBHOOK_BYPASS: "1"
       SWITCHBOARD_INTERNAL_TOKEN: dev-internal-token
+      # Local placeholder. The dashboard build arg must match. Not a production secret.
+      # Bypass stays unset so phone LAN reads still present this token.
+      SWITCHBOARD_OPERATOR_TOKEN: dev-operator-token
       # Direct browser calls to port 8000. The dashboard origin proxies /v1, so a
       # phone does not need its LAN address on this list. Do not use *.
       SWITCHBOARD_CORS_ORIGINS: http://localhost:5173
@@ -126,6 +129,8 @@ services:
       dockerfile: apps/dashboard/Dockerfile
       args:
         VITE_API_BASE_URL: ""
+        # Baked into the JS bundle. Must match the API token above.
+        VITE_OPERATOR_TOKEN: dev-operator-token
     ports:
       - "5173:80"
     depends_on:

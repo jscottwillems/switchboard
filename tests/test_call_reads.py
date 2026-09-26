@@ -27,8 +27,9 @@ from switchboard_telephony import MOCK_SIGNATURE_HEADER, MOCK_SIGNATURE_VALUE
 
 from tests.db_support import database_url as configured_database_url
 from tests.db_support import truncate_records
+from tests.operator_support import OPERATOR_HEADERS
 
-client = TestClient(app)
+client = TestClient(app, headers=OPERATOR_HEADERS)
 
 NOW = datetime(2026, 9, 25, 20, 0, tzinfo=timezone.utc)
 DEV_OPERATOR_ID = UUID("00000000-0000-4000-8000-000000000001")

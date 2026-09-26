@@ -38,7 +38,7 @@ JSON names are snake_case, matching the TypeScript mirror in `packages/schemas/t
 
 ## HTTP binding (SB-013)
 
-When `VITE_OPS_DATA` is not `mock`:
+When `VITE_OPS_DATA` is not `mock`, the call fetches below send `X-Switchboard-Operator-Token` from `VITE_OPERATOR_TOKEN`. The mock adapter does not send it and does not call the network.
 
 | Screen | Request | What the adapter fills |
 | --- | --- | --- |

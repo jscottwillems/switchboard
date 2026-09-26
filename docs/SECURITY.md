@@ -38,11 +38,12 @@ Postgres and Redis are not exposed to the caller. In the local compose file thei
 - Stream tokens last 60 seconds, are bound to one `call_session_id`, and are single-use in the target store. The skeleton store is process memory and is not single-use. `SB-014` replaces it before any non-local deployment.
 - The media gateway accepts a socket only after the API reports `valid: true`. The skeleton checks only that the query string is non-empty. That is a known gap.
 - Internal routes require the internal token. Comparison uses `hmac.compare_digest` on UTF-8 bytes.
+- Operator read routes require `SWITCHBOARD_OPERATOR_TOKEN`, also compared with `hmac.compare_digest`. The primary header is `X-Switchboard-Operator-Token`. `Authorization: Bearer <token>` is accepted only when that header is absent or blank. `SWITCHBOARD_DEV_OPERATOR_BYPASS=1` is honored only when `SWITCHBOARD_ENV` is exactly `dev`. A missing or blank token rejects every gated read with `401 operator_unauthorized`, including in dev, unless that bypass is on. The API process stays up so health, webhooks, and internal routes still answer.
 - The platform places no outbound calls. It does not fetch URLs that appear in transcripts. It does not execute caller instructions.
 - Audio frames are not written to Redis, Postgres, or logs in the MVP.
 - Logs pass through `safe_fields`. Dropped keys include `audio`, `authorization`, `payload`, `payload_b64`, `raw_body`, `stream_token`, and `token`.
 - Validation errors return `invalid_request` and do not echo the submitted body.
-- Dashboard access is operator-only before any deployment beyond a trusted LAN. The skeleton has no login. The compose dashboard proxies `/v1` to the API so a browser can use one origin. That proxy is not authentication. Do not publish port 5173 or 8000 to an untrusted network as if that were access control.
+- Dashboard access is operator-only before any deployment beyond a trusted LAN. API-mode fetches send `X-Switchboard-Operator-Token` from `VITE_OPERATOR_TOKEN`. The compose dashboard proxies `/v1` to the API so a browser can use one origin and forwards that header. The proxy is not a substitute for the token. There is no per-operator login. Do not publish port 5173 or 8000 with the placeholder token.
 - Secrets come from the environment. The repository holds `.env.example` with local values only. The local Postgres password `switchboard` is a development default, not a production secret.
 - Caller numbers are confidential. They may be spoofed victim numbers. They are not demo data for screenshots outside the operator team.
 - Findings stay `proposed` until an explicit accept or reject. Acceptance is not inferred from confidence.
@@ -57,7 +58,7 @@ Postgres and Redis are not exposed to the caller. In the local compose file thei
 | Audio | Sensitive media | Not retained |
 | Transcript text | Sensitive observation | `obs.transcript_segment` |
 | Findings and attributions | Sensitive interpretation | Separate tables, confidence required |
-| Stream tokens and internal token | Secret | Memory or Redis. Never logged |
+| Stream tokens, internal token, and operator token | Secret | Memory or Redis for stream tokens. Environment for the other two. Never logged |
 
 ## Retention
 
@@ -74,6 +75,9 @@ Transcript text is stored and displayed as text. It is not rendered as HTML that
 | `SWITCHBOARD_ENV` | `dev` | A non-dev name |
 | `SWITCHBOARD_DEV_WEBHOOK_BYPASS` | `1` | Unset |
 | `SWITCHBOARD_INTERNAL_TOKEN` | `dev-internal-token` | A random secret |
+| `SWITCHBOARD_OPERATOR_TOKEN` | `dev-operator-token` | A random secret, not the placeholder |
+| `SWITCHBOARD_DEV_OPERATOR_BYPASS` | Unset | Unset |
+| `VITE_OPERATOR_TOKEN` | `dev-operator-token` (dashboard build arg) | The same secret as `SWITCHBOARD_OPERATOR_TOKEN`. Rebuild the dashboard after it changes |
 | Postgres password | `switchboard` | A real secret, not in git |
 | Redis | No AUTH | AUTH and network policy |
 | Mock signature | `dev` | Provider verifier, fail closed |
@@ -87,8 +91,8 @@ SENTINEL owns closing these. They are recorded so nobody treats the stub as the 
 | Signature is checked after FastAPI has parsed the JSON body. | **Closed** for `POST /v1/telephony/voice/{provider}` and `POST /v1/telephony/status/{provider}`. An unsigned or invalid signature returns `401 webhook_unauthorized` before a schema error. The app still reads the body through the framework; a reverse proxy has to enforce the same cap first. |
 | Stream tokens are process-local, reusable, and not stored in Redis. | **Open.** `SB-014`. The in-memory store still returns `valid: true` on a second validate. |
 | The media socket does not call the validate route. | **Open** for authentication (`SB-004`). **Closed** for byte accounting: each received frame is passed to `admit_frame` and a deny closes the socket with `1008`. That is not a token check. |
-| The read API and the dashboard have no operator authentication. | **Open.** |
-| Internal token comparison is constant-time, and the rest of the auth story is not built. | **Open.** Comparison was already constant-time. Operator sessions are not. |
+| The read API and the dashboard have no operator authentication. | **Closed.** `GET /v1/calls`, call detail, transcript, findings, attributions, `GET /v1/campaigns`, and campaign detail require `switchboard_api.operator_auth`. The dashboard API client sends `X-Switchboard-Operator-Token` from `VITE_OPERATOR_TOKEN`. `VITE_OPS_DATA=mock` does not call the API. Carrier webhooks, `GET /health`, and internal routes are not gated by this credential. There is still no per-operator login. The value in the built JavaScript is visible to anyone who can load the dashboard. |
+| Internal token comparison is constant-time, and the rest of the auth story is not built. | **Partially closed.** Internal and operator tokens both use `hmac.compare_digest`. Operator auth is a shared token, not a session or SSO. |
 | There is no rate limit on the webhook. | **Closed** in-process. Voice and status share a per-client-host window, default 600 events per minute, plus a 1 MiB body cap (`413` / `429`). The limiter is not shared across API processes. |
 | `Health` does not check dependencies, so a load balancer that only hits `/health` will not notice a down database. | **Partially closed.** `SWITCHBOARD_HEALTH_PROBES=1` makes `GET /health` return `503 dependencies_unavailable` when Postgres or Redis refuses TCP. The flag is off in compose, because the apps still do not open those clients (`SB-017`). A load balancer on the default compose file still only sees process liveness. |
 
@@ -178,7 +182,7 @@ Residuals, left **open**:
 | Attacker | Anyone who can open the operator UI or call the read API |
 | Required control | Operator authentication before any deployment beyond localhost. Transcript and finding text render as text. The UI does not dial numbers or open URLs from findings. |
 
-**This pass.** **Open.** The read API and the Vue stub have no login. Do not publish port 5173 or 8000 as if that were access control.
+**This pass.** **Closed** for the shared operator token on the read API and the dashboard HTTP client. Missing, blank, or wrong credentials are `401 operator_unauthorized`. Outside `SWITCHBOARD_ENV=dev`, `SWITCHBOARD_DEV_OPERATOR_BYPASS` is ignored. The token is a shared secret in the dashboard build (`VITE_OPERATOR_TOKEN`). Anyone who can read that JavaScript can present it. That is the LAN credential, not a per-operator login. Do not publish port 5173 or 8000 with the placeholder token.
 
 ### Authentication
 
@@ -186,9 +190,9 @@ Residuals, left **open**:
 | --- | --- |
 | Asset | Stream tokens, the internal token, and the webhook credential |
 | Attacker | A reader of logs, a replayer of tokens, or a client who sets the dev bypass outside dev |
-| Required control | Stream tokens last 60 seconds, bind to one `call_session_id`, and are single-use. Internal routes compare `X-Switchboard-Internal-Token` with `hmac.compare_digest`. The dev webhook bypass is ignored unless `SWITCHBOARD_ENV=dev`. Tokens and signature values are not logged. |
+| Required control | Stream tokens last 60 seconds, bind to one `call_session_id`, and are single-use. Internal routes compare `X-Switchboard-Internal-Token` with `hmac.compare_digest`. Operator read routes compare `X-Switchboard-Operator-Token` the same way. The dev webhook bypass and the dev operator bypass are ignored unless `SWITCHBOARD_ENV=dev`. Tokens and signature values are not logged. |
 
-**This pass.** Bypass fail-closed behavior was already in the skeleton and remains. Internal comparison was already constant-time. Stream tokens are **open** (`SB-014`): the store is process memory, the TTL is 60 seconds, and a second validate still returns `valid: true`.
+**This pass.** Webhook bypass fail-closed behavior was already in the skeleton and remains. Operator bypass uses the same rule. Internal and operator comparison are constant-time. Stream tokens are **open** (`SB-014`): the store is process memory, the TTL is 60 seconds, and a second validate still returns `valid: true`.
 
 ### External APIs
 
@@ -242,7 +246,7 @@ Implementers check these before treating a ticket as done:
 8. Audio bytes pass `admit_frame` (or the same `CallBudget` rules) before they are buffered. Rejected audio is not counted toward the total.
 9. Transcript and prompt length checks run before any model call. Model output is stored as data, with a citation, in `interp`.
 10. No code path fetches a URL or dials a number taken from a transcript, a finding, or a model response.
-11. Read APIs and the dashboard require an operator session before a non-local deploy.
+11. Read APIs require the operator token (`X-Switchboard-Operator-Token`, or `Authorization: Bearer` when that header is absent) compared with `hmac.compare_digest` to `SWITCHBOARD_OPERATOR_TOKEN`. The dashboard sends `VITE_OPERATOR_TOKEN` on API-mode fetches. `SWITCHBOARD_DEV_OPERATOR_BYPASS=1` is ignored unless `SWITCHBOARD_ENV` is exactly `dev`. A missing token is `401 operator_unauthorized`, including outside dev. Tests that change these flags call `get_settings.cache_clear()`.
 12. Health probes stay opt-in until the apps open real Postgres and Redis clients. A probe failure is `503`, not a stack trace.
 13. Tests that change env flags call `get_settings.cache_clear()` and restore the previous values.
 

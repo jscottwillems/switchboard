@@ -7,6 +7,7 @@ REDACTED_KEYS = frozenset(
     {
         "audio",
         "authorization",
+        "operator_token",
         "payload",
         "payload_b64",
         "raw_body",

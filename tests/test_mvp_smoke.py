@@ -37,7 +37,9 @@ from switchboard_schemas.enums import CallState, EventType, FindingKind, Finding
 from switchboard_schemas.events import EventEnvelope
 from switchboard_telephony import MOCK_SIGNATURE_HEADER, MOCK_SIGNATURE_VALUE
 
-api = TestClient(api_app)
+from tests.operator_support import OPERATOR_HEADERS
+
+api = TestClient(api_app, headers=OPERATOR_HEADERS)
 media = TestClient(media_app)
 
 CALLBACK_NUMBER = "+15551234567"
