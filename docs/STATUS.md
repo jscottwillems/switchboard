@@ -826,3 +826,34 @@ SB-013. The ops dashboard reads stored calls from the API. Campaigns, system, an
 - ATLAS: campaign list and detail reads before the dashboard can label an attribution with anything but the campaign id.
 - A list field for `external_call_id`, or a history column that stops expecting it, if operators need the carrier id without opening the call.
 - SENTINEL: operator authentication before any shared deployment of port 8000 or the dashboard.
+
+## HANDOFF — SHERLOCK — 2026-09-26T00:11:01Z
+
+### Completed
+
+- `tests/fixtures/scam_calls/kayla_personal_loan.json` stores Josh's personal-loan callback sample as text. The transcript wording is unchanged, including the spoken `888-269-4564` (three times) and `Press 2`. Metadata: `scenario` `personal_loan_callback`, `callback_e164` `+18882694564`, `callback_pattern` `press_2_or_call_back`. `live_carrier_call` is false. No carrier session was placed.
+- `tests/test_e164_extractor.py` loads that file. The closing line, with `is_final` true and each spoken callback rewritten to `+18882694564`, yields one proposed `callback_number` citing that segment. The earlier spoken text yields none. The stored transcript itself contains no E.164 token, so the extractor still returns nothing for that string alone.
+- Loki on this tree (`packages/conversation`) has no synthetic scenario fixtures. `cursor/loki-conversation-eval-c5a2` still holds the unmerged `scenarios.json`, and this change does not add a turn to that file.
+
+### Files changed
+
+- `tests/fixtures/scam_calls/kayla_personal_loan.json`
+- `tests/test_e164_extractor.py`
+- `docs/STATUS.md`
+
+### Interfaces added-changed
+
+- None. `E164FindingExtractor` still proposes `callback_number` only for a literal E.164 token.
+
+### Tests
+
+- `tests/test_e164_extractor.py::test_kayla_personal_loan_e164_in_final_segment_proposes_callback`
+
+### Blocking issues
+
+- None for the fixture. Spoken `888-269-4564` is still not an E.164 finding until a final segment contains `+18882694564`.
+
+### Recommended next work
+
+- A later LOKI change can reference this fixture once a scenario corpus exists on main.
+- WATSON and CLERK are unchanged.

@@ -1,0 +1,11 @@
+{
+  "id": "kayla_personal_loan",
+  "source": "josh_real_world_sample",
+  "live_carrier_call": false,
+  "scenario": "personal_loan_callback",
+  "callback_spoken": "888-269-4564",
+  "callback_e164": "+18882694564",
+  "press_digit": "2",
+  "callback_pattern": "press_2_or_call_back",
+  "transcript": "Hi, this is Kayla, senior loan specialist.  I saw you were previously looking into a personal loan, and there may be another building option worth reviewing with you.  The numbers could look a little different this time around.  before moving forward, I'd like to take a couple of minutes to go over what may be available.  Press 2 now or call me at 888-269-4564. Again, this is Kayla Davis.  I wanted to make sure you had a chance to review this before moving on from the personal loan you previously considered.  We're looking at options around $45,000, and I'd like to go over the numbers with you and see what may be available after lender review.  A quick conversation should give us a much better idea.  Call me at 888-269-4564 again, 888-269-4564."
+}
